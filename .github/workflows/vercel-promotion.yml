@@ -60,7 +60,7 @@ jobs:
         vercel-args: '--env NODE_ENV=preview --env PRISMA_CLIENT_ENGINE_TYPE=wasm'
 
     - name: Comment PR with preview URL
-      uses: actions/github-script@v7
+      uses: actions/github-script@v9
       with:
         script: |
           const { data: deployments } = await github.rest.repos.listDeployments({

@@ -44,7 +44,7 @@ jobs:
           DEVELOPER_USERNAME: ${{ github.event.issue.user.login || github.event.client_payload.username }}
       
       - name: Create welcome comment
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const issue = context.payload.issue;

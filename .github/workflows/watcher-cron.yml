@@ -147,7 +147,7 @@ jobs:
 
       - name: Create Summary Issue
         if: ${{ needs.db-integrity-watcher.result == 'failure' || needs.api-contract-watcher.result == 'failure' || needs.ai-performance-watcher.result == 'failure' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const summary = `${{ steps.generate-summary.outputs.WATCHER_SUMMARY }}`;
