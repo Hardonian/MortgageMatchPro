@@ -49,7 +49,7 @@ jobs:
         SHADOW_PROJECT_REF: ${{ github.event.inputs.shadow_project_ref }}
 
     - name: Upload DR Report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: dr-report
         path: reports/dr/

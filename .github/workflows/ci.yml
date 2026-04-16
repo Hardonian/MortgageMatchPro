@@ -31,7 +31,7 @@ jobs:
         SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
 
     - name: Upload secrets scan report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: secrets-scan-report
@@ -66,7 +66,7 @@ jobs:
       run: node scripts/bundle-report.mjs --check
 
     - name: Upload bundle analysis report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: bundle-analysis-report
@@ -105,7 +105,7 @@ jobs:
         SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
 
     - name: Upload database reports
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: database-reports
@@ -184,7 +184,7 @@ jobs:
         SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
 
     - name: Upload E2E test results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: playwright-report
@@ -233,7 +233,7 @@ jobs:
       run: node scripts/healthcheck.js http://localhost:3000
 
     - name: Upload health check report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: health-check-report
@@ -290,7 +290,7 @@ jobs:
         k6 run --duration 60s --vus 10 scripts/load-test.js
 
     - name: Upload performance report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: performance-report
@@ -320,7 +320,7 @@ jobs:
         SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
 
     - name: Upload cost report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: cost-guard-report
@@ -354,7 +354,7 @@ jobs:
         SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: build-files
         path: .next/

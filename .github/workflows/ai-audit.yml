@@ -145,7 +145,7 @@ jobs:
         run: npx ts-node scripts/futurecheck.ts
 
       - name: Upload Future Check Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: futurecheck-report
           path: futurecheck-report.md
@@ -204,7 +204,7 @@ jobs:
           "
 
       - name: Upload Privacy Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: privacy-report
           path: privacy-report.md
