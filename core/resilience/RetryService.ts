@@ -3,7 +3,7 @@
  * Implements retry logic with exponential backoff and jitter
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 
 // Retry configuration schema
 export const RetryConfigSchema = z.object({
@@ -12,7 +12,7 @@ export const RetryConfigSchema = z.object({
   maxDelay: z.number().min(1000).default(30000), // milliseconds
   backoffMultiplier: z.number().min(1).default(2),
   jitter: z.boolean().default(true),
-  retryCondition: z.function().optional()
+  retryCondition: z.function().optional(),
 });
 
 export type RetryConfig = z.infer<typeof RetryConfigSchema>;
@@ -24,7 +24,7 @@ export const RetryResultSchema = z.object({
   error: z.any().optional(),
   attempts: z.number(),
   totalTime: z.number(),
-  lastError: z.any().optional()
+  lastError: z.any().optional(),
 });
 
 export type RetryResult<T> = {
@@ -53,7 +53,7 @@ export class RetryService {
     const config = { ...this.config, ...customConfig };
     const startTime = Date.now();
     let lastError: any;
-    
+
     for (let attempt = 1; attempt <= config.maxAttempts; attempt++) {
       try {
         const result = await fn();
@@ -61,33 +61,33 @@ export class RetryService {
           success: true,
           result,
           attempts: attempt,
-          totalTime: Date.now() - startTime
+          totalTime: Date.now() - startTime,
         };
       } catch (error) {
         lastError = error;
-        
+
         // Check if we should retry this error
         if (config.retryCondition && !config.retryCondition(error)) {
           break;
         }
-        
+
         // Don't retry on the last attempt
         if (attempt === config.maxAttempts) {
           break;
         }
-        
+
         // Calculate delay with exponential backoff and jitter
         const delay = this.calculateDelay(attempt, config);
         await this.sleep(delay);
       }
     }
-    
+
     return {
       success: false,
       error: lastError,
       lastError,
       attempts: config.maxAttempts,
-      totalTime: Date.now() - startTime
+      totalTime: Date.now() - startTime,
     };
   }
 
@@ -99,11 +99,11 @@ export class RetryService {
     customConfig?: Partial<RetryConfig>
   ): Promise<T> {
     const result = await this.execute(fn, customConfig);
-    
+
     if (result.success) {
       return result.result!;
     }
-    
+
     throw result.error || result.lastError;
   }
 
@@ -116,11 +116,11 @@ export class RetryService {
     customConfig?: Partial<RetryConfig>
   ): Promise<T> {
     const result = await this.execute(fn, customConfig);
-    
+
     if (result.success) {
       return result.result!;
     }
-    
+
     return await fallback();
   }
 
@@ -129,18 +129,19 @@ export class RetryService {
    */
   private calculateDelay(attempt: number, config: RetryConfig): number {
     // Calculate exponential backoff
-    let delay = config.baseDelay * Math.pow(config.backoffMultiplier, attempt - 1);
-    
+    let delay =
+      config.baseDelay * Math.pow(config.backoffMultiplier, attempt - 1);
+
     // Apply maximum delay limit
     delay = Math.min(delay, config.maxDelay);
-    
+
     // Add jitter to prevent thundering herd
     if (config.jitter) {
       const jitterRange = delay * 0.1; // 10% jitter
       const jitter = (Math.random() - 0.5) * 2 * jitterRange;
       delay += jitter;
     }
-    
+
     return Math.max(0, delay);
   }
 
@@ -148,7 +149,7 @@ export class RetryService {
    * Sleep utility
    */
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**
@@ -205,35 +206,35 @@ export const RetryConfigs = {
     baseDelay: 100,
     maxDelay: 1000,
     backoffMultiplier: 2,
-    jitter: true
+    jitter: true,
   },
-  
+
   // Standard retry for most operations
   standard: {
     maxAttempts: 3,
     baseDelay: 1000,
     maxDelay: 10000,
     backoffMultiplier: 2,
-    jitter: true
+    jitter: true,
   },
-  
+
   // Slow retry for expensive operations
   slow: {
     maxAttempts: 5,
     baseDelay: 2000,
     maxDelay: 30000,
     backoffMultiplier: 2,
-    jitter: true
+    jitter: true,
   },
-  
+
   // Aggressive retry for critical operations
   aggressive: {
     maxAttempts: 10,
     baseDelay: 500,
     maxDelay: 5000,
     backoffMultiplier: 1.5,
-    jitter: true
-  }
+    jitter: true,
+  },
 };
 
 // Singleton instance

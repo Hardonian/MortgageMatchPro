@@ -1,25 +1,27 @@
-import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Text, Card, Avatar, Badge, useTheme } from 'react-native-paper';
-import { Lead } from '../../types';
-import { spacing } from '../../constants/theme';
+import React from "react";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { Text, Card, Avatar, Badge, useTheme } from "react-native-paper";
+import { Lead } from "../../types";
+import { spacing } from "../../constants/theme";
 
 interface RecentActivityCardProps {
   leads: Lead[];
 }
 
-export const RecentActivityCard: React.FC<RecentActivityCardProps> = ({ leads }) => {
+export const RecentActivityCard: React.FC<RecentActivityCardProps> = ({
+  leads,
+}) => {
   const { theme } = useTheme();
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'converted':
+      case "converted":
         return theme.colors.secondary;
-      case 'contacted':
+      case "contacted":
         return theme.colors.primary;
-      case 'pending':
-        return '#f59e0b';
-      case 'rejected':
+      case "pending":
+        return "#f59e0b";
+      case "rejected":
         return theme.colors.error;
       default:
         return theme.colors.onSurfaceVariant;
@@ -28,27 +30,28 @@ export const RecentActivityCard: React.FC<RecentActivityCardProps> = ({ leads })
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'converted':
-        return '✓';
-      case 'contacted':
-        return '📞';
-      case 'pending':
-        return '⏳';
-      case 'rejected':
-        return '✗';
+      case "converted":
+        return "✓";
+      case "contacted":
+        return "📞";
+      case "pending":
+        return "⏳";
+      case "rejected":
+        return "✗";
       default:
-        return '?';
+        return "?";
     }
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    if (diffInHours < 48) return 'Yesterday';
+    const diffInHours = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+
+    if (diffInHours < 1) {return 'Just now';}
+    if (diffInHours < 24) {return `${diffInHours}h ago`;}
+    if (diffInHours < 48) {return 'Yesterday';}
     return date.toLocaleDateString();
   };
 
@@ -63,7 +66,9 @@ export const RecentActivityCard: React.FC<RecentActivityCardProps> = ({ leads })
             <TouchableOpacity
               key={lead.id}
               style={styles.leadItem}
-              onPress={() => {/* Navigate to lead details */}}
+              onPress={() => {
+                /* Navigate to lead details */
+              }}
             >
               <Avatar.Text
                 size={40}
@@ -71,13 +76,25 @@ export const RecentActivityCard: React.FC<RecentActivityCardProps> = ({ leads })
                 style={{ backgroundColor: theme.colors.primaryContainer }}
               />
               <View style={styles.leadInfo}>
-                <Text style={[styles.leadName, { color: theme.colors.onSurface }]}>
+                <Text
+                  style={[styles.leadName, { color: theme.colors.onSurface }]}
+                >
                   {lead.name}
                 </Text>
-                <Text style={[styles.leadEmail, { color: theme.colors.onSurfaceVariant }]}>
+                <Text
+                  style={[
+                    styles.leadEmail,
+                    { color: theme.colors.onSurfaceVariant },
+                  ]}
+                >
                   {lead.email}
                 </Text>
-                <Text style={[styles.leadTime, { color: theme.colors.onSurfaceVariant }]}>
+                <Text
+                  style={[
+                    styles.leadTime,
+                    { color: theme.colors.onSurfaceVariant },
+                  ]}
+                >
                   {formatDate(lead.createdAt)}
                 </Text>
               </View>
@@ -85,12 +102,17 @@ export const RecentActivityCard: React.FC<RecentActivityCardProps> = ({ leads })
                 <Badge
                   style={[
                     styles.statusBadge,
-                    { backgroundColor: getStatusColor(lead.status) }
+                    { backgroundColor: getStatusColor(lead.status) },
                   ]}
                 >
                   {getStatusIcon(lead.status)}
                 </Badge>
-                <Text style={[styles.leadScore, { color: theme.colors.onSurfaceVariant }]}>
+                <Text
+                  style={[
+                    styles.leadScore,
+                    { color: theme.colors.onSurfaceVariant },
+                  ]}
+                >
                   Score: {lead.leadScore}
                 </Text>
               </View>
@@ -99,7 +121,12 @@ export const RecentActivityCard: React.FC<RecentActivityCardProps> = ({ leads })
         </View>
         {leads.length === 0 && (
           <View style={styles.emptyState}>
-            <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
+            <Text
+              style={[
+                styles.emptyText,
+                { color: theme.colors.onSurfaceVariant },
+              ]}
+            >
               No recent activity
             </Text>
           </View>
@@ -116,15 +143,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: spacing.md,
   },
   leadsList: {
     gap: spacing.sm,
   },
   leadItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: spacing.sm,
   },
   leadInfo: {
@@ -133,7 +160,7 @@ const styles = StyleSheet.create({
   },
   leadName: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
     marginBottom: 2,
   },
   leadEmail: {
@@ -144,7 +171,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   leadStatus: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
   statusBadge: {
     marginBottom: spacing.xs,
@@ -153,7 +180,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   emptyState: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: spacing.lg,
   },
   emptyText: {

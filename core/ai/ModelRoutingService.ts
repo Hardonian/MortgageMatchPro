@@ -3,8 +3,8 @@
  * Auto-fallback, token management, and confidence calibration
  */
 
-import { z } from 'zod';
-import OpenAI from 'openai';
+import { z } from "zod";
+import OpenAI from "openai";
 
 // Model configuration schema
 export const ModelConfigSchema = z.object({
@@ -14,7 +14,7 @@ export const ModelConfigSchema = z.object({
   capabilities: z.array(z.string()),
   fallbackModels: z.array(z.string()),
   timeout: z.number().default(30000),
-  retryAttempts: z.number().default(3)
+  retryAttempts: z.number().default(3),
 });
 
 export type ModelConfig = z.infer<typeof ModelConfigSchema>;
@@ -23,10 +23,10 @@ export type ModelConfig = z.infer<typeof ModelConfigSchema>;
 export const RequestContextSchema = z.object({
   userId: z.string(),
   requestType: z.string(),
-  priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
+  priority: z.enum(["low", "medium", "high", "critical"]).default("medium"),
   budget: z.number().optional(),
   maxLatency: z.number().optional(),
-  requiredCapabilities: z.array(z.string()).default([])
+  requiredCapabilities: z.array(z.string()).default([]),
 });
 
 export type RequestContext = z.infer<typeof RequestContextSchema>;
@@ -42,7 +42,7 @@ export const ModelResponseSchema = z.object({
   reasoning: z.string().optional(),
   factors: z.array(z.string()).default([]),
   fallbackUsed: z.boolean().default(false),
-  retryCount: z.number().default(0)
+  retryCount: z.number().default(0),
 });
 
 export type ModelResponse = z.infer<typeof ModelResponseSchema>;
@@ -53,7 +53,7 @@ export const ConfidenceCalibrationSchema = z.object({
   predictedConfidence: z.number(),
   actualAccuracy: z.number(),
   sampleSize: z.number(),
-  lastUpdated: z.string()
+  lastUpdated: z.string(),
 });
 
 export type ConfidenceCalibration = z.infer<typeof ConfidenceCalibrationSchema>;
@@ -68,7 +68,7 @@ export class ModelRoutingService {
 
   private constructor() {
     this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
+      apiKey: process.env.OPENAI_API_KEY,
     });
     this.initializeModelConfigs();
     this.loadConfidenceCalibration();
@@ -94,7 +94,7 @@ export class ModelRoutingService {
     } = {}
   ): Promise<ModelResponse> {
     const startTime = Date.now();
-    
+
     try {
       // Check cache first
       const cacheKey = this.generateCacheKey(prompt, context);
@@ -105,11 +105,17 @@ export class ModelRoutingService {
 
       // Select primary model
       const primaryModel = this.selectPrimaryModel(context, options);
-      
+
       // Check budget constraints
       if (!this.checkBudget(context.userId, primaryModel)) {
         const fallbackModel = this.selectFallbackModel(context, options);
-        return await this.executeWithFallback(prompt, fallbackModel, context, options, startTime);
+        return await this.executeWithFallback(
+          prompt,
+          fallbackModel,
+          context,
+          options,
+          startTime
+        );
       }
 
       // Execute with primary model
@@ -123,12 +129,17 @@ export class ModelRoutingService {
 
       // Cache successful response
       this.requestCache.set(cacheKey, response);
-      
-      return response;
 
+      return response;
     } catch (error) {
-      console.error('Model routing error:', error);
-      return await this.handleRoutingError(prompt, context, options, startTime, error);
+      console.error("Model routing error:", error);
+      return await this.handleRoutingError(
+        prompt,
+        context,
+        options,
+        startTime,
+        error
+      );
     }
   }
 
@@ -150,7 +161,7 @@ export class ModelRoutingService {
     try {
       const response = await this.executeModel(prompt, model, options);
       const confidence = await this.calculateConfidence(response, context);
-      
+
       return {
         content: response.content,
         confidence,
@@ -161,15 +172,24 @@ export class ModelRoutingService {
         reasoning: response.reasoning,
         factors: response.factors || [],
         fallbackUsed: true,
-        retryCount: 0
+        retryCount: 0,
       };
     } catch (error) {
       // Try fallback models
       for (const fallbackModel of modelConfig.fallbackModels) {
         try {
-          return await this.executeWithFallback(prompt, fallbackModel, context, options, startTime);
+          return await this.executeWithFallback(
+            prompt,
+            fallbackModel,
+            context,
+            options,
+            startTime
+          );
         } catch (fallbackError) {
-          console.warn(`Fallback model ${fallbackModel} failed:`, fallbackError);
+          console.warn(
+            `Fallback model ${fallbackModel} failed:`,
+            fallbackError
+          );
           continue;
         }
       }
@@ -186,7 +206,7 @@ export class ModelRoutingService {
     context: RequestContext,
     options: any,
     startTime: number,
-    retryCount: number = 0
+    retryCount = 0
   ): Promise<ModelResponse> {
     const modelConfig = this.modelConfigs.get(model);
     if (!modelConfig) {
@@ -196,7 +216,7 @@ export class ModelRoutingService {
     try {
       const response = await this.executeModel(prompt, model, options);
       const confidence = await this.calculateConfidence(response, context);
-      
+
       return {
         content: response.content,
         confidence,
@@ -207,13 +227,20 @@ export class ModelRoutingService {
         reasoning: response.reasoning,
         factors: response.factors || [],
         fallbackUsed: false,
-        retryCount
+        retryCount,
       };
     } catch (error) {
       if (retryCount < modelConfig.retryAttempts) {
         console.warn(`Retry ${retryCount + 1} for model ${model}:`, error);
         await this.delay(Math.pow(2, retryCount) * 1000); // Exponential backoff
-        return await this.executeWithRetry(prompt, model, context, options, startTime, retryCount + 1);
+        return await this.executeWithRetry(
+          prompt,
+          model,
+          context,
+          options,
+          startTime,
+          retryCount + 1
+        );
       }
       throw error;
     }
@@ -240,7 +267,9 @@ export class ModelRoutingService {
     // Check token limits
     const estimatedTokens = this.estimateTokens(prompt);
     if (estimatedTokens > modelConfig.maxTokens) {
-      throw new Error(`Prompt too long for model ${model}. Estimated: ${estimatedTokens}, Max: ${modelConfig.maxTokens}`);
+      throw new Error(
+        `Prompt too long for model ${model}. Estimated: ${estimatedTokens}, Max: ${modelConfig.maxTokens}`
+      );
     }
 
     const completion = await Promise.race([
@@ -248,30 +277,33 @@ export class ModelRoutingService {
         model,
         messages: [
           {
-            role: 'system',
-            content: options.includeExplanation 
-              ? 'Provide detailed explanations for your recommendations, including reasoning and key factors considered.'
-              : 'Provide clear, concise responses.'
+            role: "system",
+            content: options.includeExplanation
+              ? "Provide detailed explanations for your recommendations, including reasoning and key factors considered."
+              : "Provide clear, concise responses.",
           },
           {
-            role: 'user',
-            content: prompt
-          }
+            role: "user",
+            content: prompt,
+          },
         ],
-        max_tokens: Math.min(options.maxTokens || 1000, modelConfig.maxTokens - estimatedTokens),
-        temperature: options.temperature || 0.7
+        max_tokens: Math.min(
+          options.maxTokens || 1000,
+          modelConfig.maxTokens - estimatedTokens
+        ),
+        temperature: options.temperature || 0.7,
       }),
-      this.timeoutPromise(modelConfig.timeout)
+      this.timeoutPromise(modelConfig.timeout),
     ]);
 
-    const content = completion.choices[0].message.content || '';
+    const content = completion.choices[0].message.content || "";
     const tokens = completion.usage?.total_tokens || 0;
 
     return {
       content,
       tokens,
       reasoning: this.extractReasoning(content),
-      factors: this.extractFactors(content)
+      factors: this.extractFactors(content),
     };
   }
 
@@ -285,20 +317,33 @@ export class ModelRoutingService {
     let confidence = 0.5;
 
     // Base confidence on response quality
-    if (response.content.length > 100) confidence += 0.1;
-    if (response.content.length > 500) confidence += 0.1;
-    if (response.content.includes('because') || response.content.includes('due to')) confidence += 0.1;
+    if (response.content.length > 100) {
+      confidence += 0.1;
+    }
+    if (response.content.length > 500) {
+      confidence += 0.1;
+    }
+    if (
+      response.content.includes("because") ||
+      response.content.includes("due to")
+    ) {
+      confidence += 0.1;
+    }
 
     // Apply model-specific calibration
-    const calibration = this.confidenceCalibration.get('gpt-4o-mini');
+    const calibration = this.confidenceCalibration.get("gpt-4o-mini");
     if (calibration) {
-      const calibrationFactor = calibration.actualAccuracy / calibration.predictedConfidence;
+      const calibrationFactor =
+        calibration.actualAccuracy / calibration.predictedConfidence;
       confidence *= calibrationFactor;
     }
 
     // Adjust for context completeness
     if (context.requiredCapabilities.length > 0) {
-      const capabilityMatch = this.checkCapabilityMatch(response.content, context.requiredCapabilities);
+      const capabilityMatch = this.checkCapabilityMatch(
+        response.content,
+        context.requiredCapabilities
+      );
       confidence *= capabilityMatch;
     }
 
@@ -310,29 +355,29 @@ export class ModelRoutingService {
    */
   private selectPrimaryModel(context: RequestContext, options: any): string {
     // Priority-based selection
-    if (context.priority === 'critical') {
-      return 'gpt-4o';
+    if (context.priority === "critical") {
+      return "gpt-4o";
     }
-    
-    if (context.priority === 'high') {
-      return 'gpt-4o-mini';
+
+    if (context.priority === "high") {
+      return "gpt-4o-mini";
     }
 
     // Capability-based selection
-    if (context.requiredCapabilities.includes('reasoning')) {
-      return 'gpt-4o';
+    if (context.requiredCapabilities.includes("reasoning")) {
+      return "gpt-4o";
     }
 
-    if (context.requiredCapabilities.includes('speed')) {
-      return 'gpt-4o-mini';
+    if (context.requiredCapabilities.includes("speed")) {
+      return "gpt-4o-mini";
     }
 
     // Budget-based selection
     if (context.budget && context.budget < 0.01) {
-      return 'gpt-4o-mini';
+      return "gpt-4o-mini";
     }
 
-    return 'gpt-4o-mini'; // Default
+    return "gpt-4o-mini"; // Default
   }
 
   /**
@@ -341,12 +386,12 @@ export class ModelRoutingService {
   private selectFallbackModel(context: RequestContext, options: any): string {
     const primaryModel = this.selectPrimaryModel(context, options);
     const modelConfig = this.modelConfigs.get(primaryModel);
-    
+
     if (modelConfig && modelConfig.fallbackModels.length > 0) {
       return modelConfig.fallbackModels[0];
     }
-    
-    return 'gpt-4o-mini'; // Ultimate fallback
+
+    return "gpt-4o-mini"; // Ultimate fallback
   }
 
   /**
@@ -355,9 +400,11 @@ export class ModelRoutingService {
   private checkBudget(userId: string, model: string): boolean {
     const userBudget = this.budgetTracker.get(userId) || 0;
     const modelConfig = this.modelConfigs.get(model);
-    
-    if (!modelConfig) return false;
-    
+
+    if (!modelConfig) {
+      return false;
+    }
+
     // Simple budget check - in production, this would be more sophisticated
     return userBudget < 10.0; // $10 daily limit
   }
@@ -367,8 +414,10 @@ export class ModelRoutingService {
    */
   private calculateCost(tokens: number, model: string): number {
     const modelConfig = this.modelConfigs.get(model);
-    if (!modelConfig) return 0;
-    
+    if (!modelConfig) {
+      return 0;
+    }
+
     return (tokens / 1000) * modelConfig.costPer1kTokens;
   }
 
@@ -406,19 +455,20 @@ export class ModelRoutingService {
     startTime: number,
     error: any
   ): Promise<ModelResponse> {
-    console.error('Routing error:', error);
-    
+    console.error("Routing error:", error);
+
     return {
-      content: 'I apologize, but I encountered an error processing your request. Please try again.',
+      content:
+        "I apologize, but I encountered an error processing your request. Please try again.",
       confidence: 0.1,
-      model: 'error',
+      model: "error",
       tokens: 0,
       latency: Date.now() - startTime,
       cost: 0,
-      reasoning: 'Error occurred during processing',
-      factors: ['system_error'],
+      reasoning: "Error occurred during processing",
+      factors: ["system_error"],
       fallbackUsed: true,
-      retryCount: 0
+      retryCount: 0,
     };
   }
 
@@ -426,24 +476,24 @@ export class ModelRoutingService {
    * Initialize model configurations
    */
   private initializeModelConfigs(): void {
-    this.modelConfigs.set('gpt-4o', {
-      name: 'gpt-4o',
+    this.modelConfigs.set("gpt-4o", {
+      name: "gpt-4o",
       maxTokens: 4096,
       costPer1kTokens: 0.03,
-      capabilities: ['reasoning', 'analysis', 'explanation'],
-      fallbackModels: ['gpt-4o-mini'],
+      capabilities: ["reasoning", "analysis", "explanation"],
+      fallbackModels: ["gpt-4o-mini"],
       timeout: 30000,
-      retryAttempts: 3
+      retryAttempts: 3,
     });
 
-    this.modelConfigs.set('gpt-4o-mini', {
-      name: 'gpt-4o-mini',
+    this.modelConfigs.set("gpt-4o-mini", {
+      name: "gpt-4o-mini",
       maxTokens: 16384,
       costPer1kTokens: 0.0015,
-      capabilities: ['speed', 'efficiency'],
+      capabilities: ["speed", "efficiency"],
       fallbackModels: [],
       timeout: 15000,
-      retryAttempts: 2
+      retryAttempts: 2,
     });
   }
 
@@ -452,12 +502,12 @@ export class ModelRoutingService {
    */
   private loadConfidenceCalibration(): void {
     // In production, this would load from database
-    this.confidenceCalibration.set('gpt-4o-mini', {
-      model: 'gpt-4o-mini',
+    this.confidenceCalibration.set("gpt-4o-mini", {
+      model: "gpt-4o-mini",
       predictedConfidence: 0.8,
       actualAccuracy: 0.85,
       sampleSize: 1000,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     });
   }
 
@@ -465,8 +515,12 @@ export class ModelRoutingService {
    * Extract reasoning from response
    */
   private extractReasoning(content: string): string {
-    const reasoningMatch = content.match(/reasoning[:\\s]+(.*?)(?:\\n\\n|\\n$|$)/i);
-    return reasoningMatch ? reasoningMatch[1].trim() : 'Analysis based on provided context.';
+    const reasoningMatch = content.match(
+      /reasoning[:\\s]+(.*?)(?:\\n\\n|\\n$|$)/i
+    );
+    return reasoningMatch
+      ? reasoningMatch[1].trim()
+      : "Analysis based on provided context.";
   }
 
   /**
@@ -474,34 +528,56 @@ export class ModelRoutingService {
    */
   private extractFactors(content: string): string[] {
     const factors: string[] = [];
-    
-    if (content.includes('income') || content.includes('affordability')) factors.push('income_analysis');
-    if (content.includes('credit') || content.includes('score')) factors.push('credit_assessment');
-    if (content.includes('risk') || content.includes('tolerance')) factors.push('risk_evaluation');
-    if (content.includes('rate') || content.includes('interest')) factors.push('rate_consideration');
-    if (content.includes('market') || content.includes('trend')) factors.push('market_conditions');
-    
-    return factors.length > 0 ? factors : ['general_analysis'];
+
+    if (content.includes("income") || content.includes("affordability")) {
+      factors.push("income_analysis");
+    }
+    if (content.includes("credit") || content.includes("score")) {
+      factors.push("credit_assessment");
+    }
+    if (content.includes("risk") || content.includes("tolerance")) {
+      factors.push("risk_evaluation");
+    }
+    if (content.includes("rate") || content.includes("interest")) {
+      factors.push("rate_consideration");
+    }
+    if (content.includes("market") || content.includes("trend")) {
+      factors.push("market_conditions");
+    }
+
+    return factors.length > 0 ? factors : ["general_analysis"];
   }
 
   /**
    * Check capability match
    */
-  private checkCapabilityMatch(content: string, requiredCapabilities: string[]): number {
+  private checkCapabilityMatch(
+    content: string,
+    requiredCapabilities: string[]
+  ): number {
     let match = 0;
-    
+
     for (const capability of requiredCapabilities) {
-      if (capability === 'reasoning' && (content.includes('because') || content.includes('therefore'))) {
+      if (
+        capability === "reasoning" &&
+        (content.includes("because") || content.includes("therefore"))
+      ) {
         match += 1;
       }
-      if (capability === 'analysis' && (content.includes('analysis') || content.includes('compare'))) {
+      if (
+        capability === "analysis" &&
+        (content.includes("analysis") || content.includes("compare"))
+      ) {
         match += 1;
       }
-      if (capability === 'explanation' && (content.includes('explain') || content.includes('details'))) {
+      if (
+        capability === "explanation" &&
+        (content.includes("explain") || content.includes("details"))
+      ) {
         match += 1;
       }
     }
-    
+
     return match / requiredCapabilities.length;
   }
 
@@ -512,7 +588,7 @@ export class ModelRoutingService {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
     return Math.abs(hash).toString(36);
@@ -522,7 +598,7 @@ export class ModelRoutingService {
    * Delay utility
    */
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**
@@ -530,7 +606,7 @@ export class ModelRoutingService {
    */
   private timeoutPromise(ms: number): Promise<never> {
     return new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Request timeout')), ms);
+      setTimeout(() => reject(new Error("Request timeout")), ms);
     });
   }
 
@@ -547,13 +623,15 @@ export class ModelRoutingService {
       predictedConfidence,
       actualAccuracy,
       sampleSize: 1,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     };
-    
+
     this.confidenceCalibration.set(model, calibration);
-    
+
     // In production, this would save to database
-    console.log(`Updated confidence calibration for ${model}: ${actualAccuracy}/${predictedConfidence}`);
+    console.log(
+      `Updated confidence calibration for ${model}: ${actualAccuracy}/${predictedConfidence}`
+    );
   }
 
   /**
@@ -561,16 +639,18 @@ export class ModelRoutingService {
    */
   getModelStatistics(): Record<string, any> {
     const stats: Record<string, any> = {};
-    
+
     for (const [model, config] of this.modelConfigs) {
       const calibration = this.confidenceCalibration.get(model);
       stats[model] = {
         config,
         calibration,
-        cacheSize: Array.from(this.requestCache.keys()).filter(key => key.includes(model)).length
+        cacheSize: Array.from(this.requestCache.keys()).filter((key) =>
+          key.includes(model)
+        ).length,
       };
     }
-    
+
     return stats;
   }
 }

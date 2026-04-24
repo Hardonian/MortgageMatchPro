@@ -1,25 +1,28 @@
-'use client'
+'use client';
 
-import React, { useState, useEffect } from 'react'
-import { AffordabilityInputPanel, AffordabilityInput } from '@/components/canvas/AffordabilityInputPanel'
-import { ScenarioInputPanel } from '@/components/canvas/ScenarioInputPanel'
-import { ScenarioComparisonChart } from '@/components/canvas/ScenarioComparisonChart'
-import { RateComparisonTable } from '@/components/canvas/RateComparisonTable'
-import { AmortizationChart } from '@/components/canvas/AmortizationChart'
-import { LeadGenModal, LeadFormData } from '@/components/canvas/LeadGenModal'
-import GlobalExpansionDashboard from '@/components/dashboard/GlobalExpansionDashboard'
-import { useMortgageStore } from '@/store/mortgageStore'
-import { useAuth } from '@/lib/auth'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { 
-  Calculator, 
-  TrendingUp, 
-  BarChart3, 
-  Users, 
-  CheckCircle, 
+import React, { useState, useEffect } from 'react';
+import {
+  AffordabilityInputPanel,
+  AffordabilityInput,
+} from '@/components/canvas/AffordabilityInputPanel';
+import { ScenarioInputPanel } from '@/components/canvas/ScenarioInputPanel';
+import { ScenarioComparisonChart } from '@/components/canvas/ScenarioComparisonChart';
+import { RateComparisonTable } from '@/components/canvas/RateComparisonTable';
+import { AmortizationChart } from '@/components/canvas/AmortizationChart';
+import { LeadGenModal, LeadFormData } from '@/components/canvas/LeadGenModal';
+import GlobalExpansionDashboard from '@/components/dashboard/GlobalExpansionDashboard';
+import { useMortgageStore } from '@/store/mortgageStore';
+import { useAuth } from '@/lib/auth';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Calculator,
+  TrendingUp,
+  BarChart3,
+  Users,
+  CheckCircle,
   AlertCircle,
   Home,
   DollarSign,
@@ -33,16 +36,28 @@ import {
   Share2,
   Download,
   History,
-  Zap
-} from 'lucide-react'
-import { initAnalytics, trackCanvasOpen, trackAffordabilityCalculation, trackRateCheck, trackScenarioComparison, trackLeadSubmission, identifyUser } from '@/lib/analytics'
-import { initSentry, setUserContext, recordPerformanceMetrics } from '@/lib/monitoring'
-import { ScenarioResult, ScenarioComparison } from '@/lib/scenario-types'
-import { ScenarioManager } from '@/lib/scenario-manager'
-import { ExportService } from '@/lib/export-service'
+  Zap,
+} from 'lucide-react';
+import {
+  initAnalytics,
+  trackCanvasOpen,
+  trackAffordabilityCalculation,
+  trackRateCheck,
+  trackScenarioComparison,
+  trackLeadSubmission,
+  identifyUser,
+} from '@/lib/analytics';
+import {
+  initSentry,
+  setUserContext,
+  recordPerformanceMetrics,
+} from '@/lib/monitoring';
+import { ScenarioResult, ScenarioComparison } from '@/lib/scenario-types';
+import { ScenarioManager } from '@/lib/scenario-manager';
+import { ExportService } from '@/lib/export-service';
 
 export default function MortgageMatchPro() {
-  const { user, signOut } = useAuth()
+  const { user, signOut } = useAuth();
   const {
     currentAffordability,
     rateResults,
@@ -57,29 +72,30 @@ export default function MortgageMatchPro() {
     setLoading,
     setError,
     clearError,
-  } = useMortgageStore()
+  } = useMortgageStore();
 
-  const [activeTab, setActiveTab] = useState('scenarios')
-  const [showLeadModal, setShowLeadModal] = useState(false)
-  const [showDashboard, setShowDashboard] = useState(false)
-  const [showGlobalDashboard, setShowGlobalDashboard] = useState(false)
-  const [showPrivacySettings, setShowPrivacySettings] = useState(false)
-  const [scenarioResults, setScenarioResults] = useState<ScenarioResult[]>([])
-  const [scenarioComparison, setScenarioComparison] = useState<ScenarioComparison | null>(null)
-  const [showAIInsights, setShowAIInsights] = useState(false)
-  const [isExporting, setIsExporting] = useState(false)
+  const [activeTab, setActiveTab] = useState('scenarios');
+  const [showLeadModal, setShowLeadModal] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
+  const [showGlobalDashboard, setShowGlobalDashboard] = useState(false);
+  const [showPrivacySettings, setShowPrivacySettings] = useState(false);
+  const [scenarioResults, setScenarioResults] = useState<ScenarioResult[]>([]);
+  const [scenarioComparison, setScenarioComparison] =
+    useState<ScenarioComparison | null>(null);
+  const [showAIInsights, setShowAIInsights] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
-  const scenarioManager = new ScenarioManager()
-  const exportService = new ExportService()
+  const scenarioManager = new ScenarioManager();
+  const exportService = new ExportService();
 
   // Initialize analytics and monitoring
   useEffect(() => {
-    initAnalytics()
-    initSentry()
-    
+    initAnalytics();
+    initSentry();
+
     // Record performance metrics on page load
-    recordPerformanceMetrics()
-  }, [])
+    recordPerformanceMetrics();
+  }, []);
 
   // Track user identification
   useEffect(() => {
@@ -87,19 +103,19 @@ export default function MortgageMatchPro() {
       identifyUser(user.id, {
         email: user.email,
         subscription_tier: 'free', // This would come from user data
-      })
+      });
       setUserContext({
         id: user.id,
         email: user.email || '',
         subscriptionTier: 'free',
-      })
+      });
     }
-  }, [user])
+  }, [user]);
 
   const handleAffordabilityCalculate = async (input: AffordabilityInput) => {
-    setLoading('affordability', true)
-    clearError('affordability')
-    
+    setLoading('affordability', true);
+    clearError('affordability');
+
     try {
       const response = await fetch('/api/calculate', {
         method: 'POST',
@@ -110,17 +126,17 @@ export default function MortgageMatchPro() {
           ...input,
           userId: user?.id,
         }),
-      })
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to calculate affordability')
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to calculate affordability');
       }
 
-      const result = await response.json()
-      setAffordabilityResult(result)
-      setActiveTab('results')
-      
+      const result = await response.json();
+      setAffordabilityResult(result);
+      setActiveTab('results');
+
       // Track analytics
       if (user) {
         trackAffordabilityCalculation(
@@ -128,21 +144,28 @@ export default function MortgageMatchPro() {
           input.income,
           result.maxAffordable,
           result.gdsRatio
-        )
+        );
       }
     } catch (error) {
-      setError('affordability', error instanceof Error ? error.message : 'Failed to calculate affordability')
+      setError(
+        'affordability',
+        error instanceof Error
+          ? error.message
+          : 'Failed to calculate affordability'
+      );
     } finally {
-      setLoading('affordability', false)
+      setLoading('affordability', false);
     }
-  }
+  };
 
   const handleFetchRates = async () => {
-    if (!currentAffordability) return
+    if (!currentAffordability) {
+      return;
+    }
 
-    setLoading('rates', true)
-    clearError('rates')
-    
+    setLoading('rates', true);
+    clearError('rates');
+
     try {
       const params = new URLSearchParams({
         country: 'CA',
@@ -151,51 +174,58 @@ export default function MortgageMatchPro() {
         propertyPrice: currentAffordability.maxAffordable.toString(),
         downPayment: '50000', // This should come from user input
         ...(user?.id && { userId: user.id }),
-      })
+      });
 
-      const response = await fetch(`/api/rates?${params}`)
-      
+      const response = await fetch(`/api/rates?${params}`);
+
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to fetch rates')
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch rates');
       }
 
-      const data = await response.json()
-      setRateResults(data.rates)
-      setActiveTab('rates')
-      
+      const data = await response.json();
+      setRateResults(data.rates);
+      setActiveTab('rates');
+
       // Track analytics
       if (user) {
-        trackRateCheck(user.id, 'CA', 25, 'fixed')
+        trackRateCheck(user.id, 'CA', 25, 'fixed');
       }
     } catch (error) {
-      setError('rates', error instanceof Error ? error.message : 'Failed to fetch rates')
+      setError(
+        'rates',
+        error instanceof Error ? error.message : 'Failed to fetch rates'
+      );
     } finally {
-      setLoading('rates', false)
+      setLoading('rates', false);
     }
-  }
+  };
 
   const handleScenarioUpdate = (scenario: ScenarioResult) => {
-    setScenarioResults(prev => {
-      const existingIndex = prev.findIndex(s => s.scenarioId === scenario.scenarioId)
+    setScenarioResults((prev) => {
+      const existingIndex = prev.findIndex(
+        (s) => s.scenarioId === scenario.scenarioId
+      );
       if (existingIndex >= 0) {
-        const newResults = [...prev]
-        newResults[existingIndex] = scenario
-        return newResults
+        const newResults = [...prev];
+        newResults[existingIndex] = scenario;
+        return newResults;
       }
-      return [...prev, scenario]
-    })
-  }
+      return [...prev, scenario];
+    });
+  };
 
   const handleComparisonUpdate = async (scenarios: ScenarioResult[]) => {
-    if (scenarios.length < 2) return
+    if (scenarios.length < 2) {
+      return;
+    }
 
-    setLoading('scenarios', true)
-    clearError('scenarios')
-    
+    setLoading('scenarios', true);
+    clearError('scenarios');
+
     try {
       const comparison = await scenarioManager.compareScenarios(
-        scenarios.map(s => ({
+        scenarios.map((s) => ({
           id: s.scenarioId,
           name: `Scenario ${scenarios.indexOf(s) + 1}`,
           description: '',
@@ -219,79 +249,97 @@ export default function MortgageMatchPro() {
             tags: [],
           },
         }))
-      )
-      
-      setScenarioComparison(comparison)
-      
+      );
+
+      setScenarioComparison(comparison);
+
       // Track analytics
       if (user) {
         trackScenarioComparison(
           user.id,
           scenarios.length,
           comparison.comparison.bestOption
-        )
+        );
       }
     } catch (error) {
-      setError('scenarios', error instanceof Error ? error.message : 'Failed to compare scenarios')
+      setError(
+        'scenarios',
+        error instanceof Error ? error.message : 'Failed to compare scenarios'
+      );
     } finally {
-      setLoading('scenarios', false)
+      setLoading('scenarios', false);
     }
-  }
+  };
 
   const handleExport = async (format: 'pdf' | 'excel' | 'csv') => {
-    if (!scenarioComparison) return
+    if (!scenarioComparison) {
+      return;
+    }
 
-    setIsExporting(true)
+    setIsExporting(true);
     try {
       const result = await exportService.generatePDFReport(scenarioComparison, {
         format,
         includeCharts: true,
         includeAmortization: true,
         includeAIInsights: true,
-        branding: user?.subscriptionTier === 'broker' ? {
-          companyName: 'Your Company Name',
-        } : undefined,
-      })
+        branding:
+          user?.subscriptionTier === 'broker'
+            ? {
+                companyName: 'Your Company Name',
+              }
+            : undefined,
+      });
 
       if (result.success && result.url) {
-        window.open(result.url, '_blank')
+        window.open(result.url, '_blank');
       } else {
-        throw new Error(result.error || 'Export failed')
+        throw new Error(result.error || 'Export failed');
       }
     } catch (error) {
-      setError('scenarios', error instanceof Error ? error.message : 'Export failed')
+      setError(
+        'scenarios',
+        error instanceof Error ? error.message : 'Export failed'
+      );
     } finally {
-      setIsExporting(false)
+      setIsExporting(false);
     }
-  }
+  };
 
   const handleShare = async () => {
-    if (!scenarioComparison) return
+    if (!scenarioComparison) {
+      return;
+    }
 
     try {
       const result = await exportService.generateShareLink(scenarioComparison, {
         expiresIn: 24,
         allowDownload: true,
-      })
+      });
 
       if (result.success && result.shareUrl) {
-        await navigator.clipboard.writeText(result.shareUrl)
+        await navigator.clipboard.writeText(result.shareUrl);
         // Show success message
-        alert('Share link copied to clipboard!')
+        alert('Share link copied to clipboard!');
       } else {
-        throw new Error(result.error || 'Share failed')
+        throw new Error(result.error || 'Share failed');
       }
     } catch (error) {
-      setError('scenarios', error instanceof Error ? error.message : 'Share failed')
+      setError(
+        'scenarios',
+        error instanceof Error ? error.message : 'Share failed'
+      );
     }
-  }
+  };
 
   const handleLeadSubmit = async (data: LeadFormData) => {
-    if (!currentAffordability) return
+    if (!currentAffordability) {
+      return;
+    }
 
-    setLoading('leads', true)
-    clearError('leads')
-    
+    setLoading('leads', true);
+    clearError('leads');
+
     try {
       const response = await fetch('/api/leads', {
         method: 'POST',
@@ -311,29 +359,32 @@ export default function MortgageMatchPro() {
           },
           userId: user?.id,
         }),
-      })
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to process lead')
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to process lead');
       }
 
-      const leadData = await response.json()
-      setLeadData(leadData)
-      setShowLeadModal(false)
+      const leadData = await response.json();
+      setLeadData(leadData);
+      setShowLeadModal(false);
     } catch (error) {
-      setError('leads', error instanceof Error ? error.message : 'Failed to process lead')
+      setError(
+        'leads',
+        error instanceof Error ? error.message : 'Failed to process lead'
+      );
     } finally {
-      setLoading('leads', false)
+      setLoading('leads', false);
     }
-  }
+  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-CA', {
       style: 'currency',
       currency: 'CAD',
-    }).format(value)
-  }
+    }).format(value);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -341,7 +392,7 @@ export default function MortgageMatchPro() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-between items-center mb-4">
-            <div></div>
+            <div />
             <div className="flex items-center gap-4">
               {user ? (
                 <div className="flex items-center gap-2">
@@ -359,7 +410,7 @@ export default function MortgageMatchPro() {
               ) : (
                 <Button
                   variant="outline"
-                  onClick={() => window.location.href = '/auth/login'}
+                  onClick={() => (window.location.href = '/auth/login')}
                   className="border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
                   <LogIn className="h-4 w-4 mr-2" />
@@ -375,52 +426,58 @@ export default function MortgageMatchPro() {
             Smarter Mortgages Start Here – Your AI Loan Advisor Built on ChatGPT
           </p>
           <div className="flex justify-center gap-2">
-            <Badge variant="secondary" className="bg-gray-100 text-gray-700">Canada & USA</Badge>
-            <Badge variant="secondary" className="bg-gray-100 text-gray-700">Real-time Rates</Badge>
-            <Badge variant="secondary" className="bg-gray-100 text-gray-700">OSFI & CFPB Compliant</Badge>
+            <Badge variant="secondary" className="bg-gray-100 text-gray-700">
+              Canada & USA
+            </Badge>
+            <Badge variant="secondary" className="bg-gray-100 text-gray-700">
+              Real-time Rates
+            </Badge>
+            <Badge variant="secondary" className="bg-gray-100 text-gray-700">
+              OSFI & CFPB Compliant
+            </Badge>
           </div>
         </div>
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-6 bg-gray-100 rounded-lg p-1">
-            <TabsTrigger 
-              value="scenarios" 
+            <TabsTrigger
+              value="scenarios"
               className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm"
             >
               <Zap className="h-4 w-4" />
               Scenarios
             </TabsTrigger>
-            <TabsTrigger 
-              value="affordability" 
+            <TabsTrigger
+              value="affordability"
               className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm"
             >
               <Calculator className="h-4 w-4" />
               Affordability
             </TabsTrigger>
-            <TabsTrigger 
-              value="results" 
+            <TabsTrigger
+              value="results"
               className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm"
             >
               <CheckCircle className="h-4 w-4" />
               Results
             </TabsTrigger>
-            <TabsTrigger 
-              value="rates" 
+            <TabsTrigger
+              value="rates"
               className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm"
             >
               <TrendingUp className="h-4 w-4" />
               Rates
             </TabsTrigger>
-            <TabsTrigger 
-              value="compare" 
+            <TabsTrigger
+              value="compare"
               className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm"
             >
               <BarChart3 className="h-4 w-4" />
               Compare
             </TabsTrigger>
-            <TabsTrigger 
-              value="insights" 
+            <TabsTrigger
+              value="insights"
               className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm"
             >
               <Brain className="h-4 w-4" />
@@ -474,45 +531,75 @@ export default function MortgageMatchPro() {
                       <div className="flex items-center gap-2">
                         <Home className="h-5 w-5 text-primary" />
                         <div>
-                          <p className="text-sm text-muted-foreground">Max Affordable</p>
-                          <p className="text-2xl font-bold">{formatCurrency(currentAffordability.maxAffordable)}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Max Affordable
+                          </p>
+                          <p className="text-2xl font-bold">
+                            {formatCurrency(currentAffordability.maxAffordable)}
+                          </p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
-                  
+
                   <Card>
                     <CardContent className="p-4">
                       <div className="flex items-center gap-2">
                         <DollarSign className="h-5 w-5 text-green-500" />
                         <div>
-                          <p className="text-sm text-muted-foreground">Monthly Payment</p>
-                          <p className="text-2xl font-bold">{formatCurrency(currentAffordability.monthlyPayment)}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Monthly Payment
+                          </p>
+                          <p className="text-2xl font-bold">
+                            {formatCurrency(
+                              currentAffordability.monthlyPayment
+                            )}
+                          </p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
-                  
+
                   <Card>
                     <CardContent className="p-4">
                       <div className="flex items-center gap-2">
                         <Percent className="h-5 w-5 text-blue-500" />
                         <div>
-                          <p className="text-sm text-muted-foreground">GDS Ratio</p>
-                          <p className="text-2xl font-bold">{currentAffordability.gdsRatio.toFixed(1)}%</p>
+                          <p className="text-sm text-muted-foreground">
+                            GDS Ratio
+                          </p>
+                          <p className="text-2xl font-bold">
+                            {currentAffordability.gdsRatio.toFixed(1)}%
+                          </p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
-                  
+
                   <Card>
                     <CardContent className="p-4">
                       <div className="flex items-center gap-2">
-                        <CheckCircle className={`h-5 w-5 ${currentAffordability.qualificationResult ? 'text-green-500' : 'text-red-500'}`} />
+                        <CheckCircle
+                          className={`h-5 w-5 ${
+                            currentAffordability.qualificationResult
+                              ? 'text-green-500'
+                              : 'text-red-500'
+                          }`}
+                        />
                         <div>
-                          <p className="text-sm text-muted-foreground">Qualification</p>
-                          <p className={`text-2xl font-bold ${currentAffordability.qualificationResult ? 'text-green-600' : 'text-red-600'}`}>
-                            {currentAffordability.qualificationResult ? 'Approved' : 'Not Approved'}
+                          <p className="text-sm text-muted-foreground">
+                            Qualification
+                          </p>
+                          <p
+                            className={`text-2xl font-bold ${
+                              currentAffordability.qualificationResult
+                                ? 'text-green-600'
+                                : 'text-red-600'
+                            }`}
+                          >
+                            {currentAffordability.qualificationResult
+                              ? 'Approved'
+                              : 'Not Approved'}
                           </p>
                         </div>
                       </div>
@@ -528,20 +615,40 @@ export default function MortgageMatchPro() {
                   <CardContent>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="text-center">
-                        <p className="text-sm text-muted-foreground">Principal</p>
-                        <p className="text-lg font-semibold">{formatCurrency(currentAffordability.breakdown.principal)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Principal
+                        </p>
+                        <p className="text-lg font-semibold">
+                          {formatCurrency(
+                            currentAffordability.breakdown.principal
+                          )}
+                        </p>
                       </div>
                       <div className="text-center">
-                        <p className="text-sm text-muted-foreground">Interest</p>
-                        <p className="text-lg font-semibold">{formatCurrency(currentAffordability.breakdown.interest)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Interest
+                        </p>
+                        <p className="text-lg font-semibold">
+                          {formatCurrency(
+                            currentAffordability.breakdown.interest
+                          )}
+                        </p>
                       </div>
                       <div className="text-center">
                         <p className="text-sm text-muted-foreground">Taxes</p>
-                        <p className="text-lg font-semibold">{formatCurrency(currentAffordability.breakdown.taxes)}</p>
+                        <p className="text-lg font-semibold">
+                          {formatCurrency(currentAffordability.breakdown.taxes)}
+                        </p>
                       </div>
                       <div className="text-center">
-                        <p className="text-sm text-muted-foreground">Insurance</p>
-                        <p className="text-lg font-semibold">{formatCurrency(currentAffordability.breakdown.insurance)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Insurance
+                        </p>
+                        <p className="text-lg font-semibold">
+                          {formatCurrency(
+                            currentAffordability.breakdown.insurance
+                          )}
+                        </p>
                       </div>
                     </div>
                   </CardContent>
@@ -554,12 +661,14 @@ export default function MortgageMatchPro() {
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
-                      {currentAffordability.recommendations.map((rec, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm">{rec}</span>
-                        </li>
-                      ))}
+                      {currentAffordability.recommendations.map(
+                        (rec, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-sm">{rec}</span>
+                          </li>
+                        )
+                      )}
                     </ul>
                   </CardContent>
                 </Card>
@@ -570,7 +679,10 @@ export default function MortgageMatchPro() {
                     <TrendingUp className="h-4 w-4 mr-2" />
                     Get Current Rates
                   </Button>
-                  <Button onClick={() => setShowLeadModal(true)} variant="outline">
+                  <Button
+                    onClick={() => setShowLeadModal(true)}
+                    variant="outline"
+                  >
                     <Users className="h-4 w-4 mr-2" />
                     Connect with Brokers
                   </Button>
@@ -580,7 +692,9 @@ export default function MortgageMatchPro() {
               <Card>
                 <CardContent className="p-8 text-center">
                   <Calculator className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Calculate Your Affordability</h3>
+                  <h3 className="text-lg font-semibold mb-2">
+                    Calculate Your Affordability
+                  </h3>
                   <p className="text-muted-foreground mb-4">
                     Start by calculating how much you can afford to borrow
                   </p>
@@ -596,7 +710,9 @@ export default function MortgageMatchPro() {
             <RateComparisonTable
               rates={rateResults}
               loading={loading.rates}
-              onContactLender={(lender) => console.log('Contact lender:', lender)}
+              onContactLender={(lender) =>
+                console.log('Contact lender:', lender)
+              }
             />
             {errors.rates && (
               <Card className="mt-4 border-red-200 bg-red-50">
@@ -623,10 +739,14 @@ export default function MortgageMatchPro() {
                   <CardContent>
                     <div className="text-center p-4 bg-green-50 rounded-lg">
                       <h3 className="text-lg font-semibold text-green-800 mb-2">
-                        Recommended: {currentComparison.recommendation.bestOption}
+                        Recommended:{' '}
+                        {currentComparison.recommendation.bestOption}
                       </h3>
                       <p className="text-green-600">
-                        Potential savings: {formatCurrency(currentComparison.recommendation.savings)}
+                        Potential savings:{' '}
+                        {formatCurrency(
+                          currentComparison.recommendation.savings
+                        )}
                       </p>
                     </div>
                   </CardContent>
@@ -641,19 +761,33 @@ export default function MortgageMatchPro() {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div className="text-center">
                           <p className="text-sm text-muted-foreground">Rate</p>
-                          <p className="text-lg font-semibold">{scenario.rate}%</p>
+                          <p className="text-lg font-semibold">
+                            {scenario.rate}%
+                          </p>
                         </div>
                         <div className="text-center">
-                          <p className="text-sm text-muted-foreground">Monthly Payment</p>
-                          <p className="text-lg font-semibold">{formatCurrency(scenario.monthlyPayment)}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Monthly Payment
+                          </p>
+                          <p className="text-lg font-semibold">
+                            {formatCurrency(scenario.monthlyPayment)}
+                          </p>
                         </div>
                         <div className="text-center">
-                          <p className="text-sm text-muted-foreground">Total Interest</p>
-                          <p className="text-lg font-semibold">{formatCurrency(scenario.totalInterest)}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Total Interest
+                          </p>
+                          <p className="text-lg font-semibold">
+                            {formatCurrency(scenario.totalInterest)}
+                          </p>
                         </div>
                         <div className="text-center">
-                          <p className="text-sm text-muted-foreground">Total Cost</p>
-                          <p className="text-lg font-semibold">{formatCurrency(scenario.totalCost)}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Total Cost
+                          </p>
+                          <p className="text-lg font-semibold">
+                            {formatCurrency(scenario.totalCost)}
+                          </p>
                         </div>
                       </div>
                     </CardContent>
@@ -664,11 +798,16 @@ export default function MortgageMatchPro() {
               <Card>
                 <CardContent className="p-8 text-center">
                   <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Compare Mortgage Scenarios</h3>
+                  <h3 className="text-lg font-semibold mb-2">
+                    Compare Mortgage Scenarios
+                  </h3>
                   <p className="text-muted-foreground mb-4">
                     Get rates first to compare different mortgage options
                   </p>
-                  <Button onClick={handleCompareScenarios} disabled={rateResults.length < 2}>
+                  <Button
+                    onClick={handleCompareScenarios}
+                    disabled={rateResults.length < 2}
+                  >
                     Compare Scenarios
                   </Button>
                 </CardContent>
@@ -698,5 +837,5 @@ export default function MortgageMatchPro() {
         />
       </div>
     </div>
-  )
+  );
 }

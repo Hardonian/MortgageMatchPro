@@ -1,15 +1,15 @@
-import { getBillingAdapter } from './billing-service'
-import { supabaseAdmin } from '../supabase'
-import { 
-  UsageEvent, 
-  UsageSnapshot, 
+import { getBillingAdapter } from "./billing-service";
+import { supabaseAdmin } from "../supabase";
+import {
+  UsageEvent,
+  UsageSnapshot,
   UsageEventType,
-  QuotaExceededError 
-} from '../types/billing'
-import { OrganizationLimits } from '../types/tenancy'
+  QuotaExceededError,
+} from "../types/billing";
+import { OrganizationLimits } from "../types/tenancy";
 
 export class MeteringService {
-  private static billingAdapter = getBillingAdapter()
+  private static billingAdapter = getBillingAdapter();
 
   /**
    * Record a usage event
@@ -22,8 +22,8 @@ export class MeteringService {
     metadata: Record<string, any> = {}
   ): Promise<UsageEvent> {
     try {
-      const amount = quantity * unitPrice
-      const currency = 'CAD' // Default currency
+      const amount = quantity * unitPrice;
+      const currency = "CAD"; // Default currency
 
       const usageEvent = await this.billingAdapter.recordUsage({
         organizationId,
@@ -32,16 +32,21 @@ export class MeteringService {
         unitPrice,
         amount,
         currency,
-        metadata
-      })
+        metadata,
+      });
 
       // Update daily usage snapshot
-      await this.updateDailySnapshot(organizationId, eventType, quantity, amount)
+      await this.updateDailySnapshot(
+        organizationId,
+        eventType,
+        quantity,
+        amount
+      );
 
-      return usageEvent
+      return usageEvent;
     } catch (error) {
-      console.error('Record usage error:', error)
-      throw error
+      console.error("Record usage error:", error);
+      throw error;
     }
   }
 
@@ -52,15 +57,15 @@ export class MeteringService {
     organizationId: string,
     tokens: number,
     model: string,
-    costPerToken: number = 0.0001
+    costPerToken = 0.0001
   ): Promise<UsageEvent> {
     return this.recordUsage(
       organizationId,
-      'ai_call',
+      "ai_call",
       1,
       costPerToken * tokens,
       { model, tokens }
-    )
+    );
   }
 
   /**
@@ -70,15 +75,11 @@ export class MeteringService {
     organizationId: string,
     tokens: number,
     model: string,
-    costPerToken: number = 0.0001
+    costPerToken = 0.0001
   ): Promise<UsageEvent> {
-    return this.recordUsage(
-      organizationId,
-      'ai_token',
-      tokens,
-      costPerToken,
-      { model }
-    )
+    return this.recordUsage(organizationId, "ai_token", tokens, costPerToken, {
+      model,
+    });
   }
 
   /**
@@ -88,15 +89,12 @@ export class MeteringService {
     organizationId: string,
     endpoint: string,
     method: string,
-    costPerCall: number = 0.001
+    costPerCall = 0.001
   ): Promise<UsageEvent> {
-    return this.recordUsage(
-      organizationId,
-      'api_call',
-      1,
-      costPerCall,
-      { endpoint, method }
-    )
+    return this.recordUsage(organizationId, "api_call", 1, costPerCall, {
+      endpoint,
+      method,
+    });
   }
 
   /**
@@ -106,15 +104,15 @@ export class MeteringService {
     organizationId: string,
     webhookId: string,
     success: boolean,
-    costPerDelivery: number = 0.01
+    costPerDelivery = 0.01
   ): Promise<UsageEvent> {
     return this.recordUsage(
       organizationId,
-      'webhook_delivery',
+      "webhook_delivery",
       1,
       costPerDelivery,
       { webhookId, success }
-    )
+    );
   }
 
   /**
@@ -124,15 +122,12 @@ export class MeteringService {
     organizationId: string,
     format: string,
     size: number,
-    costPerExport: number = 0.05
+    costPerExport = 0.05
   ): Promise<UsageEvent> {
-    return this.recordUsage(
-      organizationId,
-      'export',
-      1,
-      costPerExport,
-      { format, size }
-    )
+    return this.recordUsage(organizationId, "export", 1, costPerExport, {
+      format,
+      size,
+    });
   }
 
   /**
@@ -141,16 +136,12 @@ export class MeteringService {
   static async recordStorage(
     organizationId: string,
     sizeBytes: number,
-    costPerGb: number = 0.1
+    costPerGb = 0.1
   ): Promise<UsageEvent> {
-    const sizeGb = sizeBytes / (1024 * 1024 * 1024)
-    return this.recordUsage(
-      organizationId,
-      'storage',
-      sizeGb,
-      costPerGb,
-      { sizeBytes }
-    )
+    const sizeGb = sizeBytes / (1024 * 1024 * 1024);
+    return this.recordUsage(organizationId, "storage", sizeGb, costPerGb, {
+      sizeBytes,
+    });
   }
 
   /**
@@ -163,32 +154,32 @@ export class MeteringService {
     try {
       // Get organization limits
       const { data: org } = await supabaseAdmin
-        .from('organizations')
-        .select('limits')
-        .eq('id', organizationId)
-        .single()
+        .from("organizations")
+        .select("limits")
+        .eq("id", organizationId)
+        .single();
 
       if (!org) {
-        throw new Error('Organization not found')
+        throw new Error("Organization not found");
       }
 
-      const limit = org.limits[quotaType]
+      const limit = org.limits[quotaType];
       if (limit === -1) {
         // Unlimited
-        return { current: 0, limit: -1, exceeded: false }
+        return { current: 0, limit: -1, exceeded: false };
       }
 
       // Get current usage
-      const current = await this.getCurrentUsage(organizationId, quotaType)
+      const current = await this.getCurrentUsage(organizationId, quotaType);
 
       return {
         current,
         limit,
-        exceeded: current >= limit
-      }
+        exceeded: current >= limit,
+      };
     } catch (error) {
-      console.error('Check quota error:', error)
-      throw error
+      console.error("Check quota error:", error);
+      throw error;
     }
   }
 
@@ -199,56 +190,56 @@ export class MeteringService {
     organizationId: string,
     quotaType: keyof OrganizationLimits
   ): Promise<number> {
-    const today = new Date().toISOString().split('T')[0]
+    const today = new Date().toISOString().split("T")[0];
 
     switch (quotaType) {
-      case 'maxUsers':
+      case "maxUsers":
         const { count: userCount } = await supabaseAdmin
-          .from('memberships')
-          .select('*', { count: 'exact', head: true })
-          .eq('organization_id', organizationId)
-          .eq('status', 'active')
-        return userCount || 0
+          .from("memberships")
+          .select("*", { count: "exact", head: true })
+          .eq("organization_id", organizationId)
+          .eq("status", "active");
+        return userCount || 0;
 
-      case 'maxAiCallsPerDay':
+      case "maxAiCallsPerDay":
         const { data: aiUsage } = await supabaseAdmin
-          .from('usage_snapshots')
-          .select('ai_calls')
-          .eq('organization_id', organizationId)
-          .eq('date', today)
-          .single()
-        return aiUsage?.ai_calls || 0
+          .from("usage_snapshots")
+          .select("ai_calls")
+          .eq("organization_id", organizationId)
+          .eq("date", today)
+          .single();
+        return aiUsage?.ai_calls || 0;
 
-      case 'maxSavedScenarios':
+      case "maxSavedScenarios":
         const { count: scenarioCount } = await supabaseAdmin
-          .from('mortgage_calculations')
-          .select('*', { count: 'exact', head: true })
-          .eq('organization_id', organizationId)
-        return scenarioCount || 0
+          .from("mortgage_calculations")
+          .select("*", { count: "exact", head: true })
+          .eq("organization_id", organizationId);
+        return scenarioCount || 0;
 
-      case 'maxIntegrations':
+      case "maxIntegrations":
         const { count: integrationCount } = await supabaseAdmin
-          .from('integrations')
-          .select('*', { count: 'exact', head: true })
-          .eq('organization_id', organizationId)
-        return integrationCount || 0
+          .from("integrations")
+          .select("*", { count: "exact", head: true })
+          .eq("organization_id", organizationId);
+        return integrationCount || 0;
 
-      case 'maxWebhooks':
+      case "maxWebhooks":
         const { count: webhookCount } = await supabaseAdmin
-          .from('webhook_events')
-          .select('*', { count: 'exact', head: true })
-          .eq('organization_id', organizationId)
-        return webhookCount || 0
+          .from("webhook_events")
+          .select("*", { count: "exact", head: true })
+          .eq("organization_id", organizationId);
+        return webhookCount || 0;
 
-      case 'maxApiKeys':
+      case "maxApiKeys":
         const { count: apiKeyCount } = await supabaseAdmin
-          .from('api_keys')
-          .select('*', { count: 'exact', head: true })
-          .eq('organization_id', organizationId)
-        return apiKeyCount || 0
+          .from("api_keys")
+          .select("*", { count: "exact", head: true })
+          .eq("organization_id", organizationId);
+        return apiKeyCount || 0;
 
       default:
-        return 0
+        return 0;
     }
   }
 
@@ -259,8 +250,8 @@ export class MeteringService {
     organizationId: string,
     quotaType: keyof OrganizationLimits
   ): Promise<void> {
-    const quota = await this.checkQuota(organizationId, quotaType)
-    
+    const quota = await this.checkQuota(organizationId, quotaType);
+
     if (quota.exceeded) {
       throw new QuotaExceededError(
         `Quota exceeded for ${quotaType}`,
@@ -268,7 +259,7 @@ export class MeteringService {
         quota.current,
         quota.limit,
         organizationId
-      )
+      );
     }
   }
 
@@ -282,20 +273,20 @@ export class MeteringService {
     amount: number
   ): Promise<void> {
     try {
-      const today = new Date().toISOString().split('T')[0]
+      const today = new Date().toISOString().split("T")[0];
 
       // Get or create today's snapshot
       let { data: snapshot } = await supabaseAdmin
-        .from('usage_snapshots')
-        .select('*')
-        .eq('organization_id', organizationId)
-        .eq('date', today)
-        .single()
+        .from("usage_snapshots")
+        .select("*")
+        .eq("organization_id", organizationId)
+        .eq("date", today)
+        .single();
 
       if (!snapshot) {
         // Create new snapshot
         const { data: newSnapshot, error } = await supabaseAdmin
-          .from('usage_snapshots')
+          .from("usage_snapshots")
           .insert({
             organization_id: organizationId,
             date: today,
@@ -305,54 +296,55 @@ export class MeteringService {
             webhook_deliveries: 0,
             exports: 0,
             storage_used: 0,
-            cost: 0
+            cost: 0,
           })
           .select()
-          .single()
+          .single();
 
         if (error) {
-          throw new Error(`Failed to create usage snapshot: ${error.message}`)
+          throw new Error(`Failed to create usage snapshot: ${error.message}`);
         }
 
-        snapshot = newSnapshot
+        snapshot = newSnapshot;
       }
 
       // Update the snapshot
       const updates: any = {
-        cost: (snapshot.cost || 0) + amount
-      }
+        cost: (snapshot.cost || 0) + amount,
+      };
 
       switch (eventType) {
-        case 'ai_call':
-          updates.ai_calls = (snapshot.ai_calls || 0) + quantity
-          break
-        case 'ai_token':
-          updates.ai_tokens = (snapshot.ai_tokens || 0) + quantity
-          break
-        case 'api_call':
-          updates.api_calls = (snapshot.api_calls || 0) + quantity
-          break
-        case 'webhook_delivery':
-          updates.webhook_deliveries = (snapshot.webhook_deliveries || 0) + quantity
-          break
-        case 'export':
-          updates.exports = (snapshot.exports || 0) + quantity
-          break
-        case 'storage':
-          updates.storage_used = (snapshot.storage_used || 0) + quantity
-          break
+        case "ai_call":
+          updates.ai_calls = (snapshot.ai_calls || 0) + quantity;
+          break;
+        case "ai_token":
+          updates.ai_tokens = (snapshot.ai_tokens || 0) + quantity;
+          break;
+        case "api_call":
+          updates.api_calls = (snapshot.api_calls || 0) + quantity;
+          break;
+        case "webhook_delivery":
+          updates.webhook_deliveries =
+            (snapshot.webhook_deliveries || 0) + quantity;
+          break;
+        case "export":
+          updates.exports = (snapshot.exports || 0) + quantity;
+          break;
+        case "storage":
+          updates.storage_used = (snapshot.storage_used || 0) + quantity;
+          break;
       }
 
       const { error } = await supabaseAdmin
-        .from('usage_snapshots')
+        .from("usage_snapshots")
         .update(updates)
-        .eq('id', snapshot.id)
+        .eq("id", snapshot.id);
 
       if (error) {
-        throw new Error(`Failed to update usage snapshot: ${error.message}`)
+        throw new Error(`Failed to update usage snapshot: ${error.message}`);
       }
     } catch (error) {
-      console.error('Update daily snapshot error:', error)
+      console.error("Update daily snapshot error:", error);
       // Don't throw here as it's not critical for the main operation
     }
   }
@@ -365,38 +357,38 @@ export class MeteringService {
     startDate: string,
     endDate: string
   ): Promise<{
-    totalCost: number
-    totalAiCalls: number
-    totalAiTokens: number
-    totalApiCalls: number
-    totalWebhookDeliveries: number
-    totalExports: number
-    totalStorage: number
+    totalCost: number;
+    totalAiCalls: number;
+    totalAiTokens: number;
+    totalApiCalls: number;
+    totalWebhookDeliveries: number;
+    totalExports: number;
+    totalStorage: number;
     dailyBreakdown: Array<{
-      date: string
-      cost: number
-      aiCalls: number
-      aiTokens: number
-      apiCalls: number
-      webhookDeliveries: number
-      exports: number
-      storage: number
-    }>
+      date: string;
+      cost: number;
+      aiCalls: number;
+      aiTokens: number;
+      apiCalls: number;
+      webhookDeliveries: number;
+      exports: number;
+      storage: number;
+    }>;
   }> {
     try {
       const { data: snapshots, error } = await supabaseAdmin
-        .from('usage_snapshots')
-        .select('*')
-        .eq('organization_id', organizationId)
-        .gte('date', startDate)
-        .lte('date', endDate)
-        .order('date', { ascending: true })
+        .from("usage_snapshots")
+        .select("*")
+        .eq("organization_id", organizationId)
+        .gte("date", startDate)
+        .lte("date", endDate)
+        .order("date", { ascending: true });
 
       if (error) {
-        throw new Error(`Failed to get usage summary: ${error.message}`)
+        throw new Error(`Failed to get usage summary: ${error.message}`);
       }
 
-      const dailyBreakdown = (snapshots || []).map(snapshot => ({
+      const dailyBreakdown = (snapshots || []).map((snapshot) => ({
         date: snapshot.date,
         cost: snapshot.cost || 0,
         aiCalls: snapshot.ai_calls || 0,
@@ -404,16 +396,34 @@ export class MeteringService {
         apiCalls: snapshot.api_calls || 0,
         webhookDeliveries: snapshot.webhook_deliveries || 0,
         exports: snapshot.exports || 0,
-        storage: snapshot.storage_used || 0
-      }))
+        storage: snapshot.storage_used || 0,
+      }));
 
-      const totalCost = dailyBreakdown.reduce((sum, day) => sum + day.cost, 0)
-      const totalAiCalls = dailyBreakdown.reduce((sum, day) => sum + day.aiCalls, 0)
-      const totalAiTokens = dailyBreakdown.reduce((sum, day) => sum + day.aiTokens, 0)
-      const totalApiCalls = dailyBreakdown.reduce((sum, day) => sum + day.apiCalls, 0)
-      const totalWebhookDeliveries = dailyBreakdown.reduce((sum, day) => sum + day.webhookDeliveries, 0)
-      const totalExports = dailyBreakdown.reduce((sum, day) => sum + day.exports, 0)
-      const totalStorage = dailyBreakdown.reduce((sum, day) => sum + day.storage, 0)
+      const totalCost = dailyBreakdown.reduce((sum, day) => sum + day.cost, 0);
+      const totalAiCalls = dailyBreakdown.reduce(
+        (sum, day) => sum + day.aiCalls,
+        0
+      );
+      const totalAiTokens = dailyBreakdown.reduce(
+        (sum, day) => sum + day.aiTokens,
+        0
+      );
+      const totalApiCalls = dailyBreakdown.reduce(
+        (sum, day) => sum + day.apiCalls,
+        0
+      );
+      const totalWebhookDeliveries = dailyBreakdown.reduce(
+        (sum, day) => sum + day.webhookDeliveries,
+        0
+      );
+      const totalExports = dailyBreakdown.reduce(
+        (sum, day) => sum + day.exports,
+        0
+      );
+      const totalStorage = dailyBreakdown.reduce(
+        (sum, day) => sum + day.storage,
+        0
+      );
 
       return {
         totalCost,
@@ -423,11 +433,11 @@ export class MeteringService {
         totalWebhookDeliveries,
         totalExports,
         totalStorage,
-        dailyBreakdown
-      }
+        dailyBreakdown,
+      };
     } catch (error) {
-      console.error('Get usage summary error:', error)
-      throw error
+      console.error("Get usage summary error:", error);
+      throw error;
     }
   }
 
@@ -435,43 +445,45 @@ export class MeteringService {
    * Get current month usage
    */
   static async getCurrentMonthUsage(organizationId: string) {
-    const now = new Date()
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
     return this.getUsageSummary(
       organizationId,
-      startOfMonth.toISOString().split('T')[0],
-      endOfMonth.toISOString().split('T')[0]
-    )
+      startOfMonth.toISOString().split("T")[0],
+      endOfMonth.toISOString().split("T")[0]
+    );
   }
 
   /**
    * Get usage forecast based on current trends
    */
-  static async getUsageForecast(organizationId: string, days: number = 30) {
+  static async getUsageForecast(organizationId: string, days = 30) {
     try {
-      const endDate = new Date()
-      const startDate = new Date(endDate.getTime() - (days * 24 * 60 * 60 * 1000))
+      const endDate = new Date();
+      const startDate = new Date(
+        endDate.getTime() - days * 24 * 60 * 60 * 1000
+      );
 
       const usage = await this.getUsageSummary(
         organizationId,
-        startDate.toISOString().split('T')[0],
-        endDate.toISOString().split('T')[0]
-      )
+        startDate.toISOString().split("T")[0],
+        endDate.toISOString().split("T")[0]
+      );
 
-      const avgDailyCost = usage.totalCost / days
+      const avgDailyCost = usage.totalCost / days;
       const forecast = {
         projectedCost: avgDailyCost * 30, // Next 30 days
         projectedAiCalls: (usage.totalAiCalls / days) * 30,
         projectedApiCalls: (usage.totalApiCalls / days) * 30,
-        trend: avgDailyCost > 0 ? 'increasing' : 'stable'
-      }
+        trend: avgDailyCost > 0 ? "increasing" : "stable",
+      };
 
-      return forecast
+      return forecast;
     } catch (error) {
-      console.error('Get usage forecast error:', error)
-      throw error
+      console.error("Get usage forecast error:", error);
+      throw error;
     }
   }
 }

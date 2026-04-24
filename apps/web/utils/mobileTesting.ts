@@ -3,13 +3,13 @@
  * Provides comprehensive testing tools for mobile responsiveness and performance
  */
 
-import { Dimensions, Platform, PixelRatio } from 'react-native';
+import { Dimensions, Platform, PixelRatio } from "react-native";
 
 // Device information
 export const getDeviceInfo = () => {
-  const { width, height } = Dimensions.get('window');
-  const { width: screenWidth, height: screenHeight } = Dimensions.get('screen');
-  
+  const { width, height } = Dimensions.get("window");
+  const { width: screenWidth, height: screenHeight } = Dimensions.get("screen");
+
   return {
     platform: Platform.OS,
     version: Platform.Version,
@@ -24,23 +24,31 @@ export const getDeviceInfo = () => {
 
 // Screen size categories
 export const getScreenCategory = () => {
-  const { width } = Dimensions.get('window');
-  
-  if (width < 375) return 'xs'; // Small phones
-  if (width < 414) return 'sm'; // Regular phones
-  if (width < 768) return 'md'; // Large phones
-  if (width < 1024) return 'lg'; // Small tablets
-  return 'xl'; // Large tablets
+  const { width } = Dimensions.get("window");
+
+  if (width < 375) {
+    return "xs";
+  } // Small phones
+  if (width < 414) {
+    return "sm";
+  } // Regular phones
+  if (width < 768) {
+    return "md";
+  } // Large phones
+  if (width < 1024) {
+    return "lg";
+  } // Small tablets
+  return "xl"; // Large tablets
 };
 
 // Touch target validation
-export const validateTouchTargets = (element: any, minSize: number = 44) => {
+export const validateTouchTargets = (element: any, minSize = 44) => {
   const { width, height } = element.getBoundingClientRect();
   const pixelRatio = PixelRatio.get();
-  
+
   const actualWidth = width * pixelRatio;
   const actualHeight = height * pixelRatio;
-  
+
   return {
     isValid: actualWidth >= minSize && actualHeight >= minSize,
     width: actualWidth,
@@ -77,7 +85,10 @@ export class PerformanceTester {
   }
 
   // Measure async operation
-  async measureAsync<T>(operationName: string, operation: () => Promise<T>): Promise<T> {
+  async measureAsync<T>(
+    operationName: string,
+    operation: () => Promise<T>
+  ): Promise<T> {
     const start = performance.now();
     const result = await operation();
     const end = performance.now();
@@ -94,7 +105,9 @@ export class PerformanceTester {
   // Get performance statistics
   getStats(operationName: string) {
     const times = this.metrics.get(operationName) || [];
-    if (times.length === 0) return null;
+    if (times.length === 0) {
+      return null;
+    }
 
     const sorted = [...times].sort((a, b) => a - b);
     const sum = times.reduce((a, b) => a + b, 0);
@@ -131,17 +144,17 @@ export const testAccessibility = (element: any) => {
 
   // Check for proper labels
   if (!element.accessibilityLabel && !element.accessibilityHint) {
-    issues.push('Missing accessibility label or hint');
+    issues.push("Missing accessibility label or hint");
   }
 
   // Check for proper roles
-  if (element.accessibilityRole === 'button' && !element.onPress) {
-    issues.push('Button element missing onPress handler');
+  if (element.accessibilityRole === "button" && !element.onPress) {
+    issues.push("Button element missing onPress handler");
   }
 
   // Check for proper states
   if (element.accessibilityState?.disabled && !element.accessibilityHint) {
-    issues.push('Disabled element should have accessibility hint');
+    issues.push("Disabled element should have accessibility hint");
   }
 
   return {
@@ -154,7 +167,7 @@ export const testAccessibility = (element: any) => {
 export const mobileTestScenarios = {
   // Test different screen orientations
   testOrientation: () => {
-    const { width, height } = Dimensions.get('window');
+    const { width, height } = Dimensions.get("window");
     return {
       isLandscape: width > height,
       isPortrait: height > width,
@@ -166,19 +179,19 @@ export const mobileTestScenarios = {
   testScreenDensity: () => {
     const pixelRatio = PixelRatio.get();
     const fontScale = PixelRatio.getFontScale();
-    
+
     return {
       pixelRatio,
       fontScale,
-      density: pixelRatio >= 3 ? 'high' : pixelRatio >= 2 ? 'medium' : 'low',
+      density: pixelRatio >= 3 ? "high" : pixelRatio >= 2 ? "medium" : "low",
     };
   },
 
   // Test keyboard behavior
   testKeyboardBehavior: (keyboardHeight: number) => {
-    const { height } = Dimensions.get('window');
+    const { height } = Dimensions.get("window");
     const availableHeight = height - keyboardHeight;
-    
+
     return {
       keyboardHeight,
       availableHeight,
@@ -190,23 +203,26 @@ export const mobileTestScenarios = {
   // Test network conditions
   testNetworkConditions: (connectionType: string, effectiveType: string) => {
     const conditions = {
-      'slow-2g': { rtt: 2000, downlink: 0.05 },
-      '2g': { rtt: 1000, downlink: 0.25 },
-      '3g': { rtt: 500, downlink: 0.5 },
-      '4g': { rtt: 200, downlink: 1.5 },
+      "slow-2g": { rtt: 2000, downlink: 0.05 },
+      "2g": { rtt: 1000, downlink: 0.25 },
+      "3g": { rtt: 500, downlink: 0.5 },
+      "4g": { rtt: 200, downlink: 1.5 },
     };
 
     return {
       connectionType,
       effectiveType,
-      conditions: conditions[effectiveType as keyof typeof conditions] || conditions['4g'],
+      conditions:
+        conditions[effectiveType as keyof typeof conditions] ||
+        conditions["4g"],
     };
   },
 };
 
 // Automated testing helpers
 export const createTestSuite = (name: string) => {
-  const tests: Array<{ name: string; fn: () => boolean | Promise<boolean> }> = [];
+  const tests: Array<{ name: string; fn: () => boolean | Promise<boolean> }> =
+    [];
   const results: Array<{ name: string; passed: boolean; error?: string }> = [];
 
   return {
@@ -216,25 +232,25 @@ export const createTestSuite = (name: string) => {
 
     runTests: async () => {
       console.log(`Running test suite: ${name}`);
-      
+
       for (const test of tests) {
         try {
           const result = await test.fn();
           results.push({ name: test.name, passed: result });
-          console.log(`${result ? '✅' : '❌'} ${test.name}`);
+          console.log(`${result ? "✅" : "❌"} ${test.name}`);
         } catch (error) {
-          results.push({ 
-            name: test.name, 
-            passed: false, 
-            error: error instanceof Error ? error.message : 'Unknown error' 
+          results.push({
+            name: test.name,
+            passed: false,
+            error: error instanceof Error ? error.message : "Unknown error",
           });
           console.log(`❌ ${test.name}: ${error}`);
         }
       }
 
-      const passed = results.filter(r => r.passed).length;
+      const passed = results.filter((r) => r.passed).length;
       const total = results.length;
-      
+
       console.log(`\nTest suite completed: ${passed}/${total} tests passed`);
       return { results, passed, total };
     },

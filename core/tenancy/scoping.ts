@@ -1,5 +1,5 @@
-import { TenantScope, TenantFilter, TenantError } from '../types/tenancy'
-import { supabaseAdmin } from '../supabase'
+import { TenantScope, TenantFilter, TenantError } from "../types/tenancy";
+import { supabaseAdmin } from "../supabase";
 
 /**
  * Tenant scoping utilities to ensure data isolation
@@ -13,17 +13,17 @@ export class TenantScoping {
     organizationId: string,
     additionalFilters?: Record<string, any>
   ) {
-    let scopedQuery = query.eq('organization_id', organizationId)
-    
+    let scopedQuery = query.eq("organization_id", organizationId);
+
     if (additionalFilters) {
       Object.entries(additionalFilters).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          scopedQuery = scopedQuery.eq(key, value)
+          scopedQuery = scopedQuery.eq(key, value);
         }
-      })
+      });
     }
-    
-    return scopedQuery
+
+    return scopedQuery;
   }
 
   /**
@@ -36,18 +36,18 @@ export class TenantScoping {
     additionalFilters?: Record<string, any>
   ) {
     let scopedQuery = query
-      .eq('organization_id', organizationId)
-      .eq('user_id', userId)
-    
+      .eq("organization_id", organizationId)
+      .eq("user_id", userId);
+
     if (additionalFilters) {
       Object.entries(additionalFilters).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          scopedQuery = scopedQuery.eq(key, value)
+          scopedQuery = scopedQuery.eq(key, value);
         }
-      })
+      });
     }
-    
-    return scopedQuery
+
+    return scopedQuery;
   }
 
   /**
@@ -59,22 +59,22 @@ export class TenantScoping {
   ): Promise<boolean> {
     try {
       const { data, error } = await supabaseAdmin
-        .from('memberships')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('organization_id', organizationId)
-        .eq('status', 'active')
-        .single()
+        .from("memberships")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("organization_id", organizationId)
+        .eq("status", "active")
+        .single();
 
       if (error) {
-        console.error('Membership validation error:', error)
-        return false
+        console.error("Membership validation error:", error);
+        return false;
       }
 
-      return !!data
+      return !!data;
     } catch (error) {
-      console.error('Membership validation error:', error)
-      return false
+      console.error("Membership validation error:", error);
+      return false;
     }
   }
 
@@ -87,22 +87,22 @@ export class TenantScoping {
   ): Promise<string | null> {
     try {
       const { data, error } = await supabaseAdmin
-        .from('memberships')
-        .select('role')
-        .eq('user_id', userId)
-        .eq('organization_id', organizationId)
-        .eq('status', 'active')
-        .single()
+        .from("memberships")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("organization_id", organizationId)
+        .eq("status", "active")
+        .single();
 
       if (error) {
-        console.error('Role lookup error:', error)
-        return null
+        console.error("Role lookup error:", error);
+        return null;
       }
 
-      return data?.role || null
+      return data?.role || null;
     } catch (error) {
-      console.error('Role lookup error:', error)
-      return null
+      console.error("Role lookup error:", error);
+      return null;
     }
   }
 
@@ -112,8 +112,9 @@ export class TenantScoping {
   static async getUserOrganizations(userId: string) {
     try {
       const { data, error } = await supabaseAdmin
-        .from('memberships')
-        .select(`
+        .from("memberships")
+        .select(
+          `
           organization_id,
           role,
           organizations (
@@ -123,18 +124,19 @@ export class TenantScoping {
             status,
             plan
           )
-        `)
-        .eq('user_id', userId)
-        .eq('status', 'active')
+        `
+        )
+        .eq("user_id", userId)
+        .eq("status", "active");
 
       if (error) {
-        throw new Error(`Failed to get user organizations: ${error.message}`)
+        throw new Error(`Failed to get user organizations: ${error.message}`);
       }
 
-      return data || []
+      return data || [];
     } catch (error) {
-      console.error('Get user organizations error:', error)
-      throw error
+      console.error("Get user organizations error:", error);
+      throw error;
     }
   }
 
@@ -144,8 +146,9 @@ export class TenantScoping {
   static async getPrimaryOrganization(userId: string) {
     try {
       const { data, error } = await supabaseAdmin
-        .from('users')
-        .select(`
+        .from("users")
+        .select(
+          `
           primary_organization_id,
           organizations (
             id,
@@ -154,18 +157,19 @@ export class TenantScoping {
             status,
             plan
           )
-        `)
-        .eq('id', userId)
-        .single()
+        `
+        )
+        .eq("id", userId)
+        .single();
 
       if (error) {
-        throw new Error(`Failed to get primary organization: ${error.message}`)
+        throw new Error(`Failed to get primary organization: ${error.message}`);
       }
 
-      return data?.organizations || null
+      return data?.organizations || null;
     } catch (error) {
-      console.error('Get primary organization error:', error)
-      throw error
+      console.error("Get primary organization error:", error);
+      throw error;
     }
   }
 
@@ -180,7 +184,7 @@ export class TenantScoping {
     return {
       organizationId,
       userId,
-      includeDeleted
+      includeDeleted,
     }
   }
 
@@ -188,17 +192,17 @@ export class TenantScoping {
    * Apply tenant filter to a query
    */
   static applyFilter(query: any, filter: TenantFilter) {
-    let scopedQuery = query.eq('organization_id', filter.organizationId)
-    
+    let scopedQuery = query.eq("organization_id", filter.organizationId);
+
     if (filter.userId) {
-      scopedQuery = scopedQuery.eq('user_id', filter.userId)
+      scopedQuery = scopedQuery.eq("user_id", filter.userId);
     }
-    
+
     if (!filter.includeDeleted) {
-      scopedQuery = scopedQuery.is('deleted_at', null)
+      scopedQuery = scopedQuery.is("deleted_at", null);
     }
-    
-    return scopedQuery
+
+    return scopedQuery;
   }
 
   /**
@@ -208,17 +212,25 @@ export class TenantScoping {
     try {
       // Validate organization exists and is active
       const { data: org, error: orgError } = await supabaseAdmin
-        .from('organizations')
-        .select('id, status')
-        .eq('id', context.organizationId)
-        .single()
+        .from("organizations")
+        .select("id, status")
+        .eq("id", context.organizationId)
+        .single();
 
       if (orgError || !org) {
-        throw new TenantError('Organization not found', 'ORG_NOT_FOUND', context.organizationId)
+        throw new TenantError(
+          "Organization not found",
+          "ORG_NOT_FOUND",
+          context.organizationId
+        );
       }
 
-      if (org.status !== 'active') {
-        throw new TenantError('Organization is not active', 'ORG_INACTIVE', context.organizationId)
+      if (org.status !== "active") {
+        throw new TenantError(
+          "Organization is not active",
+          "ORG_INACTIVE",
+          context.organizationId
+        );
       }
 
       // Validate user membership
@@ -226,17 +238,21 @@ export class TenantScoping {
         const isValidMember = await this.validateUserMembership(
           context.userId,
           context.organizationId
-        )
+        );
 
         if (!isValidMember) {
-          throw new TenantError('User is not a member of this organization', 'INVALID_MEMBERSHIP', context.organizationId)
+          throw new TenantError(
+            "User is not a member of this organization",
+            "INVALID_MEMBERSHIP",
+            context.organizationId
+          );
         }
       }
 
-      return true
+      return true;
     } catch (error) {
-      console.error('Context validation error:', error)
-      throw error
+      console.error("Context validation error:", error);
+      throw error;
     }
   }
 
@@ -246,19 +262,19 @@ export class TenantScoping {
   static async getOrganizationLimits(organizationId: string) {
     try {
       const { data, error } = await supabaseAdmin
-        .from('organizations')
-        .select('limits, plan')
-        .eq('id', organizationId)
-        .single()
+        .from("organizations")
+        .select("limits, plan")
+        .eq("id", organizationId)
+        .single();
 
       if (error) {
-        throw new Error(`Failed to get organization limits: ${error.message}`)
+        throw new Error(`Failed to get organization limits: ${error.message}`);
       }
 
-      return data
+      return data;
     } catch (error) {
-      console.error('Get organization limits error:', error)
-      throw error
+      console.error("Get organization limits error:", error);
+      throw error;
     }
   }
 
@@ -267,85 +283,85 @@ export class TenantScoping {
    */
   static async checkLimit(
     organizationId: string,
-    limitType: keyof import('../types/tenancy').OrganizationLimits
+    limitType: keyof import("../types/tenancy").OrganizationLimits
   ): Promise<{ current: number; limit: number; exceeded: boolean }> {
     try {
-      const { limits } = await this.getOrganizationLimits(organizationId)
-      const limit = limits[limitType]
-      
+      const { limits } = await this.getOrganizationLimits(organizationId);
+      const limit = limits[limitType];
+
       if (limit === -1) {
         // Unlimited
-        return { current: 0, limit: -1, exceeded: false }
+        return { current: 0, limit: -1, exceeded: false };
       }
 
       // Get current usage based on limit type
-      let current = 0
-      const today = new Date().toISOString().split('T')[0]
+      let current = 0;
+      const today = new Date().toISOString().split("T")[0];
 
       switch (limitType) {
-        case 'maxUsers':
+        case "maxUsers":
           const { count: userCount } = await supabaseAdmin
-            .from('memberships')
-            .select('*', { count: 'exact', head: true })
-            .eq('organization_id', organizationId)
-            .eq('status', 'active')
-          current = userCount || 0
-          break
+            .from("memberships")
+            .select("*", { count: "exact", head: true })
+            .eq("organization_id", organizationId)
+            .eq("status", "active");
+          current = userCount || 0;
+          break;
 
-        case 'maxAiCallsPerDay':
+        case "maxAiCallsPerDay":
           const { data: usageData } = await supabaseAdmin
-            .from('usage_snapshots')
-            .select('ai_calls')
-            .eq('organization_id', organizationId)
-            .eq('date', today)
-            .single()
-          current = usageData?.ai_calls || 0
-          break
+            .from("usage_snapshots")
+            .select("ai_calls")
+            .eq("organization_id", organizationId)
+            .eq("date", today)
+            .single();
+          current = usageData?.ai_calls || 0;
+          break;
 
-        case 'maxSavedScenarios':
+        case "maxSavedScenarios":
           const { count: scenarioCount } = await supabaseAdmin
-            .from('mortgage_calculations')
-            .select('*', { count: 'exact', head: true })
-            .eq('organization_id', organizationId)
-          current = scenarioCount || 0
-          break
+            .from("mortgage_calculations")
+            .select("*", { count: "exact", head: true })
+            .eq("organization_id", organizationId);
+          current = scenarioCount || 0;
+          break;
 
-        case 'maxIntegrations':
+        case "maxIntegrations":
           const { count: integrationCount } = await supabaseAdmin
-            .from('integrations')
-            .select('*', { count: 'exact', head: true })
-            .eq('organization_id', organizationId)
-          current = integrationCount || 0
-          break
+            .from("integrations")
+            .select("*", { count: "exact", head: true })
+            .eq("organization_id", organizationId);
+          current = integrationCount || 0;
+          break;
 
-        case 'maxWebhooks':
+        case "maxWebhooks":
           const { count: webhookCount } = await supabaseAdmin
-            .from('webhook_events')
-            .select('*', { count: 'exact', head: true })
-            .eq('organization_id', organizationId)
-          current = webhookCount || 0
-          break
+            .from("webhook_events")
+            .select("*", { count: "exact", head: true })
+            .eq("organization_id", organizationId);
+          current = webhookCount || 0;
+          break;
 
-        case 'maxApiKeys':
+        case "maxApiKeys":
           const { count: apiKeyCount } = await supabaseAdmin
-            .from('api_keys')
-            .select('*', { count: 'exact', head: true })
-            .eq('organization_id', organizationId)
-          current = apiKeyCount || 0
-          break
+            .from("api_keys")
+            .select("*", { count: "exact", head: true })
+            .eq("organization_id", organizationId);
+          current = apiKeyCount || 0;
+          break;
 
         default:
-          throw new Error(`Unknown limit type: ${limitType}`)
+          throw new Error(`Unknown limit type: ${limitType}`);
       }
 
       return {
         current,
         limit,
-        exceeded: limit !== -1 && current >= limit
+        exceeded: limit !== -1 && current >= limit,
       }
     } catch (error) {
-      console.error('Check limit error:', error)
-      throw error
+      console.error("Check limit error:", error);
+      throw error;
     }
   }
 
@@ -355,25 +371,29 @@ export class TenantScoping {
   static sanitizeResponse<T>(data: T, organizationId: string): T {
     // Remove any sensitive data that shouldn't be exposed
     if (Array.isArray(data)) {
-      return data.map(item => this.sanitizeResponse(item, organizationId)) as T
+      return data.map((item) =>
+        this.sanitizeResponse(item, organizationId)
+      ) as T;
     }
 
-    if (data && typeof data === 'object') {
-      const sanitized = { ...data } as any
-      
+    if (data && typeof data === "object") {
+      const sanitized = { ...data } as any;
+
       // Remove organization_id from response (it's implicit in the context)
-      delete sanitized.organization_id
-      
+      delete sanitized.organization_id;
+
       // Sanitize nested objects
-      Object.keys(sanitized).forEach(key => {
-        if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
-          sanitized[key] = this.sanitizeResponse(sanitized[key], organizationId)
+      Object.keys(sanitized).forEach((key) => {
+        if (typeof sanitized[key] === "object" && sanitized[key] !== null) {
+          sanitized[key] = this.sanitizeResponse(
+            sanitized[key],
+            organizationId
+          );
         }
-      })
-      
-      return sanitized
+
+      return sanitized;
     }
 
-    return data
+    return data;
   }
 }

@@ -5,7 +5,7 @@ export interface User {
   firstName: string;
   lastName: string;
   phone?: string;
-  subscriptionTier: 'free' | 'premium' | 'broker';
+  subscriptionTier: "free" | "premium" | "broker";
   avatar?: string;
   preferences: UserPreferences;
   createdAt: string;
@@ -14,18 +14,18 @@ export interface User {
 
 export interface UserPreferences {
   language: string;
-  currency: 'CAD' | 'USD';
+  currency: "CAD" | "USD";
   notifications: {
     email: boolean;
     push: boolean;
     sms: boolean;
   };
-  theme: 'light' | 'dark' | 'auto';
+  theme: "light" | "dark" | "auto";
 }
 
 // Mortgage Calculation Types
 export interface AffordabilityInput {
-  country: 'CA' | 'US';
+  country: "CA" | "US";
   income: number;
   debts: number;
   downPayment: number;
@@ -58,8 +58,8 @@ export interface AffordabilityResult {
 }
 
 export interface RiskFactor {
-  type: 'rate_risk' | 'payment_shock' | 'qualification_risk' | 'market_risk';
-  severity: 'low' | 'medium' | 'high';
+  type: "rate_risk" | "payment_shock" | "qualification_risk" | "market_risk";
+  severity: "low" | "medium" | "high";
   description: string;
   mitigation?: string;
 }
@@ -78,7 +78,7 @@ export interface RateResult {
   lenderName: string;
   lenderLogo: string;
   rate: number;
-  rateType: 'fixed' | 'variable' | 'arm';
+  rateType: "fixed" | "variable" | "arm";
   termYears: number;
   monthlyPayment: number;
   totalInterest: number;
@@ -163,7 +163,7 @@ export interface ScenarioComparison {
     riskAssessment: {
       lowestRisk: string;
       highestRisk: string;
-      overallRisk: 'low' | 'medium' | 'high';
+      overallRisk: "low" | "medium" | "high";
     };
     recommendations: Recommendation[];
   };
@@ -178,8 +178,8 @@ export interface ScenarioComparison {
 }
 
 export interface Recommendation {
-  type: 'optimization' | 'risk_mitigation' | 'compliance' | 'financial';
-  priority: 'low' | 'medium' | 'high';
+  type: "optimization" | "risk_mitigation" | "compliance" | "financial";
+  priority: "low" | "medium" | "high";
   title: string;
   description: string;
   action?: string;
@@ -200,7 +200,7 @@ export interface Lead {
   email: string;
   phone: string;
   leadScore: number;
-  status: 'pending' | 'contacted' | 'converted' | 'rejected';
+  status: "pending" | "contacted" | "converted" | "rejected";
   leadData: LeadData;
   brokerId?: string;
   brokerName?: string;
@@ -217,11 +217,11 @@ export interface LeadData {
   downPayment: number;
   propertyPrice: number;
   creditScore: number;
-  employmentType: 'salaried' | 'self_employed' | 'contract' | 'retired';
+  employmentType: "salaried" | "self_employed" | "contract" | "retired";
   location: string;
-  propertyType: 'single_family' | 'condo' | 'townhouse' | 'multi_family';
-  loanPurpose: 'purchase' | 'refinance' | 'cash_out';
-  timeline: 'immediate' | '1_3_months' | '3_6_months' | '6_12_months';
+  propertyType: "single_family" | "condo" | "townhouse" | "multi_family";
+  loanPurpose: "purchase" | "refinance" | "cash_out";
+  timeline: "immediate" | "1_3_months" | "3_6_months" | "6_12_months";
 }
 
 export interface LeadNote {
@@ -250,22 +250,22 @@ export interface Document {
   tags: string[];
 }
 
-export type DocumentType = 
-  | 'pdf' 
-  | 'image' 
-  | 'word' 
-  | 'excel' 
-  | 'text' 
-  | 'other';
+export type DocumentType =
+  | "pdf"
+  | "image"
+  | "word"
+  | "excel"
+  | "text"
+  | "other";
 
-export type DocumentCategory = 
-  | 'income_verification'
-  | 'asset_verification'
-  | 'employment_verification'
-  | 'property_documents'
-  | 'insurance'
-  | 'legal'
-  | 'other';
+export type DocumentCategory =
+  | "income_verification"
+  | "asset_verification"
+  | "employment_verification"
+  | "property_documents"
+  | "insurance"
+  | "legal"
+  | "other";
 
 // Analytics Types
 export interface AnalyticsData {
@@ -278,7 +278,7 @@ export interface AnalyticsData {
 }
 
 export interface DeviceInfo {
-  platform: 'ios' | 'android';
+  platform: "ios" | "android";
   version: string;
   model: string;
   appVersion: string;
@@ -341,7 +341,7 @@ export interface CommissionReport {
   leadId: string;
   brokerId: string;
   amount: number;
-  status: 'pending' | 'paid' | 'overdue';
+  status: "pending" | "paid" | "overdue";
   dueDate: string;
   createdAt: string;
   paidAt?: string;
@@ -373,17 +373,17 @@ export interface MortgageProduct {
   popularity: number;
 }
 
-export type MortgageType = 
-  | 'conventional'
-  | 'fha'
-  | 'va'
-  | 'usda'
-  | 'jumbo'
-  | 'arm'
-  | 'interest_only'
-  | 'reverse'
-  | 'construction'
-  | 'bridge';
+export type MortgageType =
+  | "conventional"
+  | "fha"
+  | "va"
+  | "usda"
+  | "jumbo"
+  | "arm"
+  | "interest_only"
+  | "reverse"
+  | "construction"
+  | "bridge";
 
 export interface EligibilityCriteria {
   minCreditScore: number;
@@ -459,9 +459,9 @@ export interface AppState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  theme: 'light' | 'dark' | 'auto';
+  theme: "light" | "dark" | "auto";
   language: string;
-  currency: 'CAD' | 'USD';
+  currency: "CAD" | "USD";
 }
 
 export interface MortgageState {

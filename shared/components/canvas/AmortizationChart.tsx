@@ -1,23 +1,36 @@
-'use client'
+"use client";
 
-import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts'
-import { TrendingUp, PieChart } from 'lucide-react'
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+} from "recharts";
+import { TrendingUp, PieChart } from "lucide-react";
 
 interface AmortizationData {
-  month: number
-  principal: number
-  interest: number
-  balance: number
+  month: number;
+  principal: number;
+  interest: number;
+  balance: number;
 }
 
 interface AmortizationChartProps {
-  data: AmortizationData[]
-  loading?: boolean
+  data: AmortizationData[];
+  loading?: boolean;
 }
 
-export function AmortizationChart({ data, loading = false }: AmortizationChartProps) {
+export function AmortizationChart({
+  data,
+  loading = false,
+}: AmortizationChartProps) {
   if (loading) {
     return (
       <Card className="w-full">
@@ -34,7 +47,7 @@ export function AmortizationChart({ data, loading = false }: AmortizationChartPr
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (!data || data.length === 0) {
@@ -52,7 +65,7 @@ export function AmortizationChart({ data, loading = false }: AmortizationChartPr
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   // Prepare data for charts
@@ -62,12 +75,12 @@ export function AmortizationChart({ data, loading = false }: AmortizationChartPr
     interest: item.interest,
     balance: item.balance,
     year: Math.floor(item.month / 12) + 1,
-  }))
+  }));
 
   // Calculate totals
-  const totalPrincipal = data.reduce((sum, item) => sum + item.principal, 0)
-  const totalInterest = data.reduce((sum, item) => sum + item.interest, 0)
-  const totalPaid = totalPrincipal + totalInterest
+  const totalPrincipal = data.reduce((sum, item) => sum + item.principal, 0);
+  const totalInterest = data.reduce((sum, item) => sum + item.interest, 0);
+  const totalPaid = totalPrincipal + totalInterest;
 
   return (
     <div className="space-y-6">
@@ -80,16 +93,16 @@ export function AmortizationChart({ data, loading = false }: AmortizationChartPr
               <div>
                 <p className="text-sm text-muted-foreground">Total Principal</p>
                 <p className="text-2xl font-bold">
-                  {new Intl.NumberFormat('en-CA', {
-                    style: 'currency',
-                    currency: 'CAD',
+                  {new Intl.NumberFormat("en-CA", {
+                    style: "currency",
+                    currency: "CAD",
                   }).format(totalPrincipal)}
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
@@ -97,16 +110,16 @@ export function AmortizationChart({ data, loading = false }: AmortizationChartPr
               <div>
                 <p className="text-sm text-muted-foreground">Total Interest</p>
                 <p className="text-2xl font-bold">
-                  {new Intl.NumberFormat('en-CA', {
-                    style: 'currency',
-                    currency: 'CAD',
+                  {new Intl.NumberFormat("en-CA", {
+                    style: "currency",
+                    currency: "CAD",
                   }).format(totalInterest)}
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
@@ -114,9 +127,9 @@ export function AmortizationChart({ data, loading = false }: AmortizationChartPr
               <div>
                 <p className="text-sm text-muted-foreground">Total Paid</p>
                 <p className="text-2xl font-bold">
-                  {new Intl.NumberFormat('en-CA', {
-                    style: 'currency',
-                    currency: 'CAD',
+                  {new Intl.NumberFormat("en-CA", {
+                    style: "currency",
+                    currency: "CAD",
                   }).format(totalPaid)}
                 </p>
               </div>
@@ -136,28 +149,30 @@ export function AmortizationChart({ data, loading = false }: AmortizationChartPr
         <CardContent>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData.slice(0, 60)}> {/* Show first 5 years */}
+              <BarChart data={chartData.slice(0, 60)}>
+                {" "}
+                {/* Show first 5 years */}
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="month" 
+                <XAxis
+                  dataKey="month"
                   tickFormatter={(value) => `Month ${value}`}
                 />
-                <YAxis 
-                  tickFormatter={(value) => 
-                    new Intl.NumberFormat('en-CA', {
-                      style: 'currency',
-                      currency: 'CAD',
+                <YAxis
+                  tickFormatter={(value) =>
+                    new Intl.NumberFormat("en-CA", {
+                      style: "currency",
+                      currency: "CAD",
                       minimumFractionDigits: 0,
                     }).format(value)
                   }
                 />
-                <Tooltip 
+                <Tooltip
                   formatter={(value: number, name: string) => [
-                    new Intl.NumberFormat('en-CA', {
-                      style: 'currency',
-                      currency: 'CAD',
+                    new Intl.NumberFormat("en-CA", {
+                      style: "currency",
+                      currency: "CAD",
                     }).format(value),
-                    name === 'principal' ? 'Principal' : 'Interest'
+                    name === "principal" ? "Principal" : "Interest",
                   ]}
                   labelFormatter={(value) => `Month ${value}`}
                 />
@@ -182,33 +197,33 @@ export function AmortizationChart({ data, loading = false }: AmortizationChartPr
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="year" 
+                <XAxis
+                  dataKey="year"
                   tickFormatter={(value) => `Year ${value}`}
                 />
-                <YAxis 
-                  tickFormatter={(value) => 
-                    new Intl.NumberFormat('en-CA', {
-                      style: 'currency',
-                      currency: 'CAD',
+                <YAxis
+                  tickFormatter={(value) =>
+                    new Intl.NumberFormat("en-CA", {
+                      style: "currency",
+                      currency: "CAD",
                       minimumFractionDigits: 0,
                     }).format(value)
                   }
                 />
-                <Tooltip 
+                <Tooltip
                   formatter={(value: number) => [
-                    new Intl.NumberFormat('en-CA', {
-                      style: 'currency',
-                      currency: 'CAD',
+                    new Intl.NumberFormat("en-CA", {
+                      style: "currency",
+                      currency: "CAD",
                     }).format(value),
-                    'Remaining Balance'
+                    "Remaining Balance",
                   ]}
                   labelFormatter={(value) => `Year ${value}`}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="balance" 
-                  stroke="#8b5cf6" 
+                <Line
+                  type="monotone"
+                  dataKey="balance"
+                  stroke="#8b5cf6"
                   strokeWidth={2}
                   dot={false}
                 />
@@ -242,28 +257,31 @@ export function AmortizationChart({ data, loading = false }: AmortizationChartPr
                   <tr key={item.month} className="border-b">
                     <td className="py-2">{item.month}</td>
                     <td className="text-right py-2">
-                      {new Intl.NumberFormat('en-CA', {
-                        style: 'currency',
-                        currency: 'CAD',
+                      {new Intl.NumberFormat("en-CA", {
+                        style: "currency",
+                        currency: "CAD",
                       }).format(item.principal)}
                     </td>
                     <td className="text-right py-2">
-                      {new Intl.NumberFormat('en-CA', {
-                        style: 'currency',
-                        currency: 'CAD',
+                      {new Intl.NumberFormat("en-CA", {
+                        style: "currency",
+                        currency: "CAD",
                       }).format(item.interest)}
                     </td>
                     <td className="text-right py-2">
-                      {new Intl.NumberFormat('en-CA', {
-                        style: 'currency',
-                        currency: 'CAD',
+                      {new Intl.NumberFormat("en-CA", {
+                        style: "currency",
+                        currency: "CAD",
                       }).format(item.balance)}
                     </td>
                   </tr>
                 ))}
                 {data.length > 12 && (
                   <tr>
-                    <td colSpan={4} className="text-center py-2 text-muted-foreground">
+                    <td
+                      colSpan={4}
+                      className="text-center py-2 text-muted-foreground"
+                    >
                       ... and {data.length - 12} more months
                     </td>
                   </tr>
@@ -274,5 +292,5 @@ export function AmortizationChart({ data, loading = false }: AmortizationChartPr
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

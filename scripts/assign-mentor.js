@@ -1,61 +1,67 @@
 #!/usr/bin/env node
 
-const { Octokit } = require('@octokit/rest');
+const { Octokit } = require("@octokit/rest");
 
 // Initialize GitHub client
 const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
 });
 
-const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 const developerUsername = process.env.DEVELOPER_USERNAME;
 
 // Mentor configuration
 const mentors = [
   {
-    username: 'senior-frontend-dev',
-    name: 'Senior Frontend Developer',
-    expertise: ['react', 'nextjs', 'ui', 'typescript', 'tailwind'],
-    availability: 'high',
-    timezone: 'EST'
+    username: "senior-frontend-dev",
+    name: "Senior Frontend Developer",
+    expertise: ["react", "nextjs", "ui", "typescript", "tailwind"],
+    availability: "high",
+    timezone: "EST",
   },
   {
-    username: 'backend-expert',
-    name: 'Backend Expert',
-    expertise: ['api', 'database', 'auth', 'supabase', 'nodejs'],
-    availability: 'high',
-    timezone: 'PST'
+    username: "backend-expert",
+    name: "Backend Expert",
+    expertise: ["api", "database", "auth", "supabase", "nodejs"],
+    availability: "high",
+    timezone: "PST",
   },
   {
-    username: 'ai-ml-specialist',
-    name: 'AI/ML Specialist',
-    expertise: ['ai', 'ml', 'agents', 'openai', 'machine-learning'],
-    availability: 'medium',
-    timezone: 'EST'
+    username: "ai-ml-specialist",
+    name: "AI/ML Specialist",
+    expertise: ["ai", "ml", "agents", "openai", "machine-learning"],
+    availability: "medium",
+    timezone: "EST",
   },
   {
-    username: 'devops-engineer',
-    name: 'DevOps Engineer',
-    expertise: ['deployment', 'ci-cd', 'monitoring', 'security', 'infrastructure'],
-    availability: 'medium',
-    timezone: 'CST'
+    username: "devops-engineer",
+    name: "DevOps Engineer",
+    expertise: [
+      "deployment",
+      "ci-cd",
+      "monitoring",
+      "security",
+      "infrastructure",
+    ],
+    availability: "medium",
+    timezone: "CST",
   },
   {
-    username: 'full-stack-lead',
-    name: 'Full Stack Lead',
-    expertise: ['react', 'nodejs', 'api', 'database', 'architecture'],
-    availability: 'high',
-    timezone: 'EST'
-  }
+    username: "full-stack-lead",
+    name: "Full Stack Lead",
+    expertise: ["react", "nodejs", "api", "database", "architecture"],
+    availability: "high",
+    timezone: "EST",
+  },
 ];
 
 // Specialization mapping based on common interests
 const specializationMap = {
-  'frontend': ['senior-frontend-dev', 'full-stack-lead'],
-  'backend': ['backend-expert', 'full-stack-lead'],
-  'ai': ['ai-ml-specialist'],
-  'devops': ['devops-engineer'],
-  'fullstack': ['full-stack-lead', 'senior-frontend-dev', 'backend-expert']
+  frontend: ["senior-frontend-dev", "full-stack-lead"],
+  backend: ["backend-expert", "full-stack-lead"],
+  ai: ["ai-ml-specialist"],
+  devops: ["devops-engineer"],
+  fullstack: ["full-stack-lead", "senior-frontend-dev", "backend-expert"],
 };
 
 async function assignMentor() {
@@ -66,36 +72,55 @@ async function assignMentor() {
     let developerProfile;
     try {
       developerProfile = await octokit.rest.users.getByUsername({
-        username: developerUsername
+        username: developerUsername,
       });
     } catch (error) {
-      console.log('Could not fetch developer profile, using default assignment');
+      console.log(
+        "Could not fetch developer profile, using default assignment"
+      );
     }
 
     // Determine specialization based on profile or use default
-    let specialization = 'fullstack'; // default
+    let specialization = "fullstack"; // default
     if (developerProfile) {
       // Simple heuristic based on bio, location, or other factors
-      const bio = developerProfile.data.bio?.toLowerCase() || '';
-      if (bio.includes('frontend') || bio.includes('react') || bio.includes('ui')) {
-        specialization = 'frontend';
-      } else if (bio.includes('backend') || bio.includes('api') || bio.includes('database')) {
-        specialization = 'backend';
-      } else if (bio.includes('ai') || bio.includes('ml') || bio.includes('machine learning')) {
-        specialization = 'ai';
-      } else if (bio.includes('devops') || bio.includes('deployment') || bio.includes('infrastructure')) {
-        specialization = 'devops';
+      const bio = developerProfile.data.bio?.toLowerCase() || "";
+      if (
+        bio.includes("frontend") ||
+        bio.includes("react") ||
+        bio.includes("ui")
+      ) {
+        specialization = "frontend";
+      } else if (
+        bio.includes("backend") ||
+        bio.includes("api") ||
+        bio.includes("database")
+      ) {
+        specialization = "backend";
+      } else if (
+        bio.includes("ai") ||
+        bio.includes("ml") ||
+        bio.includes("machine learning")
+      ) {
+        specialization = "ai";
+      } else if (
+        bio.includes("devops") ||
+        bio.includes("deployment") ||
+        bio.includes("infrastructure")
+      ) {
+        specialization = "devops";
       }
     }
 
     // Get available mentors for this specialization
-    const availableMentors = specializationMap[specialization] || specializationMap['fullstack'];
-    
+    const availableMentors =
+      specializationMap[specialization] || specializationMap.fullstack;
+
     // Find the best available mentor
     let selectedMentor = null;
     for (const mentorUsername of availableMentors) {
-      const mentor = mentors.find(m => m.username === mentorUsername);
-      if (mentor && mentor.availability === 'high') {
+      const mentor = mentors.find((m) => m.username === mentorUsername);
+      if (mentor && mentor.availability === "high") {
         selectedMentor = mentor;
         break;
       }
@@ -103,10 +128,13 @@ async function assignMentor() {
 
     // Fallback to any available mentor
     if (!selectedMentor) {
-      selectedMentor = mentors.find(m => m.availability === 'high') || mentors[0];
+      selectedMentor =
+        mentors.find((m) => m.availability === "high") || mentors[0];
     }
 
-    console.log(`Selected mentor: ${selectedMentor.name} (${selectedMentor.username})`);
+    console.log(
+      `Selected mentor: ${selectedMentor.name} (${selectedMentor.username})`
+    );
 
     // Create mentor assignment issue
     const mentorIssue = await octokit.rest.issues.create({
@@ -117,10 +145,12 @@ async function assignMentor() {
 
 Hello @${developerUsername}!
 
-I've assigned **@${selectedMentor.username}** as your mentor for the onboarding process.
+I've assigned **@${
+        selectedMentor.username
+      }** as your mentor for the onboarding process.
 
 ### Your Mentor: ${selectedMentor.name}
-- **Expertise**: ${selectedMentor.expertise.join(', ')}
+- **Expertise**: ${selectedMentor.expertise.join(", ")}
 - **Availability**: ${selectedMentor.availability}
 - **Timezone**: ${selectedMentor.timezone}
 
@@ -158,11 +188,13 @@ I've assigned **@${selectedMentor.username}** as your mentor for the onboarding 
 4. Schedule your first check-in
 
 Welcome to the team! 🚀`,
-      labels: ['mentor-assignment', 'onboarding'],
-      assignees: [developerUsername, selectedMentor.username]
+      labels: ["mentor-assignment", "onboarding"],
+      assignees: [developerUsername, selectedMentor.username],
     });
 
-    console.log(`Created mentor assignment issue: ${mentorIssue.data.title} (#${mentorIssue.data.number})`);
+    console.log(
+      `Created mentor assignment issue: ${mentorIssue.data.title} (#${mentorIssue.data.number})`
+    );
 
     // Create a mentor notification
     const mentorNotification = await octokit.rest.issues.create({
@@ -211,21 +243,23 @@ You've been assigned as a mentor for **@${developerUsername}** who is starting t
 4. Set expectations for communication
 
 Thank you for being a mentor! 🙏`,
-      labels: ['mentor-notification', 'onboarding'],
-      assignees: [selectedMentor.username]
+      labels: ["mentor-notification", "onboarding"],
+      assignees: [selectedMentor.username],
     });
 
-    console.log(`Created mentor notification: ${mentorNotification.data.title} (#${mentorNotification.data.number})`);
+    console.log(
+      `Created mentor notification: ${mentorNotification.data.title} (#${mentorNotification.data.number})`
+    );
 
     // Update the onboarding summary with mentor info
     const summaryIssues = await octokit.rest.issues.listForRepo({
       owner,
       repo,
-      labels: 'onboarding-summary',
-      state: 'open'
+      labels: "onboarding-summary",
+      state: "open",
     });
 
-    const developerSummary = summaryIssues.data.find(issue => 
+    const developerSummary = summaryIssues.data.find((issue) =>
       issue.title.includes(developerUsername)
     );
 
@@ -243,12 +277,11 @@ Your mentor **@${selectedMentor.username}** has been assigned and notified. They
 2. Introduce yourself to your mentor
 3. Start with the first task: "Set up local development environment"
 
-Good luck! 🚀`
+Good luck! 🚀`,
       });
     }
-
   } catch (error) {
-    console.error('Error assigning mentor:', error);
+    console.error("Error assigning mentor:", error);
     process.exit(1);
   }
 }

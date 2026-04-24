@@ -25,11 +25,10 @@ const DashboardScreen = () => {
             <Paragraph>
               Loan Amount: ${mortgageData.loanAmount.toLocaleString()}
             </Paragraph>
+            <Paragraph>Interest Rate: {mortgageData.interestRate}%</Paragraph>
             <Paragraph>
-              Interest Rate: {mortgageData.interestRate}%
-            </Paragraph>
-            <Paragraph>
-              Monthly Payment: ${calculations?.monthlyPayment.toLocaleString() || '0'}
+              Monthly Payment: $
+              {calculations?.monthlyPayment.toLocaleString() || '0'}
             </Paragraph>
           </Card.Content>
         </Card>

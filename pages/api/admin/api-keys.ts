@@ -1,39 +1,54 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { ApiKeyService } from '@/lib/tenancy/api-key-service'
-import { PermissionChecker } from '@/lib/tenancy/rbac'
+import { NextApiRequest, NextApiResponse } from "next";
+import { ApiKeyService } from "@/lib/tenancy/api-key-service";
+import { PermissionChecker } from "@/lib/tenancy/rbac";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'GET' && req.method !== 'POST' && req.method !== 'PUT' && req.method !== 'DELETE') {
-    return res.status(405).json({ error: 'Method not allowed' })
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (
+    req.method !== "GET" &&
+    req.method !== "POST" &&
+    req.method !== "PUT" &&
+    req.method !== "DELETE"
+  ) {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const { organizationId, userId, userRole } = req.query
+    const { organizationId, userId, userRole } = req.query;
 
     if (!organizationId || !userId || !userRole) {
-      return res.status(400).json({ error: 'Missing required parameters' })
+      return res.status(400).json({ error: "Missing required parameters" });
     }
 
     // Check permissions
-    if (!PermissionChecker.can(userRole as string, 'read', 'manage_api_keys', organizationId as string)) {
-      return res.status(403).json({ error: 'Insufficient permissions' })
+    if (
+      !PermissionChecker.can(
+        userRole as string,
+        "read",
+        "manage_api_keys",
+        organizationId as string
+      )
+    ) {
+      return res.status(403).json({ error: "Insufficient permissions" });
     }
 
     switch (req.method) {
-      case 'GET':
+      case "GET":
         // Get API keys
         const apiKeys = await ApiKeyService.getApiKeys(
           organizationId as string,
           userId as string,
           userRole as string
-        )
-        return res.status(200).json({ apiKeys })
+        );
+        return res.status(200).json({ apiKeys });
 
-      case 'POST':
+      case "POST":
         // Create API key
-        const { name, scopes, expiresAt } = req.body
+        const { name, scopes, expiresAt } = req.body;
         if (!name || !scopes) {
-          return res.status(400).json({ error: 'Missing name or scopes' })
+          return res.status(400).json({ error: "Missing name or scopes" });
         }
 
         const newApiKey = await ApiKeyService.createApiKey(
@@ -43,14 +58,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           userId as string,
           userRole as string,
           expiresAt
-        )
-        return res.status(201).json({ apiKey: newApiKey })
+        );
+        return res.status(201).json({ apiKey: newApiKey });
 
-      case 'PUT':
+      case "PUT":
         // Update API key
-        const { keyId, updates } = req.body
+        const { keyId, updates } = req.body;
         if (!keyId || !updates) {
-          return res.status(400).json({ error: 'Missing keyId or updates' })
+          return res.status(400).json({ error: "Missing keyId or updates" });
         }
 
         const updatedApiKey = await ApiKeyService.updateApiKey(
@@ -59,14 +74,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           updates,
           userId as string,
           userRole as string
-        )
-        return res.status(200).json({ apiKey: updatedApiKey })
+        );
+        return res.status(200).json({ apiKey: updatedApiKey });
 
-      case 'DELETE':
+      case "DELETE":
         // Delete API key
-        const { keyId: deleteKeyId } = req.body
+        const { keyId: deleteKeyId } = req.body;
         if (!deleteKeyId) {
-          return res.status(400).json({ error: 'Missing keyId' })
+          return res.status(400).json({ error: "Missing keyId" });
         }
 
         await ApiKeyService.deleteApiKey(
@@ -74,16 +89,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           organizationId as string,
           userId as string,
           userRole as string
-        )
-        return res.status(200).json({ success: true })
+        );
+        return res.status(200).json({ success: true });
 
       default:
-        return res.status(405).json({ error: 'Method not allowed' })
+        return res.status(405).json({ error: "Method not allowed" });
     }
   } catch (error) {
-    console.error('Admin API keys API error:', error)
-    return res.status(500).json({ 
-      error: error instanceof Error ? error.message : 'Internal server error' 
-    })
+    console.error("Admin API keys API error:", error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : "Internal server error",
+    });
   }
 }

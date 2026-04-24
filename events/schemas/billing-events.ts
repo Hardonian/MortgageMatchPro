@@ -168,4 +168,5 @@ export const BILLING_EVENT_TYPES = {
   QUOTA_EXCEEDED: 'billing.quota.exceeded',
 } as const;
 
-export type BillingEventType = typeof BILLING_EVENT_TYPES[keyof typeof BILLING_EVENT_TYPES];
+export type BillingEventType =
+  (typeof BILLING_EVENT_TYPES)[keyof typeof BILLING_EVENT_TYPES];

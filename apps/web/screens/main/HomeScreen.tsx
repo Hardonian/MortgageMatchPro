@@ -1,26 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  RefreshControl,
-} from 'react-native';
-import { Text, Card, FAB, useTheme } from 'react-native-paper';
-import { LineChart, BarChart, PieChart } from 'react-native-chart-kit';
-import { useAuth } from '../../contexts/AuthContext';
-import { useI18n } from '../../contexts/I18nContext';
-import { mortgageService } from '../../services/mortgageService';
-import { DashboardMetrics, Lead } from '../../types';
-import { spacing, shadows } from '../../constants/theme';
-import { QuickActionsCard } from '../../components/home/QuickActionsCard';
-import { MetricsCard } from '../../components/home/MetricsCard';
-import { RecentActivityCard } from '../../components/home/RecentActivityCard';
-import { MarketInsightsCard } from '../../components/home/MarketInsightsCard';
-import { ResponsiveLayout } from '../../components/layout/ResponsiveLayout';
-import { ResponsiveGrid } from '../../components/layout/ResponsiveGrid';
-import { ResponsiveText } from '../../components/ui/ResponsiveText';
-import { scale, layout } from '../../utils/responsive';
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, RefreshControl } from "react-native";
+import { Text, Card, FAB, useTheme } from "react-native-paper";
+import { LineChart, BarChart, PieChart } from "react-native-chart-kit";
+import { useAuth } from "../../contexts/AuthContext";
+import { useI18n } from "../../contexts/I18nContext";
+import { mortgageService } from "../../services/mortgageService";
+import { DashboardMetrics, Lead } from "../../types";
+import { spacing, shadows } from "../../constants/theme";
+import { QuickActionsCard } from "../../components/home/QuickActionsCard";
+import { MetricsCard } from "../../components/home/MetricsCard";
+import { RecentActivityCard } from "../../components/home/RecentActivityCard";
+import { MarketInsightsCard } from "../../components/home/MarketInsightsCard";
+import { ResponsiveLayout } from "../../components/layout/ResponsiveLayout";
+import { ResponsiveGrid } from "../../components/layout/ResponsiveGrid";
+import { ResponsiveText } from "../../components/ui/ResponsiveText";
+import { scale, layout } from "../../utils/responsive";
 
-const chartWidth = layout.screenWidth - (spacing.lg * 2);
+const chartWidth = layout.screenWidth - spacing.lg * 2;
 
 export const HomeScreen: React.FC = () => {
   const { theme } = useTheme();
@@ -42,11 +38,11 @@ export const HomeScreen: React.FC = () => {
         mortgageService.getDashboardMetrics(),
         mortgageService.getLeads(),
       ]);
-      
+
       setMetrics(metricsData);
       setRecentLeads(leadsData.slice(0, 5));
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
+      console.error("Error loading dashboard data:", error);
     } finally {
       setLoading(false);
     }
@@ -69,14 +65,14 @@ export const HomeScreen: React.FC = () => {
       borderRadius: 16,
     },
     propsForDots: {
-      r: '6',
-      strokeWidth: '2',
+      r: "6",
+      strokeWidth: "2",
       stroke: theme.colors.primary,
     },
   };
 
   const monthlyData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
     datasets: [
       {
         data: [12, 19, 15, 25, 22, 30],
@@ -88,30 +84,30 @@ export const HomeScreen: React.FC = () => {
 
   const leadSourceData = [
     {
-      name: 'Website',
+      name: "Website",
       population: 45,
-      color: '#1e40af',
+      color: "#1e40af",
       legendFontColor: theme.colors.onSurface,
       legendFontSize: 12,
     },
     {
-      name: 'Referral',
+      name: "Referral",
       population: 25,
-      color: '#059669',
+      color: "#059669",
       legendFontColor: theme.colors.onSurface,
       legendFontSize: 12,
     },
     {
-      name: 'Social Media',
+      name: "Social Media",
       population: 20,
-      color: '#7c3aed',
+      color: "#7c3aed",
       legendFontColor: theme.colors.onSurface,
       legendFontSize: 12,
     },
     {
-      name: 'Other',
+      name: "Other",
       population: 10,
-      color: '#dc2626',
+      color: "#dc2626",
       legendFontColor: theme.colors.onSurface,
       legendFontSize: 12,
     },
@@ -119,7 +115,9 @@ export const HomeScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <View
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
         <Text>Loading...</Text>
       </View>
     );
@@ -135,17 +133,20 @@ export const HomeScreen: React.FC = () => {
       <View style={styles.container}>
         {/* Welcome Header */}
         <View style={styles.header}>
-          <ResponsiveText 
-            variant="body" 
-            style={[styles.welcomeText, { color: theme.colors.onSurfaceVariant }]}
+          <ResponsiveText
+            variant="body"
+            style={[
+              styles.welcomeText,
+              { color: theme.colors.onSurfaceVariant },
+            ]}
           >
             Welcome back,
           </ResponsiveText>
-          <ResponsiveText 
-            variant="h2" 
+          <ResponsiveText
+            variant="h2"
             style={[styles.userName, { color: theme.colors.onBackground }]}
           >
-            {user?.firstName || 'User'}
+            {user?.firstName || "User"}
           </ResponsiveText>
         </View>
 
@@ -191,10 +192,12 @@ export const HomeScreen: React.FC = () => {
         )}
 
         {/* Monthly Trends Chart */}
-        <Card style={[styles.chartCard, { backgroundColor: theme.colors.surface }]}>
+        <Card
+          style={[styles.chartCard, { backgroundColor: theme.colors.surface }]}
+        >
           <Card.Content>
-            <ResponsiveText 
-              variant="h3" 
+            <ResponsiveText
+              variant="h3"
               style={[styles.chartTitle, { color: theme.colors.onSurface }]}
             >
               Monthly Performance
@@ -211,10 +214,12 @@ export const HomeScreen: React.FC = () => {
         </Card>
 
         {/* Lead Sources Chart */}
-        <Card style={[styles.chartCard, { backgroundColor: theme.colors.surface }]}>
+        <Card
+          style={[styles.chartCard, { backgroundColor: theme.colors.surface }]}
+        >
           <Card.Content>
-            <ResponsiveText 
-              variant="h3" 
+            <ResponsiveText
+              variant="h3"
               style={[styles.chartTitle, { color: theme.colors.onSurface }]}
             >
               Lead Sources
@@ -245,7 +250,9 @@ export const HomeScreen: React.FC = () => {
       <FAB
         icon="plus"
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={() => {/* Navigate to create lead */}}
+        onPress={() => {
+          /* Navigate to create lead */
+        }}
       />
     </ResponsiveLayout>
   );
@@ -267,11 +274,11 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   metricsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     paddingHorizontal: spacing.lg,
     marginBottom: spacing.lg,
   },
@@ -282,7 +289,7 @@ const styles = StyleSheet.create({
   },
   chartTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: spacing.md,
   },
   chart: {
@@ -293,7 +300,7 @@ const styles = StyleSheet.create({
     height: 100,
   },
   fab: {
-    position: 'absolute',
+    position: "absolute",
     margin: 16,
     right: 0,
     bottom: 0,

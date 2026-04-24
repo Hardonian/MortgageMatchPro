@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Text, Card, useTheme } from 'react-native-paper';
-import { useI18n } from '../../contexts/I18nContext';
-import { spacing } from '../../constants/theme';
+import React from "react";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { Text, Card, useTheme } from "react-native-paper";
+import { useI18n } from "../../contexts/I18nContext";
+import { spacing } from "../../constants/theme";
 
 interface QuickAction {
   id: string;
@@ -14,32 +14,40 @@ interface QuickAction {
 
 const quickActions: QuickAction[] = [
   {
-    id: 'calculator',
-    title: 'Calculate Affordability',
-    icon: '🧮',
-    color: '#1e40af',
-    onPress: () => {/* Navigate to calculator */},
+    id: "calculator",
+    title: "Calculate Affordability",
+    icon: "🧮",
+    color: "#1e40af",
+    onPress: () => {
+      /* Navigate to calculator */
+    },
   },
   {
-    id: 'rates',
-    title: 'View Rates',
-    icon: '📈',
-    color: '#059669',
-    onPress: () => {/* Navigate to rates */},
+    id: "rates",
+    title: "View Rates",
+    icon: "📈",
+    color: "#059669",
+    onPress: () => {
+      /* Navigate to rates */
+    },
   },
   {
-    id: 'scenarios',
-    title: 'Compare Scenarios',
-    icon: '⚖️',
-    color: '#7c3aed',
-    onPress: () => {/* Navigate to scenarios */},
+    id: "scenarios",
+    title: "Compare Scenarios",
+    icon: "⚖️",
+    color: "#7c3aed",
+    onPress: () => {
+      /* Navigate to scenarios */
+    },
   },
   {
-    id: 'documents',
-    title: 'Upload Documents',
-    icon: '📄',
-    color: '#dc2626',
-    onPress: () => {/* Navigate to documents */},
+    id: "documents",
+    title: "Upload Documents",
+    icon: "📄",
+    color: "#dc2626",
+    onPress: () => {
+      /* Navigate to documents */
+    },
   },
 ];
 
@@ -80,20 +88,20 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: spacing.md,
   },
   actionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
   },
   actionButton: {
-    width: '48%',
+    width: "48%",
     aspectRatio: 1.5,
     borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: spacing.sm,
     padding: spacing.sm,
   },
@@ -102,9 +110,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   actionTitle: {
-    color: 'white',
+    color: "white",
     fontSize: 12,
-    fontWeight: '500',
-    textAlign: 'center',
+    fontWeight: "500",
+    textAlign: "center",
   },
 });

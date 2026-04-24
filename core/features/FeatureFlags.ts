@@ -3,7 +3,7 @@
  * v1.2.0 - Manages feature toggles and enterprise readiness
  */
 
-import { z } from 'zod'
+import { z } from "zod";
 
 // Feature flag schemas
 export const FeatureFlagSchema = z.object({
@@ -18,39 +18,39 @@ export const FeatureFlagSchema = z.object({
   dependencies: z.array(z.string()).optional(),
   metadata: z.object({
     category: z.string(),
-    priority: z.enum(['low', 'medium', 'high', 'critical']),
+    priority: z.enum(["low", "medium", "high", "critical"]),
     owner: z.string(),
     created: z.string(),
     updated: z.string(),
-    version: z.string()
-  })
-})
+    version: z.string(),
+  }),
+});
 
 export const FeatureToggleSchema = z.object({
   featureId: z.string(),
   userId: z.string(),
   enabled: z.boolean(),
   reason: z.string(),
-  timestamp: z.string()
-})
+  timestamp: z.string(),
+});
 
-export type FeatureFlag = z.infer<typeof FeatureFlagSchema>
-export type FeatureToggle = z.infer<typeof FeatureToggleSchema>
+export type FeatureFlag = z.infer<typeof FeatureFlagSchema>;
+export type FeatureToggle = z.infer<typeof FeatureToggleSchema>;
 
 export class FeatureFlagsService {
-  private static instance: FeatureFlagsService
-  private flags: Map<string, FeatureFlag> = new Map()
-  private toggles: Map<string, FeatureToggle[]> = new Map()
+  private static instance: FeatureFlagsService;
+  private flags: Map<string, FeatureFlag> = new Map();
+  private toggles: Map<string, FeatureToggle[]> = new Map();
 
   private constructor() {
-    this.initializeDefaultFlags()
+    this.initializeDefaultFlags();
   }
 
   static getInstance(): FeatureFlagsService {
     if (!FeatureFlagsService.instance) {
-      FeatureFlagsService.instance = new FeatureFlagsService()
+      FeatureFlagsService.instance = new FeatureFlagsService();
     }
-    return FeatureFlagsService.instance
+    return FeatureFlagsService.instance;
   }
 
   /**
@@ -58,30 +58,30 @@ export class FeatureFlagsService {
    */
   isFeatureEnabled(featureId: string, userId: string): boolean {
     try {
-      const flag = this.flags.get(featureId)
+      const flag = this.flags.get(featureId);
       if (!flag) {
-        console.warn(`Feature flag ${featureId} not found`)
-        return false
+        console.warn(`Feature flag ${featureId} not found`);
+        return false;
       }
 
       // Check if feature is globally disabled
       if (!flag.enabled) {
-        return false
+        return false;
       }
 
       // Check rollout percentage
       if (flag.rolloutPercentage < 100) {
-        const userHash = this.hashUserId(userId)
-        const userPercentage = userHash % 100
+        const userHash = this.hashUserId(userId);
+        const userPercentage = userHash % 100;
         if (userPercentage >= flag.rolloutPercentage) {
-          return false
+          return false;
         }
       }
 
       // Check target users
       if (flag.targetUsers && flag.targetUsers.length > 0) {
         if (!flag.targetUsers.includes(userId)) {
-          return false
+          return false;
         }
       }
 
@@ -89,15 +89,15 @@ export class FeatureFlagsService {
       if (flag.targetSegments && flag.targetSegments.length > 0) {
         // In a real implementation, this would check user segments
         // For now, we'll assume all users are in the 'general' segment
-        if (!flag.targetSegments.includes('general')) {
-          return false
+        if (!flag.targetSegments.includes("general")) {
+          return false;
         }
       }
 
       // Check conditions
       if (flag.conditions) {
         if (!this.evaluateConditions(flag.conditions, userId)) {
-          return false
+          return false;
         }
       }
 
@@ -105,16 +105,15 @@ export class FeatureFlagsService {
       if (flag.dependencies && flag.dependencies.length > 0) {
         for (const depId of flag.dependencies) {
           if (!this.isFeatureEnabled(depId, userId)) {
-            return false
+            return false;
           }
         }
       }
 
-      return true
-
+      return true;
     } catch (error) {
-      console.error('Error checking feature flag:', error)
-      return false
+      console.error("Error checking feature flag:", error);
+      return false;
     }
   }
 
@@ -123,25 +122,24 @@ export class FeatureFlagsService {
    */
   getFeatureConfig(featureId: string, userId: string): Record<string, any> {
     try {
-      const flag = this.flags.get(featureId)
+      const flag = this.flags.get(featureId);
       if (!flag) {
-        return {}
+        return {};
       }
 
       if (!this.isFeatureEnabled(featureId, userId)) {
-        return {}
+        return {};
       }
 
       return {
         enabled: true,
         rolloutPercentage: flag.rolloutPercentage,
         metadata: flag.metadata,
-        conditions: flag.conditions
-      }
-
+        conditions: flag.conditions,
+      };
     } catch (error) {
-      console.error('Error getting feature config:', error)
-      return {}
+      console.error("Error getting feature config:", error);
+      return {};
     }
   }
 
@@ -149,27 +147,29 @@ export class FeatureFlagsService {
    * Get all enabled features for a user
    */
   getEnabledFeatures(userId: string): string[] {
-    const enabledFeatures: string[] = []
+    const enabledFeatures: string[] = [];
 
     for (const [featureId] of this.flags) {
       if (this.isFeatureEnabled(featureId, userId)) {
-        enabledFeatures.push(featureId)
+        enabledFeatures.push(featureId);
       }
     }
 
-    return enabledFeatures
+    return enabledFeatures;
   }
 
   /**
    * Create or update a feature flag
    */
-  async createFeatureFlag(flag: Omit<FeatureFlag, 'metadata'> & {
-    category: string
-    priority: 'low' | 'medium' | 'high' | 'critical'
-    owner: string
-  }): Promise<string> {
+  async createFeatureFlag(
+    flag: Omit<FeatureFlag, "metadata"> & {
+      category: string;
+      priority: "low" | "medium" | "high" | "critical";
+      owner: string;
+    }
+  ): Promise<string> {
     try {
-      const now = new Date().toISOString()
+      const now = new Date().toISOString();
       const fullFlag: FeatureFlag = {
         ...flag,
         metadata: {
@@ -178,19 +178,18 @@ export class FeatureFlagsService {
           owner: flag.owner,
           created: now,
           updated: now,
-          version: '1.2.0'
-        }
-      }
+          version: "1.2.0",
+        },
+      };
 
-      const validatedFlag = FeatureFlagSchema.parse(fullFlag)
-      this.flags.set(flag.id, validatedFlag)
+      const validatedFlag = FeatureFlagSchema.parse(fullFlag);
+      this.flags.set(flag.id, validatedFlag);
 
-      console.log(`✅ Created feature flag: ${flag.name}`)
-      return flag.id
-
+      console.log(`✅ Created feature flag: ${flag.name}`);
+      return flag.id;
     } catch (error) {
-      console.error('Error creating feature flag:', error)
-      throw error
+      console.error("Error creating feature flag:", error);
+      throw error;
     }
   }
 
@@ -199,12 +198,12 @@ export class FeatureFlagsService {
    */
   async updateFeatureFlag(
     featureId: string,
-    updates: Partial<Omit<FeatureFlag, 'id' | 'metadata'>>
+    updates: Partial<Omit<FeatureFlag, "id" | "metadata">>
   ): Promise<void> {
     try {
-      const flag = this.flags.get(featureId)
+      const flag = this.flags.get(featureId);
       if (!flag) {
-        throw new Error(`Feature flag ${featureId} not found`)
+        throw new Error(`Feature flag ${featureId} not found`);
       }
 
       const updatedFlag: FeatureFlag = {
@@ -212,18 +211,17 @@ export class FeatureFlagsService {
         ...updates,
         metadata: {
           ...flag.metadata,
-          updated: new Date().toISOString()
-        }
-      }
+          updated: new Date().toISOString(),
+        },
+      };
 
-      const validatedFlag = FeatureFlagSchema.parse(updatedFlag)
-      this.flags.set(featureId, validatedFlag)
+      const validatedFlag = FeatureFlagSchema.parse(updatedFlag);
+      this.flags.set(featureId, validatedFlag);
 
-      console.log(`✅ Updated feature flag: ${featureId}`)
-
+      console.log(`✅ Updated feature flag: ${featureId}`);
     } catch (error) {
-      console.error('Error updating feature flag:', error)
-      throw error
+      console.error("Error updating feature flag:", error);
+      throw error;
     }
   }
 
@@ -242,20 +240,21 @@ export class FeatureFlagsService {
         userId,
         enabled,
         reason,
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      };
 
       if (!this.toggles.has(userId)) {
-        this.toggles.set(userId, [])
+        this.toggles.set(userId, []);
       }
 
-      this.toggles.get(userId)!.push(toggle)
+      this.toggles.get(userId)!.push(toggle);
 
-      console.log(`🔄 Toggled feature ${featureId} for user ${userId}: ${enabled}`)
-
+      console.log(
+        `🔄 Toggled feature ${featureId} for user ${userId}: ${enabled}`
+      );
     } catch (error) {
-      console.error('Error toggling feature for user:', error)
-      throw error
+      console.error("Error toggling feature for user:", error);
+      throw error;
     }
   }
 
@@ -263,15 +262,15 @@ export class FeatureFlagsService {
    * Get feature flag status
    */
   getFeatureStatus(featureId: string): {
-    exists: boolean
-    enabled: boolean
-    rolloutPercentage: number
-    targetUsers: number
-    targetSegments: string[]
-    dependencies: string[]
-    metadata: FeatureFlag['metadata'] | null
+    exists: boolean;
+    enabled: boolean;
+    rolloutPercentage: number;
+    targetUsers: number;
+    targetSegments: string[];
+    dependencies: string[];
+    metadata: FeatureFlag["metadata"] | null;
   } {
-    const flag = this.flags.get(featureId)
+    const flag = this.flags.get(featureId);
 
     if (!flag) {
       return {
@@ -281,8 +280,8 @@ export class FeatureFlagsService {
         targetUsers: 0,
         targetSegments: [],
         dependencies: [],
-        metadata: null
-      }
+        metadata: null,
+      };
     }
 
     return {
@@ -292,236 +291,247 @@ export class FeatureFlagsService {
       targetUsers: flag.targetUsers?.length || 0,
       targetSegments: flag.targetSegments || [],
       dependencies: flag.dependencies || [],
-      metadata: flag.metadata
-    }
+      metadata: flag.metadata,
+    };
   }
 
   /**
    * Get all feature flags
    */
   getAllFeatureFlags(): FeatureFlag[] {
-    return Array.from(this.flags.values())
+    return Array.from(this.flags.values());
   }
 
   /**
    * Get feature flags by category
    */
   getFeatureFlagsByCategory(category: string): FeatureFlag[] {
-    return Array.from(this.flags.values())
-      .filter(flag => flag.metadata.category === category)
+    return Array.from(this.flags.values()).filter(
+      (flag) => flag.metadata.category === category
+    );
   }
 
   /**
    * Get feature usage statistics
    */
   getFeatureUsageStats(): {
-    totalFlags: number
-    enabledFlags: number
-    disabledFlags: number
-    byCategory: Record<string, number>
-    byPriority: Record<string, number>
+    totalFlags: number;
+    enabledFlags: number;
+    disabledFlags: number;
+    byCategory: Record<string, number>;
+    byPriority: Record<string, number>;
   } {
-    const flags = Array.from(this.flags.values())
-    const totalFlags = flags.length
-    const enabledFlags = flags.filter(f => f.enabled).length
-    const disabledFlags = totalFlags - enabledFlags
+    const flags = Array.from(this.flags.values());
+    const totalFlags = flags.length;
+    const enabledFlags = flags.filter((f) => f.enabled).length;
+    const disabledFlags = totalFlags - enabledFlags;
 
-    const byCategory: Record<string, number> = {}
-    const byPriority: Record<string, number> = {}
+    const byCategory: Record<string, number> = {};
+    const byPriority: Record<string, number> = {};
 
-    flags.forEach(flag => {
-      byCategory[flag.metadata.category] = (byCategory[flag.metadata.category] || 0) + 1
-      byPriority[flag.metadata.priority] = (byPriority[flag.metadata.priority] || 0) + 1
-    })
+    flags.forEach((flag) => {
+      byCategory[flag.metadata.category] =
+        (byCategory[flag.metadata.category] || 0) + 1;
+      byPriority[flag.metadata.priority] =
+        (byPriority[flag.metadata.priority] || 0) + 1;
+    });
 
     return {
       totalFlags,
       enabledFlags,
       disabledFlags,
       byCategory,
-      byPriority
-    }
+      byPriority,
+    };
   }
 
   /**
    * Export feature flags configuration
    */
   exportConfiguration(): {
-    version: string
-    exportedAt: string
-    flags: FeatureFlag[]
+    version: string;
+    exportedAt: string;
+    flags: FeatureFlag[];
   } {
     return {
-      version: '1.2.0',
+      version: "1.2.0",
       exportedAt: new Date().toISOString(),
-      flags: Array.from(this.flags.values())
-    }
+      flags: Array.from(this.flags.values()),
+    };
   }
 
   /**
    * Import feature flags configuration
    */
   async importConfiguration(config: {
-    version: string
-    flags: FeatureFlag[]
+    version: string;
+    flags: FeatureFlag[];
   }): Promise<void> {
     try {
       for (const flag of config.flags) {
-        const validatedFlag = FeatureFlagSchema.parse(flag)
-        this.flags.set(flag.id, validatedFlag)
+        const validatedFlag = FeatureFlagSchema.parse(flag);
+        this.flags.set(flag.id, validatedFlag);
       }
 
-      console.log(`✅ Imported ${config.flags.length} feature flags`)
-
+      console.log(`✅ Imported ${config.flags.length} feature flags`);
     } catch (error) {
-      console.error('Error importing configuration:', error)
-      throw error
+      console.error("Error importing configuration:", error);
+      throw error;
     }
   }
 
   // Private helper methods
 
   private initializeDefaultFlags(): void {
-    const defaultFlags: Array<Omit<FeatureFlag, 'metadata'> & {
-      category: string
-      priority: 'low' | 'medium' | 'high' | 'critical'
-      owner: string
-    }> = [
+    const defaultFlags: Array<
+      Omit<FeatureFlag, "metadata"> & {
+        category: string;
+        priority: "low" | "medium" | "high" | "critical";
+        owner: string;
+      }
+    > = [
       {
-        id: 'personalization',
-        name: 'Personalization Engine',
-        description: 'Enable AI-powered personalization features',
+        id: "personalization",
+        name: "Personalization Engine",
+        description: "Enable AI-powered personalization features",
         enabled: true,
         rolloutPercentage: 100,
-        category: 'ai',
-        priority: 'high',
-        owner: 'ai-team'
+        category: "ai",
+        priority: "high",
+        owner: "ai-team",
       },
       {
-        id: 'crm_export',
-        name: 'CRM Export',
-        description: 'Enable lead export to CRM systems',
+        id: "crm_export",
+        name: "CRM Export",
+        description: "Enable lead export to CRM systems",
         enabled: true,
         rolloutPercentage: 100,
-        category: 'integrations',
-        priority: 'medium',
-        owner: 'integrations-team'
+        category: "integrations",
+        priority: "medium",
+        owner: "integrations-team",
       },
       {
-        id: 'fine_tune',
-        name: 'Fine-Tuning',
-        description: 'Enable AI model fine-tuning capabilities',
+        id: "fine_tune",
+        name: "Fine-Tuning",
+        description: "Enable AI model fine-tuning capabilities",
         enabled: false,
         rolloutPercentage: 0,
-        category: 'ai',
-        priority: 'high',
-        owner: 'ai-team'
+        category: "ai",
+        priority: "high",
+        owner: "ai-team",
       },
       {
-        id: 'regional_rates',
-        name: 'Regional Rates',
-        description: 'Enable regional rate feeds and benchmarks',
+        id: "regional_rates",
+        name: "Regional Rates",
+        description: "Enable regional rate feeds and benchmarks",
         enabled: true,
         rolloutPercentage: 100,
-        category: 'data',
-        priority: 'medium',
-        owner: 'data-team'
+        category: "data",
+        priority: "medium",
+        owner: "data-team",
       },
       {
-        id: 'explainability',
-        name: 'AI Explainability',
-        description: 'Enable detailed AI explanations and reasoning',
+        id: "explainability",
+        name: "AI Explainability",
+        description: "Enable detailed AI explanations and reasoning",
         enabled: true,
         rolloutPercentage: 100,
-        category: 'ai',
-        priority: 'high',
-        owner: 'ai-team'
+        category: "ai",
+        priority: "high",
+        owner: "ai-team",
       },
       {
-        id: 'confidence_indicators',
-        name: 'Confidence Indicators',
-        description: 'Show confidence levels and trust indicators',
+        id: "confidence_indicators",
+        name: "Confidence Indicators",
+        description: "Show confidence levels and trust indicators",
         enabled: true,
         rolloutPercentage: 100,
-        category: 'ui',
-        priority: 'medium',
-        owner: 'ui-team'
+        category: "ui",
+        priority: "medium",
+        owner: "ui-team",
       },
       {
-        id: 'developer_playground',
-        name: 'Developer Playground',
-        description: 'Enable developer testing and experimentation tools',
+        id: "developer_playground",
+        name: "Developer Playground",
+        description: "Enable developer testing and experimentation tools",
         enabled: false,
         rolloutPercentage: 0,
-        category: 'developer',
-        priority: 'low',
-        owner: 'dev-team'
+        category: "developer",
+        priority: "low",
+        owner: "dev-team",
       },
       {
-        id: 'advanced_analytics',
-        name: 'Advanced Analytics',
-        description: 'Enable advanced analytics and reporting features',
+        id: "advanced_analytics",
+        name: "Advanced Analytics",
+        description: "Enable advanced analytics and reporting features",
         enabled: true,
         rolloutPercentage: 50,
-        category: 'analytics',
-        priority: 'medium',
-        owner: 'analytics-team'
-      }
-    ]
+        category: "analytics",
+        priority: "medium",
+        owner: "analytics-team",
+      },
+    ];
 
-    defaultFlags.forEach(flag => {
-      this.createFeatureFlag(flag)
-    })
+    defaultFlags.forEach((flag) => {
+      this.createFeatureFlag(flag);
+    });
   }
 
   private hashUserId(userId: string): number {
-    let hash = 0
+    let hash = 0;
     for (let i = 0; i < userId.length; i++) {
-      const char = userId.charCodeAt(i)
-      hash = ((hash << 5) - hash) + char
-      hash = hash & hash
+      const char = userId.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash;
     }
-    return Math.abs(hash)
+    return Math.abs(hash);
   }
 
-  private evaluateConditions(conditions: Record<string, any>, userId: string): boolean {
+  private evaluateConditions(
+    conditions: Record<string, any>,
+    userId: string
+  ): boolean {
     // In a real implementation, this would evaluate complex conditions
     // For now, we'll do simple checks
-    return true
+    return true;
   }
 }
 
 // Export singleton instance
-export const featureFlagsService = FeatureFlagsService.getInstance()
+export const featureFlagsService = FeatureFlagsService.getInstance();
 
 // Convenience functions
 export const isFeatureEnabled = (featureId: string, userId: string) =>
-  featureFlagsService.isFeatureEnabled(featureId, userId)
+  featureFlagsService.isFeatureEnabled(featureId, userId);
 
 export const getFeatureConfig = (featureId: string, userId: string) =>
-  featureFlagsService.getFeatureConfig(featureId, userId)
+  featureFlagsService.getFeatureConfig(featureId, userId);
 
 export const getEnabledFeatures = (userId: string) =>
-  featureFlagsService.getEnabledFeatures(userId)
+  featureFlagsService.getEnabledFeatures(userId);
 
-export const createFeatureFlag = (flag: Parameters<typeof featureFlagsService.createFeatureFlag>[0]) =>
-  featureFlagsService.createFeatureFlag(flag)
+export const createFeatureFlag = (
+  flag: Parameters<typeof featureFlagsService.createFeatureFlag>[0]
+) => featureFlagsService.createFeatureFlag(flag);
 
-export const updateFeatureFlag = (featureId: string, updates: Parameters<typeof featureFlagsService.updateFeatureFlag>[1]) =>
-  featureFlagsService.updateFeatureFlag(featureId, updates)
+export const updateFeatureFlag = (
+  featureId: string,
+  updates: Parameters<typeof featureFlagsService.updateFeatureFlag>[1]
+) => featureFlagsService.updateFeatureFlag(featureId, updates);
 
 export const toggleFeatureForUser = (
   featureId: string,
   userId: string,
   enabled: boolean,
   reason: string
-) => featureFlagsService.toggleFeatureForUser(featureId, userId, enabled, reason)
+) =>
+  featureFlagsService.toggleFeatureForUser(featureId, userId, enabled, reason);
 
 export const getFeatureStatus = (featureId: string) =>
-  featureFlagsService.getFeatureStatus(featureId)
+  featureFlagsService.getFeatureStatus(featureId);
 
 export const getAllFeatureFlags = () =>
-  featureFlagsService.getAllFeatureFlags()
+  featureFlagsService.getAllFeatureFlags();
 
 export const getFeatureUsageStats = () =>
-  featureFlagsService.getFeatureUsageStats()
+  featureFlagsService.getFeatureUsageStats();

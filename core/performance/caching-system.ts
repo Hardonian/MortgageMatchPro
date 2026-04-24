@@ -3,7 +3,7 @@
  * Multi-layer caching with TTL, invalidation, and performance tracking
  */
 
-import { trackCachePerformance, CacheMetrics } from './profiling-suite';
+import { trackCachePerformance, CacheMetrics } from "./profiling-suite";
 
 export interface CacheConfig {
   defaultTTL: number; // seconds
@@ -62,10 +62,10 @@ class CachingSystem {
   // Get value from cache
   async get<T>(key: string): Promise<T | null> {
     const startTime = Date.now();
-    
+
     try {
       const entry = this.cache.get(key);
-      
+
       if (!entry) {
         this.stats.misses++;
         this.updateHitRate();
@@ -90,7 +90,7 @@ class CachingSystem {
 
       const responseTime = Date.now() - startTime;
       this.trackCacheMetrics(key, true, responseTime);
-      
+
       return entry.value as T;
     } catch (error) {
       console.error(`[Cache] Error getting key ${key}:`, error);
@@ -102,10 +102,10 @@ class CachingSystem {
   // Set value in cache
   async set<T>(key: string, value: T, ttl?: number): Promise<boolean> {
     const startTime = Date.now();
-    
+
     try {
       const serializedValue = JSON.stringify(value);
-      const size = Buffer.byteLength(serializedValue, 'utf8');
+      const size = Buffer.byteLength(serializedValue, "utf8");
       const entryTTL = ttl || this.config.defaultTTL;
 
       // Check if we need to evict entries
@@ -128,7 +128,7 @@ class CachingSystem {
 
       const responseTime = Date.now() - startTime;
       this.trackCacheMetrics(key, true, responseTime);
-      
+
       return true;
     } catch (error) {
       console.error(`[Cache] Error setting key ${key}:`, error);
@@ -204,12 +204,12 @@ class CachingSystem {
     const entries = Array.from(this.cache.entries()).sort((a, b) => {
       const [keyA, entryA] = a;
       const [keyB, entryB] = b;
-      
+
       // First sort by access count (ascending)
       if (entryA.accessCount !== entryB.accessCount) {
         return entryA.accessCount - entryB.accessCount;
       }
-      
+
       // Then by last accessed time (ascending)
       return entryA.lastAccessed - entryB.lastAccessed;
     });
@@ -221,7 +221,7 @@ class CachingSystem {
       this.stats.entryCount--;
       this.stats.evictions++;
       freedSize += entry.size;
-      
+
       if (freedSize >= requiredSize) {
         break;
       }
@@ -237,7 +237,7 @@ class CachingSystem {
   private cleanupExpiredEntries(): void {
     const now = Date.now();
     let cleanedCount = 0;
-    
+
     for (const [key, entry] of this.cache.entries()) {
       if (this.isExpired(entry)) {
         this.cache.delete(key);
@@ -246,13 +246,17 @@ class CachingSystem {
         cleanedCount++;
       }
     }
-    
+
     if (cleanedCount > 0) {
       console.log(`[Cache] Cleaned up ${cleanedCount} expired entries`);
     }
   }
 
-  private trackCacheMetrics(key: string, hit: boolean, responseTime: number): void {
+  private trackCacheMetrics(
+    key: string,
+    hit: boolean,
+    responseTime: number
+  ): void {
     if (this.config.enableMetrics) {
       trackCachePerformance({
         key,
@@ -285,7 +289,11 @@ export const getCache = <T>(key: string): Promise<T | null> => {
   return cachingSystem.get<T>(key);
 };
 
-export const setCache = <T>(key: string, value: T, ttl?: number): Promise<boolean> => {
+export const setCache = <T>(
+  key: string,
+  value: T,
+  ttl?: number
+): Promise<boolean> => {
   return cachingSystem.set(key, value, ttl);
 };
 

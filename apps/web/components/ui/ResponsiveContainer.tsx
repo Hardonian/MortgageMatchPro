@@ -1,6 +1,6 @@
-import React, { memo, ReactNode } from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
-import { spacing, layout } from '../../utils/responsive';
+import React, { memo, ReactNode } from "react";
+import { View, StyleSheet, ViewStyle } from "react-native";
+import { spacing, layout } from "../../utils/responsive";
 
 interface ResponsiveContainerProps {
   children: ReactNode;
@@ -13,36 +13,38 @@ interface ResponsiveContainerProps {
   centerContent?: boolean;
 }
 
-export const ResponsiveContainer = memo<ResponsiveContainerProps>(({
-  children,
-  padding = 'lg',
-  margin = 'none',
-  backgroundColor,
-  style,
-  safeArea = false,
-  scrollable = false,
-  centerContent = false,
-}) => {
-  const containerStyle = [
-    styles.container,
-    {
-      padding: spacing[padding],
-      margin: margin !== 'none' ? spacing[margin] : 0,
-      backgroundColor,
-      paddingTop: safeArea ? layout.safeAreaTop + spacing[padding] : spacing[padding],
-      paddingBottom: safeArea ? layout.safeAreaBottom + spacing[padding] : spacing[padding],
-      justifyContent: centerContent ? 'center' : 'flex-start',
-      alignItems: centerContent ? 'center' : 'stretch',
-    },
+export const ResponsiveContainer = memo<ResponsiveContainerProps>(
+  ({
+    children,
+    padding = "lg",
+    margin = "none",
+    backgroundColor,
     style,
-  ];
+    safeArea = false,
+    scrollable = false,
+    centerContent = false,
+  }) => {
+    const containerStyle = [
+      styles.container,
+      {
+        padding: spacing[padding],
+        margin: margin !== "none" ? spacing[margin] : 0,
+        backgroundColor,
+        paddingTop: safeArea
+          ? layout.safeAreaTop + spacing[padding]
+          : spacing[padding],
+        paddingBottom: safeArea
+          ? layout.safeAreaBottom + spacing[padding]
+          : spacing[padding],
+        justifyContent: centerContent ? "center" : "flex-start",
+        alignItems: centerContent ? "center" : "stretch",
+      },
+      style,
+    ];
 
-  return (
-    <View style={containerStyle}>
-      {children}
-    </View>
-  );
-});
+    return <View style={containerStyle}>{children}</View>;
+  }
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -50,4 +52,4 @@ const styles = StyleSheet.create({
   },
 });
 
-ResponsiveContainer.displayName = 'ResponsiveContainer';
+ResponsiveContainer.displayName = "ResponsiveContainer";

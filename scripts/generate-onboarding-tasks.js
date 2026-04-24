@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
-const { Octokit } = require('@octokit/rest');
-const fs = require('fs');
-const path = require('path');
+const { Octokit } = require("@octokit/rest");
+const fs = require("fs");
+const path = require("path");
 
 // Initialize GitHub client
 const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
 });
 
-const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 const developerUsername = process.env.DEVELOPER_USERNAME;
 
 // Onboarding tasks configuration
@@ -41,9 +41,9 @@ Welcome @${developerUsername}! Let's get your development environment ready.
 
 ### Need Help?
 Ask the AI assistant or your mentor for guidance!`,
-    labels: ['onboarding-task', 'beginner', 'environment'],
+    labels: ["onboarding-task", "beginner", "environment"],
     assignees: [developerUsername],
-    milestone: 'Onboarding Phase 1'
+    milestone: "Onboarding Phase 1",
   },
   {
     title: "Understand the codebase structure",
@@ -75,9 +75,9 @@ Let's explore the MortgageMatch Pro codebase structure.
 - [Architecture Overview](docs/architecture.md)
 - [AI Agent Framework](docs/ai-agents.md)
 - [Component Guide](docs/components.md)`,
-    labels: ['onboarding-task', 'beginner', 'learning'],
+    labels: ["onboarding-task", "beginner", "learning"],
     assignees: [developerUsername],
-    milestone: 'Onboarding Phase 1'
+    milestone: "Onboarding Phase 1",
   },
   {
     title: "Make your first contribution",
@@ -126,9 +126,9 @@ Time to make your first contribution to MortgageMatch Pro!
 - [Contributing Guide](CONTRIBUTING.md)
 - [Code Style Guide](docs/code-style.md)
 - [Testing Guide](docs/testing.md)`,
-    labels: ['onboarding-task', 'beginner', 'contribution'],
+    labels: ["onboarding-task", "beginner", "contribution"],
     assignees: [developerUsername],
-    milestone: 'Onboarding Phase 2'
+    milestone: "Onboarding Phase 2",
   },
   {
     title: "Learn the AI agent framework",
@@ -165,9 +165,9 @@ Dive deep into the AI agent framework that powers MortgageMatch Pro.
 - [AI Agent Framework](docs/ai-agents.md)
 - [Agent Development Guide](docs/agent-development.md)
 - [Event System](docs/event-system.md)`,
-    labels: ['onboarding-task', 'intermediate', 'ai-agents'],
+    labels: ["onboarding-task", "intermediate", "ai-agents"],
     assignees: [developerUsername],
-    milestone: 'Onboarding Phase 2'
+    milestone: "Onboarding Phase 2",
   },
   {
     title: "Complete onboarding survey",
@@ -198,10 +198,10 @@ Help us improve the onboarding experience by sharing your feedback.
 ### Resources:
 - [Survey Link](https://forms.gle/your-survey-link)
 - [Feedback Guidelines](docs/feedback.md)`,
-    labels: ['onboarding-task', 'feedback', 'completion'],
+    labels: ["onboarding-task", "feedback", "completion"],
     assignees: [developerUsername],
-    milestone: 'Onboarding Phase 3'
-  }
+    milestone: "Onboarding Phase 3",
+  },
 ];
 
 async function generateOnboardingTasks() {
@@ -216,13 +216,15 @@ async function generateOnboardingTasks() {
         body: task.description,
         labels: task.labels,
         assignees: task.assignees,
-        milestone: task.milestone
+        milestone: task.milestone,
       });
 
       console.log(`Created issue: ${issue.data.title} (#${issue.data.number})`);
     }
 
-    console.log(`Successfully created ${onboardingTasks.length} onboarding tasks for ${developerUsername}`);
+    console.log(
+      `Successfully created ${onboardingTasks.length} onboarding tasks for ${developerUsername}`
+    );
 
     // Create a summary issue
     const summaryIssue = await octokit.rest.issues.create({
@@ -234,7 +236,7 @@ async function generateOnboardingTasks() {
 Welcome @${developerUsername}! Here's your personalized onboarding journey.
 
 ### 📋 Tasks Created:
-${onboardingTasks.map((task, index) => `- [ ] ${task.title}`).join('\n')}
+${onboardingTasks.map((task, index) => `- [ ] ${task.title}`).join("\n")}
 
 ### 📊 Progress:
 - **Phase 1 (Environment)**: 0/2 tasks completed
@@ -258,14 +260,15 @@ I'm here to help! Ask me about:
 Your mentor will be assigned shortly and will help guide you through the process.
 
 Good luck! 🚀`,
-      labels: ['onboarding-summary', 'tracker'],
-      assignees: [developerUsername]
+      labels: ["onboarding-summary", "tracker"],
+      assignees: [developerUsername],
     });
 
-    console.log(`Created summary issue: ${summaryIssue.data.title} (#${summaryIssue.data.number})`);
-
+    console.log(
+      `Created summary issue: ${summaryIssue.data.title} (#${summaryIssue.data.number})`
+    );
   } catch (error) {
-    console.error('Error generating onboarding tasks:', error);
+    console.error("Error generating onboarding tasks:", error);
     process.exit(1);
   }
 }

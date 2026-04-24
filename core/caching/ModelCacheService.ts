@@ -3,18 +3,18 @@
  * Specialized caching service for AI model responses
  */
 
-import { CacheService } from './CacheService';
-import { z } from 'zod';
+import { CacheService } from "./CacheService";
+import { z } from "zod";
 
 // Model cache configuration
 export const ModelCacheConfigSchema = z.object({
   ttl: z.number().default(7200), // 2 hours for model responses
   maxSize: z.number().default(500),
-  strategy: z.enum(['lru', 'lfu', 'fifo']).default('lru'),
+  strategy: z.enum(["lru", "lfu", "fifo"]).default("lru"),
   compression: z.boolean().default(true),
   encryption: z.boolean().default(false),
   enableConfidenceCaching: z.boolean().default(true),
-  minConfidenceThreshold: z.number().min(0).max(1).default(0.7)
+  minConfidenceThreshold: z.number().min(0).max(1).default(0.7),
 });
 
 export type ModelCacheConfig = z.infer<typeof ModelCacheConfigSchema>;
@@ -30,7 +30,7 @@ export const ModelCacheItemSchema = z.object({
   createdAt: z.date(),
   accessCount: z.number().default(0),
   lastAccessed: z.date(),
-  tags: z.array(z.string()).default([])
+  tags: z.array(z.string()).default([]),
 });
 
 export type ModelCacheItem = z.infer<typeof ModelCacheItemSchema>;
@@ -46,20 +46,23 @@ export class ModelCacheService {
       maxSize: this.config.maxSize,
       strategy: this.config.strategy,
       compression: this.config.compression,
-      encryption: this.config.encryption
+      encryption: this.config.encryption,
     });
   }
 
   /**
    * Generate cache key for a prompt
    */
-  private generateCacheKey(prompt: string, context: Record<string, any> = {}): string {
+  private generateCacheKey(
+    prompt: string,
+    context: Record<string, any> = {}
+  ): string {
     // Normalize prompt for consistent caching
     const normalizedPrompt = prompt.toLowerCase().trim();
-    
+
     // Create context hash
     const contextHash = this.hashContext(context);
-    
+
     // Combine prompt and context for unique key
     return `model:${this.hashString(normalizedPrompt)}:${contextHash}`;
   }
@@ -69,7 +72,9 @@ export class ModelCacheService {
    */
   private hashContext(context: Record<string, any>): string {
     const sortedKeys = Object.keys(context).sort();
-    const contextString = sortedKeys.map(key => `${key}:${context[key]}`).join('|');
+    const contextString = sortedKeys
+      .map((key) => `${key}:${context[key]}`)
+      .join("|");
     return this.hashString(contextString);
   }
 
@@ -80,7 +85,7 @@ export class ModelCacheService {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
     return Math.abs(hash).toString(36);
@@ -90,7 +95,7 @@ export class ModelCacheService {
    * Get cached model response
    */
   async getCachedResponse(
-    prompt: string, 
+    prompt: string,
     context: Record<string, any> = {}
   ): Promise<ModelCacheItem | null> {
     const key = this.generateCacheKey(prompt, context);
@@ -111,12 +116,15 @@ export class ModelCacheService {
     tags: string[] = []
   ): Promise<void> {
     // Only cache if confidence is above threshold
-    if (this.config.enableConfidenceCaching && confidence < this.config.minConfidenceThreshold) {
+    if (
+      this.config.enableConfidenceCaching &&
+      confidence < this.config.minConfidenceThreshold
+    ) {
       return;
     }
 
     const key = this.generateCacheKey(prompt, context);
-    
+
     const cacheItem: ModelCacheItem = {
       prompt,
       response,
@@ -127,7 +135,7 @@ export class ModelCacheService {
       createdAt: new Date(),
       accessCount: 0,
       lastAccessed: new Date(),
-      tags
+      tags,
     };
 
     await this.cache.set(key, cacheItem, this.config.ttl, tags);
@@ -139,13 +147,16 @@ export class ModelCacheService {
   async getSimilarResponses(
     prompt: string,
     context: Record<string, any> = {},
-    similarityThreshold: number = 0.8
+    similarityThreshold = 0.8
   ): Promise<ModelCacheItem[]> {
     const normalizedPrompt = prompt.toLowerCase().trim();
     const allItems = await this.getAllCachedItems();
-    
-    return allItems.filter(item => {
-      const similarity = this.calculateSimilarity(normalizedPrompt, item.prompt.toLowerCase().trim());
+
+    return allItems.filter((item) => {
+      const similarity = this.calculateSimilarity(
+        normalizedPrompt,
+        item.prompt.toLowerCase().trim()
+      );
       return similarity >= similarityThreshold;
     });
   }
@@ -156,9 +167,11 @@ export class ModelCacheService {
   private calculateSimilarity(str1: string, str2: string): number {
     const longer = str1.length > str2.length ? str1 : str2;
     const shorter = str1.length > str2.length ? str2 : str1;
-    
-    if (longer.length === 0) return 1.0;
-    
+
+    if (longer.length === 0) {
+      return 1.0;
+    }
+
     const distance = this.levenshteinDistance(longer, shorter);
     return (longer.length - distance) / longer.length;
   }
@@ -168,15 +181,15 @@ export class ModelCacheService {
    */
   private levenshteinDistance(str1: string, str2: string): number {
     const matrix = [];
-    
+
     for (let i = 0; i <= str2.length; i++) {
       matrix[i] = [i];
     }
-    
+
     for (let j = 0; j <= str1.length; j++) {
       matrix[0][j] = j;
     }
-    
+
     for (let i = 1; i <= str2.length; i++) {
       for (let j = 1; j <= str1.length; j++) {
         if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
@@ -190,7 +203,7 @@ export class ModelCacheService {
         }
       }
     }
-    
+
     return matrix[str2.length][str1.length];
   }
 
@@ -234,7 +247,7 @@ export class ModelCacheService {
       maxSize: this.config.maxSize,
       strategy: this.config.strategy,
       compression: this.config.compression,
-      encryption: this.config.encryption
+      encryption: this.config.encryption,
     });
   }
 

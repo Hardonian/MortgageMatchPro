@@ -1,9 +1,9 @@
-import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
-import { LoginScreen } from '../screens/auth/LoginScreen';
-import { RegisterScreen } from '../screens/auth/RegisterScreen';
-import { ForgotPasswordScreen } from '../screens/auth/ForgotPasswordScreen';
-import { VerifyEmailScreen } from '../screens/auth/VerifyEmailScreen';
+import React from "react";
+import { createStackNavigator } from "@react-navigation/stack";
+import { LoginScreen } from "../screens/auth/LoginScreen";
+import { RegisterScreen } from "../screens/auth/RegisterScreen";
+import { ForgotPasswordScreen } from "../screens/auth/ForgotPasswordScreen";
+import { VerifyEmailScreen } from "../screens/auth/VerifyEmailScreen";
 
 const Stack = createStackNavigator<AuthStackParamList>();
 
@@ -13,7 +13,7 @@ export const AuthNavigator: React.FC = () => {
       initialRouteName="Login"
       screenOptions={{
         headerShown: false,
-        cardStyle: { backgroundColor: '#ffffff' },
+        cardStyle: { backgroundColor: "#ffffff" },
       }}
     >
       <Stack.Screen name="Login" component={LoginScreen} />

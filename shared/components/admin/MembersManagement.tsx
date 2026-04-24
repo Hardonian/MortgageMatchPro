@@ -1,57 +1,65 @@
-import React, { useState, useEffect } from 'react'
-import { useTenantContext } from '@/lib/tenancy/context'
-import { OrganizationService } from '@/lib/tenancy/organization-service'
-import { PermissionChecker } from '@/lib/tenancy/rbac'
-import { UserRole, Membership } from '@/lib/types/tenancy'
-import { 
-  Plus, 
-  Mail, 
-  UserPlus, 
-  MoreVertical, 
-  Trash2, 
+import React, { useState, useEffect } from "react";
+import { useTenantContext } from "@/lib/tenancy/context";
+import { OrganizationService } from "@/lib/tenancy/organization-service";
+import { PermissionChecker } from "@/lib/tenancy/rbac";
+import { UserRole, Membership } from "@/lib/types/tenancy";
+import {
+  Plus,
+  Mail,
+  UserPlus,
+  MoreVertical,
+  Trash2,
   Edit,
   Shield,
   ShieldCheck,
   Eye,
-  EyeOff
-} from 'lucide-react'
+  EyeOff,
+} from "lucide-react";
 
 const MembersManagement: React.FC = () => {
-  const { organization, user, role } = useTenantContext()
-  const [members, setMembers] = useState<Membership[]>([])
-  const [loading, setLoading] = useState(true)
-  const [showInviteModal, setShowInviteModal] = useState(false)
-  const [inviteEmail, setInviteEmail] = useState('')
-  const [inviteRole, setInviteRole] = useState<UserRole>('VIEWER')
-  const [inviteLoading, setInviteLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { organization, user, role } = useTenantContext();
+  const [members, setMembers] = useState<Membership[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<UserRole>("VIEWER");
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadMembers()
-  }, [organization?.id])
+    loadMembers();
+  }, [organization?.id]);
 
   const loadMembers = async () => {
-    if (!organization?.id || !user?.id) return
+    if (!organization?.id || !user?.id) {
+      return;
+    }
 
     try {
-      setLoading(true)
-      const membersList = await OrganizationService.getMembers(organization.id, user.id, role)
-      setMembers(membersList)
+      setLoading(true);
+      const membersList = await OrganizationService.getMembers(
+        organization.id,
+        user.id,
+        role
+      );
+      setMembers(membersList);
     } catch (err) {
-      console.error('Failed to load members:', err)
-      setError('Failed to load members')
+      console.error("Failed to load members:", err);
+      setError("Failed to load members");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleInviteUser = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!organization?.id || !user?.id || !inviteEmail) return
+    e.preventDefault();
+    if (!organization?.id || !user?.id || !inviteEmail) {
+      return;
+    }
 
     try {
-      setInviteLoading(true)
-      setError(null)
+      setInviteLoading(true);
+      setError(null);
 
       await OrganizationService.inviteUser(
         organization.id,
@@ -59,89 +67,108 @@ const MembersManagement: React.FC = () => {
         inviteRole,
         user.id,
         role
-      )
+      );
 
-      setInviteEmail('')
-      setInviteRole('VIEWER')
-      setShowInviteModal(false)
-      await loadMembers()
+      setInviteEmail("");
+      setInviteRole("VIEWER");
+      setShowInviteModal(false);
+      await loadMembers();
     } catch (err) {
-      console.error('Failed to invite user:', err)
-      setError(err instanceof Error ? err.message : 'Failed to invite user')
+      console.error("Failed to invite user:", err);
+      setError(err instanceof Error ? err.message : "Failed to invite user");
     } finally {
-      setInviteLoading(false)
+      setInviteLoading(false);
     }
-  }
+  };
 
   const handleRemoveUser = async (userId: string) => {
-    if (!organization?.id || !user?.id) return
+    if (!organization?.id || !user?.id) {
+      return;
+    }
 
     try {
-      await OrganizationService.removeUser(organization.id, userId, user.id, role)
-      await loadMembers()
+      await OrganizationService.removeUser(
+        organization.id,
+        userId,
+        user.id,
+        role
+      );
+      await loadMembers();
     } catch (err) {
-      console.error('Failed to remove user:', err)
-      setError(err instanceof Error ? err.message : 'Failed to remove user')
+      console.error("Failed to remove user:", err);
+      setError(err instanceof Error ? err.message : "Failed to remove user");
     }
-  }
+  };
 
   const handleUpdateRole = async (userId: string, newRole: UserRole) => {
-    if (!organization?.id || !user?.id) return
+    if (!organization?.id || !user?.id) {
+      return;
+    }
 
     try {
-      await OrganizationService.updateUserRole(organization.id, userId, newRole, user.id, role)
-      await loadMembers()
+      await OrganizationService.updateUserRole(
+        organization.id,
+        userId,
+        newRole,
+        user.id,
+        role
+      );
+      await loadMembers();
     } catch (err) {
-      console.error('Failed to update role:', err)
-      setError(err instanceof Error ? err.message : 'Failed to update role')
+      console.error("Failed to update role:", err);
+      setError(err instanceof Error ? err.message : "Failed to update role");
     }
-  }
+  };
 
   const getRoleIcon = (userRole: UserRole) => {
     switch (userRole) {
-      case 'OWNER':
-        return <Shield className="h-4 w-4 text-purple-600" />
-      case 'ADMIN':
-        return <ShieldCheck className="h-4 w-4 text-blue-600" />
-      case 'ANALYST':
-        return <Eye className="h-4 w-4 text-green-600" />
-      case 'VIEWER':
-        return <EyeOff className="h-4 w-4 text-gray-600" />
+      case "OWNER":
+        return <Shield className="h-4 w-4 text-purple-600" />;
+      case "ADMIN":
+        return <ShieldCheck className="h-4 w-4 text-blue-600" />;
+      case "ANALYST":
+        return <Eye className="h-4 w-4 text-green-600" />;
+      case "VIEWER":
+        return <EyeOff className="h-4 w-4 text-gray-600" />;
       default:
-        return <UserPlus className="h-4 w-4 text-gray-400" />
+        return <UserPlus className="h-4 w-4 text-gray-400" />;
     }
-  }
+  };
 
   const getRoleColor = (userRole: UserRole) => {
     switch (userRole) {
-      case 'OWNER':
-        return 'bg-purple-100 text-purple-800'
-      case 'ADMIN':
-        return 'bg-blue-100 text-blue-800'
-      case 'ANALYST':
-        return 'bg-green-100 text-green-800'
-      case 'VIEWER':
-        return 'bg-gray-100 text-gray-800'
+      case "OWNER":
+        return "bg-purple-100 text-purple-800";
+      case "ADMIN":
+        return "bg-blue-100 text-blue-800";
+      case "ANALYST":
+        return "bg-green-100 text-green-800";
+      case "VIEWER":
+        return "bg-gray-100 text-gray-800";
       default:
-        return 'bg-gray-100 text-gray-800'
+        return "bg-gray-100 text-gray-800";
     }
-  }
+  };
 
-  if (!PermissionChecker.can(role, 'read', 'manage_users', organization?.id || '')) {
+  if (
+    !PermissionChecker.can(role, "read", "manage_users", organization?.id || "")
+  ) {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
-        <p className="text-gray-600">You don't have permission to manage members.</p>
+        <p className="text-gray-600">
+          You don't have permission to manage members.
+        </p>
       </div>
-    )
+    );
   }
 
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
       </div>
-    )
+    );
   }
 
   return (
@@ -194,31 +221,52 @@ const MembersManagement: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(member.role)}`}>
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(
+                      member.role
+                    )}`}
+                  >
                     {getRoleIcon(member.role)}
                     <span className="ml-1">{member.role}</span>
                   </span>
-                  {PermissionChecker.can(role, 'update', 'manage_users', organization?.id || '') && member.role !== 'OWNER' && (
-                    <div className="relative">
-                      <select
-                        value={member.role}
-                        onChange={(e) => handleUpdateRole(member.userId, e.target.value as UserRole)}
-                        className="text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                  {PermissionChecker.can(
+                    role,
+                    "update",
+                    "manage_users",
+                    organization?.id || ""
+                  ) &&
+                    member.role !== "OWNER" && (
+                      <div className="relative">
+                        <select
+                          value={member.role}
+                          onChange={(e) =>
+                            handleUpdateRole(
+                              member.userId,
+                              e.target.value as UserRole
+                            )
+                          }
+                          className="text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                          <option value="VIEWER">Viewer</option>
+                          <option value="ANALYST">Analyst</option>
+                          <option value="ADMIN">Admin</option>
+                        </select>
+                      </div>
+                    )}
+                  {PermissionChecker.can(
+                    role,
+                    "delete",
+                    "manage_users",
+                    organization?.id || ""
+                  ) &&
+                    member.role !== "OWNER" && (
+                      <button
+                        onClick={() => handleRemoveUser(member.userId)}
+                        className="text-red-600 hover:text-red-900"
                       >
-                        <option value="VIEWER">Viewer</option>
-                        <option value="ANALYST">Analyst</option>
-                        <option value="ADMIN">Admin</option>
-                      </select>
-                    </div>
-                  )}
-                  {PermissionChecker.can(role, 'delete', 'manage_users', organization?.id || '') && member.role !== 'OWNER' && (
-                    <button
-                      onClick={() => handleRemoveUser(member.userId)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  )}
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
                 </div>
               </div>
             </li>
@@ -231,10 +279,15 @@ const MembersManagement: React.FC = () => {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Invite New Member</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                Invite New Member
+              </h3>
               <form onSubmit={handleInviteUser} className="space-y-4">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Email Address
                   </label>
                   <input
@@ -247,7 +300,10 @@ const MembersManagement: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="role"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Role
                   </label>
                   <select
@@ -274,7 +330,7 @@ const MembersManagement: React.FC = () => {
                     disabled={inviteLoading}
                     className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 disabled:opacity-50"
                   >
-                    {inviteLoading ? 'Sending...' : 'Send Invite'}
+                    {inviteLoading ? "Sending..." : "Send Invite"}
                   </button>
                 </div>
               </form>
@@ -283,7 +339,7 @@ const MembersManagement: React.FC = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default MembersManagement
+export default MembersManagement;

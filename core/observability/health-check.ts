@@ -1,16 +1,16 @@
 /**
  * Health Check System - MortgageMatchPro v1.4.0
- * 
+ *
  * Comprehensive health monitoring for all system components
  * Supports database, external APIs, and service dependencies
  */
 
-import { monitoringService } from './monitoring';
+import { monitoringService } from "./monitoring";
 
 // Health check result interface
 export interface HealthCheckResult {
   name: string;
-  status: 'healthy' | 'degraded' | 'unhealthy';
+  status: "healthy" | "degraded" | "unhealthy";
   message: string;
   timestamp: Date;
   duration: number;
@@ -38,104 +38,105 @@ export interface HealthCheck {
 
 // Database health check
 export class DatabaseHealthCheck implements HealthCheck {
-  name = 'database';
+  name = "database";
   config: HealthCheckConfig = {
-    name: 'database',
-    description: 'PostgreSQL database connectivity and performance',
+    name: "database",
+    description: "PostgreSQL database connectivity and performance",
     timeout: 5000,
     retries: 3,
     interval: 30000,
     enabled: true,
-    critical: true
+    critical: true,
   };
 
   async check(): Promise<HealthCheckResult> {
     const startTime = Date.now();
-    
+
     try {
       // This would typically use your actual database client
       // For now, we'll simulate a database check
-      const { createClient } = await import('@supabase/supabase-js');
-      
+      const { createClient } = await import("@supabase/supabase-js");
+
       const supabaseUrl = process.env.SUPABASE_URL;
       const supabaseKey = process.env.SUPABASE_ANON_KEY;
-      
+
       if (!supabaseUrl || !supabaseKey) {
         return {
           name: this.name,
-          status: 'unhealthy',
-          message: 'Database configuration missing',
+          status: "unhealthy",
+          message: "Database configuration missing",
           timestamp: new Date(),
           duration: Date.now() - startTime,
           details: {
-            error: 'Missing SUPABASE_URL or SUPABASE_ANON_KEY'
-          }
+            error: "Missing SUPABASE_URL or SUPABASE_ANON_KEY",
+          },
         };
       }
 
       const supabase = createClient(supabaseUrl, supabaseKey);
-      
+
       // Test basic connectivity
       const { data, error } = await supabase
-        .from('health_check')
-        .select('*')
+        .from("health_check")
+        .select("*")
         .limit(1);
 
       if (error) {
         return {
           name: this.name,
-          status: 'unhealthy',
+          status: "unhealthy",
           message: `Database query failed: ${error.message}`,
           timestamp: new Date(),
           duration: Date.now() - startTime,
           details: {
             error: error.message,
-            code: error.code
+            code: error.code,
           }
         };
       }
 
       // Test write operation
       const { error: writeError } = await supabase
-        .from('health_check')
+        .from("health_check")
         .insert({ timestamp: new Date().toISOString() });
 
       if (writeError) {
         return {
           name: this.name,
-          status: 'degraded',
+          status: "degraded",
           message: `Database write test failed: ${writeError.message}`,
           timestamp: new Date(),
           duration: Date.now() - startTime,
           details: {
             error: writeError.message,
-            code: writeError.code
+            code: writeError.code,
           }
         };
       }
 
       return {
         name: this.name,
-        status: 'healthy',
-        message: 'Database is healthy',
+        status: "healthy",
+        message: "Database is healthy",
         timestamp: new Date(),
         duration: Date.now() - startTime,
         details: {
           connectionTime: Date.now() - startTime,
-          queryResult: data
+          queryResult: data,
         }
       };
-
     } catch (error) {
       return {
         name: this.name,
-        status: 'unhealthy',
-        message: `Database check failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        status: "unhealthy",
+        message: `Database check failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
         timestamp: new Date(),
         duration: Date.now() - startTime,
         details: {
-          error: error instanceof Error ? error.message : 'Unknown error',
-          stack: error instanceof Error ? error.stack : undefined
+          error: error instanceof Error ? error.message : "Unknown error",
+          stack: error instanceof Error ? error.stack : undefined,
         }
       };
     }
@@ -144,62 +145,63 @@ export class DatabaseHealthCheck implements HealthCheck {
 
 // Redis health check
 export class RedisHealthCheck implements HealthCheck {
-  name = 'redis';
+  name = "redis";
   config: HealthCheckConfig = {
-    name: 'redis',
-    description: 'Redis cache connectivity and performance',
+    name: "redis",
+    description: "Redis cache connectivity and performance",
     timeout: 3000,
     retries: 2,
     interval: 30000,
     enabled: true,
-    critical: false
+    critical: false,
   };
 
   async check(): Promise<HealthCheckResult> {
     const startTime = Date.now();
-    
+
     try {
       // This would typically use your actual Redis client
       // For now, we'll simulate a Redis check
       const redisUrl = process.env.REDIS_URL;
-      
+
       if (!redisUrl) {
         return {
           name: this.name,
-          status: 'degraded',
-          message: 'Redis not configured (optional)',
+          status: "degraded",
+          message: "Redis not configured (optional)",
           timestamp: new Date(),
           duration: Date.now() - startTime,
           details: {
-            warning: 'Redis URL not provided'
-          }
+            warning: "Redis URL not provided",
+          },
         };
       }
 
       // Simulate Redis ping
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       return {
         name: this.name,
-        status: 'healthy',
-        message: 'Redis is healthy',
+        status: "healthy",
+        message: "Redis is healthy",
         timestamp: new Date(),
         duration: Date.now() - startTime,
         details: {
-          connectionTime: Date.now() - startTime
+          connectionTime: Date.now() - startTime,
         }
       };
-
     } catch (error) {
       return {
         name: this.name,
-        status: 'unhealthy',
-        message: `Redis check failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        status: "unhealthy",
+        message: `Redis check failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
         timestamp: new Date(),
         duration: Date.now() - startTime,
         details: {
-          error: error instanceof Error ? error.message : 'Unknown error'
-        }
+          error: error instanceof Error ? error.message : "Unknown error",
+        },
       };
     }
   }
@@ -207,85 +209,86 @@ export class RedisHealthCheck implements HealthCheck {
 
 // OpenAI API health check
 export class OpenAIHealthCheck implements HealthCheck {
-  name = 'openai';
+  name = "openai";
   config: HealthCheckConfig = {
-    name: 'openai',
-    description: 'OpenAI API connectivity and rate limits',
+    name: "openai",
+    description: "OpenAI API connectivity and rate limits",
     timeout: 10000,
     retries: 2,
     interval: 60000,
     enabled: true,
-    critical: true
+    critical: true,
   };
 
   async check(): Promise<HealthCheckResult> {
     const startTime = Date.now();
-    
+
     try {
       const apiKey = process.env.OPENAI_API_KEY;
-      
+
       if (!apiKey) {
         return {
           name: this.name,
-          status: 'unhealthy',
-          message: 'OpenAI API key not configured',
+          status: "unhealthy",
+          message: "OpenAI API key not configured",
           timestamp: new Date(),
           duration: Date.now() - startTime,
           details: {
-            error: 'Missing OPENAI_API_KEY'
-          }
+            error: "Missing OPENAI_API_KEY",
+          },
         };
       }
 
       // Test OpenAI API with a simple request
-      const response = await fetch('https://api.openai.com/v1/models', {
+      const response = await fetch("https://api.openai.com/v1/models", {
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
         },
-        timeout: 10000
+        timeout: 10000,
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         return {
           name: this.name,
-          status: 'unhealthy',
+          status: "unhealthy",
           message: `OpenAI API error: ${response.status} ${response.statusText}`,
           timestamp: new Date(),
           duration: Date.now() - startTime,
           details: {
             status: response.status,
             statusText: response.statusText,
-            error: errorData
+            error: errorData,
           }
         };
       }
 
       const data = await response.json();
-      
+
       return {
         name: this.name,
-        status: 'healthy',
-        message: 'OpenAI API is healthy',
+        status: "healthy",
+        message: "OpenAI API is healthy",
         timestamp: new Date(),
         duration: Date.now() - startTime,
         details: {
           connectionTime: Date.now() - startTime,
-          modelsAvailable: data.data?.length || 0
+          modelsAvailable: data.data?.length || 0,
         }
       };
-
     } catch (error) {
       return {
         name: this.name,
-        status: 'unhealthy',
-        message: `OpenAI API check failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        status: "unhealthy",
+        message: `OpenAI API check failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
         timestamp: new Date(),
         duration: Date.now() - startTime,
         details: {
-          error: error instanceof Error ? error.message : 'Unknown error'
-        }
+          error: error instanceof Error ? error.message : "Unknown error",
+        },
       };
     }
   }
@@ -293,61 +296,62 @@ export class OpenAIHealthCheck implements HealthCheck {
 
 // Rate API health check
 export class RateAPIHealthCheck implements HealthCheck {
-  name = 'rate_api';
+  name = "rate_api";
   config: HealthCheckConfig = {
-    name: 'rate_api',
-    description: 'External rate API connectivity',
+    name: "rate_api",
+    description: "External rate API connectivity",
     timeout: 8000,
     retries: 2,
     interval: 60000,
     enabled: true,
-    critical: false
+    critical: false,
   };
 
   async check(): Promise<HealthCheckResult> {
     const startTime = Date.now();
-    
+
     try {
       // Test RateHub API
       const rateHubKey = process.env.RATEHUB_API_KEY;
-      
+
       if (!rateHubKey) {
         return {
           name: this.name,
-          status: 'degraded',
-          message: 'Rate API not configured (optional)',
+          status: "degraded",
+          message: "Rate API not configured (optional)",
           timestamp: new Date(),
           duration: Date.now() - startTime,
           details: {
-            warning: 'RATEHUB_API_KEY not provided'
-          }
+            warning: "RATEHUB_API_KEY not provided",
+          },
         };
       }
 
       // Simulate rate API check
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
       return {
         name: this.name,
-        status: 'healthy',
-        message: 'Rate API is healthy',
+        status: "healthy",
+        message: "Rate API is healthy",
         timestamp: new Date(),
         duration: Date.now() - startTime,
         details: {
-          connectionTime: Date.now() - startTime
+          connectionTime: Date.now() - startTime,
         }
       };
-
     } catch (error) {
       return {
         name: this.name,
-        status: 'unhealthy',
-        message: `Rate API check failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        status: "unhealthy",
+        message: `Rate API check failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
         timestamp: new Date(),
         duration: Date.now() - startTime,
         details: {
-          error: error instanceof Error ? error.message : 'Unknown error'
-        }
+          error: error instanceof Error ? error.message : "Unknown error",
+        },
       };
     }
   }
@@ -355,48 +359,50 @@ export class RateAPIHealthCheck implements HealthCheck {
 
 // System resources health check
 export class SystemResourcesHealthCheck implements HealthCheck {
-  name = 'system_resources';
+  name = "system_resources";
   config: HealthCheckConfig = {
-    name: 'system_resources',
-    description: 'System memory and CPU usage',
+    name: "system_resources",
+    description: "System memory and CPU usage",
     timeout: 1000,
     retries: 1,
     interval: 30000,
     enabled: true,
-    critical: true
+    critical: true,
   };
 
   async check(): Promise<HealthCheckResult> {
     const startTime = Date.now();
-    
+
     try {
       const memUsage = process.memoryUsage();
       const cpuUsage = process.cpuUsage();
-      
+
       // Check memory usage
       const heapUsedMB = memUsage.heapUsed / 1024 / 1024;
       const heapTotalMB = memUsage.heapTotal / 1024 / 1024;
       const rssMB = memUsage.rss / 1024 / 1024;
-      
+
       const memoryUsagePercent = (memUsage.heapUsed / memUsage.heapTotal) * 100;
-      
-      let status: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
-      let message = 'System resources are healthy';
-      
+
+      let status: "healthy" | "degraded" | "unhealthy" = "healthy";
+      let message = "System resources are healthy";
+
       if (memoryUsagePercent > 90) {
-        status = 'unhealthy';
-        message = 'Memory usage critically high';
+        status = "unhealthy";
+        message = "Memory usage critically high";
       } else if (memoryUsagePercent > 80) {
-        status = 'degraded';
-        message = 'Memory usage high';
+        status = "degraded";
+        message = "Memory usage high";
       }
-      
+
       // Check if we're approaching memory limits
-      if (rssMB > 1000) { // 1GB RSS limit
-        status = status === 'healthy' ? 'degraded' : status;
-        message = status === 'healthy' ? 'Memory usage approaching limits' : message;
+      if (rssMB > 1000) {
+        // 1GB RSS limit
+        status = status === "healthy" ? "degraded" : status;
+        message =
+          status === "healthy" ? "Memory usage approaching limits" : message;
       }
-      
+
       return {
         name: this.name,
         status,
@@ -408,25 +414,26 @@ export class SystemResourcesHealthCheck implements HealthCheck {
             heapUsed: heapUsedMB,
             heapTotal: heapTotalMB,
             rss: rssMB,
-            usagePercent: memoryUsagePercent
+            usagePercent: memoryUsagePercent,
           },
           cpu: {
             user: cpuUsage.user,
-            system: cpuUsage.system
+            system: cpuUsage.system,
           }
-        }
+        },
       };
-
     } catch (error) {
       return {
         name: this.name,
-        status: 'unhealthy',
-        message: `System resources check failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        status: "unhealthy",
+        message: `System resources check failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
         timestamp: new Date(),
         duration: Date.now() - startTime,
         details: {
-          error: error instanceof Error ? error.message : 'Unknown error'
-        }
+          error: error instanceof Error ? error.message : "Unknown error",
+        },
       };
     }
   }
@@ -448,7 +455,7 @@ export class HealthCheckManager {
    */
   register(check: HealthCheck): void {
     this.checks.set(check.name, check);
-    
+
     // Start periodic check if enabled
     if (check.config.enabled) {
       this.startPeriodicCheck(check);
@@ -461,7 +468,7 @@ export class HealthCheckManager {
   unregister(name: string): void {
     this.checks.delete(name);
     this.results.delete(name);
-    
+
     // Stop periodic check
     const interval = this.intervals.get(name);
     if (interval) {
@@ -481,22 +488,22 @@ export class HealthCheckManager {
 
     const result = await check.check();
     this.results.set(name, result);
-    
+
     // Record metrics
     monitoringService.recordMetric({
       name: `health_check.${name}.status`,
-      value: result.status === 'healthy' ? 1 : 0,
+      value: result.status === "healthy" ? 1 : 0,
       timestamp: new Date(),
       tags: { status: result.status },
-      type: 'gauge'
+      type: "gauge",
     });
-    
+
     monitoringService.recordMetric({
       name: `health_check.${name}.duration`,
       value: result.duration,
       timestamp: new Date(),
       tags: { status: result.status },
-      type: 'histogram'
+      type: "histogram",
     });
 
     return result;
@@ -507,7 +514,7 @@ export class HealthCheckManager {
    */
   async runAllChecks(): Promise<HealthCheckResult[]> {
     const results: HealthCheckResult[] = [];
-    
+
     for (const [name, check] of this.checks.entries()) {
       if (check.config.enabled) {
         const result = await this.runCheck(name);
@@ -516,7 +523,7 @@ export class HealthCheckManager {
         }
       }
     }
-    
+
     return results;
   }
 
@@ -524,7 +531,7 @@ export class HealthCheckManager {
    * Get overall system health
    */
   getSystemHealth(): {
-    status: 'healthy' | 'degraded' | 'unhealthy';
+    status: "healthy" | "degraded" | "unhealthy";
     checks: HealthCheckResult[];
     summary: {
       total: number;
@@ -534,27 +541,29 @@ export class HealthCheckManager {
     };
   } {
     const checks = Array.from(this.results.values());
-    
-    const summary = checks.reduce((acc, check) => {
-      acc.total++;
-      if (check.status === 'healthy') acc.healthy++;
-      else if (check.status === 'degraded') acc.degraded++;
-      else if (check.status === 'unhealthy') acc.unhealthy++;
-      return acc;
-    }, { total: 0, healthy: 0, degraded: 0, unhealthy: 0 });
-    
-    let status: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
-    
+
+    const summary = checks.reduce(
+      (acc, check) => {
+        acc.total++;
+        if (check.status === "healthy") {acc.healthy++;}
+        else if (check.status === "degraded") {acc.degraded++;}
+        else if (check.status === "unhealthy") {acc.unhealthy++;}
+        return acc;
+      },
+      { total: 0, healthy: 0, degraded: 0, unhealthy: 0 }
+
+    let status: "healthy" | "degraded" | "unhealthy" = "healthy";
+
     if (summary.unhealthy > 0) {
-      status = 'unhealthy';
+      status = "unhealthy";
     } else if (summary.degraded > 0) {
-      status = 'degraded';
+      status = "degraded";
     }
-    
+
     return {
       status,
       checks,
-      summary
+      summary,
     };
   }
 
@@ -592,7 +601,7 @@ export class HealthCheckManager {
     const interval = setInterval(async () => {
       await this.runCheck(check.name);
     }, check.config.interval);
-    
+
     this.intervals.set(check.name, interval);
   }
 }
@@ -601,7 +610,9 @@ export class HealthCheckManager {
 export const healthCheckManager = new HealthCheckManager();
 
 // Export convenience functions
-export const runHealthCheck = (name: string) => healthCheckManager.runCheck(name);
+export const runHealthCheck = (name: string) =>
+  healthCheckManager.runCheck(name);
 export const runAllHealthChecks = () => healthCheckManager.runAllChecks();
 export const getSystemHealth = () => healthCheckManager.getSystemHealth();
-export const getHealthCheckResult = (name: string) => healthCheckManager.getCheckResult(name);
+export const getHealthCheckResult = (name: string) =>
+  healthCheckManager.getCheckResult(name);

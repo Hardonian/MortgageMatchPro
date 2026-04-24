@@ -19,14 +19,14 @@ module.exports = {
     'react-native/no-inline-styles': 'warn',
     'react-native/no-color-literals': 'warn',
     'react-native/no-raw-text': 'off',
-    
+
     // TypeScript rules
     '@typescript-eslint/no-unused-vars': 'error',
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-empty-function': 'warn',
-    
+
     // General rules
     'no-console': 'warn',
     'no-debugger': 'error',
@@ -35,12 +35,12 @@ module.exports = {
     'no-var': 'error',
     'object-shorthand': 'error',
     'prefer-template': 'error',
-    
+
     // Performance rules
     'react-hooks/exhaustive-deps': 'warn',
     'react/jsx-no-bind': 'warn',
     'react/jsx-pascal-case': 'error',
-    
+
     // Accessibility rules
     'jsx-a11y/accessible-emoji': 'off', // React Native doesn't support this
   },

@@ -1,1 +1,2 @@
-export * from './analytics-service'; export * from './report-scheduler';
+export * from "./analytics-service";
+export * from "./report-scheduler";

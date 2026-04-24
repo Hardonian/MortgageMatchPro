@@ -74,8 +74,10 @@ class EventBus {
       id?: string;
     } = {}
   ): string {
-    const subscriptionId = options.id || `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+    const subscriptionId =
+      options.id ||
+      `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
     const subscription: EventSubscription = {
       id: subscriptionId,
       eventType,
@@ -93,18 +95,22 @@ class EventBus {
     this.subscriptions.get(eventType)!.push(subscription);
     this.metrics.subscriptionsActive++;
 
-    console.log(`[EventBus] Subscribed to ${eventType} with ID: ${subscriptionId}`);
+    console.log(
+      `[EventBus] Subscribed to ${eventType} with ID: ${subscriptionId}`
+    );
     return subscriptionId;
   }
 
   // Unsubscribe from an event type
   unsubscribe(subscriptionId: string): boolean {
     for (const [eventType, subscriptions] of this.subscriptions) {
-      const index = subscriptions.findIndex(sub => sub.id === subscriptionId);
+      const index = subscriptions.findIndex((sub) => sub.id === subscriptionId);
       if (index !== -1) {
         subscriptions.splice(index, 1);
         this.metrics.subscriptionsActive--;
-        console.log(`[EventBus] Unsubscribed ${subscriptionId} from ${eventType}`);
+        console.log(
+          `[EventBus] Unsubscribed ${subscriptionId} from ${eventType}`
+        );
         return true;
       }
     }
@@ -112,13 +118,17 @@ class EventBus {
   }
 
   // Publish an event
-  async publish(eventType: string, data: any, metadata?: Event['metadata']): Promise<void> {
+  async publish(
+    eventType: string,
+    data: any,
+    metadata?: Event["metadata"]
+  ): Promise<void> {
     const event: Event = {
       id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       type: eventType,
-      version: '1.0',
+      version: "1.0",
       timestamp: new Date().toISOString(),
-      source: 'event-bus',
+      source: "event-bus",
       data,
       metadata,
     };
@@ -129,7 +139,9 @@ class EventBus {
 
     // Check queue size
     if (this.eventQueue.length > this.config.maxQueueSize) {
-      console.warn(`[EventBus] Queue size exceeded ${this.config.maxQueueSize}, dropping oldest events`);
+      console.warn(
+        `[EventBus] Queue size exceeded ${this.config.maxQueueSize}, dropping oldest events`
+      );
       this.eventQueue = this.eventQueue.slice(-this.config.maxQueueSize);
     }
 
@@ -143,13 +155,13 @@ class EventBus {
 
   // Process events from the queue
   private async processEvents(): Promise<void> {
-    if (this.isProcessing) return;
-    
+    if (this.isProcessing) {return;}
+
     this.isProcessing = true;
 
     while (this.eventQueue.length > 0) {
       const event = this.eventQueue.shift();
-      if (!event) break;
+      if (!event) {break;}
 
       await this.processEvent(event);
     }
@@ -160,7 +172,7 @@ class EventBus {
   // Process a single event
   private async processEvent(event: Event): Promise<void> {
     const subscriptions = this.subscriptions.get(event.type) || [];
-    
+
     if (subscriptions.length === 0) {
       console.warn(`[EventBus] No subscribers for event type: ${event.type}`);
       return;
@@ -168,7 +180,7 @@ class EventBus {
 
     // Sort by priority (higher priority first)
     const sortedSubscriptions = subscriptions
-      .filter(sub => sub.isActive)
+      .filter((sub) => sub.isActive)
       .sort((a, b) => b.priority - a.priority);
 
     // Process each subscription
@@ -176,15 +188,20 @@ class EventBus {
       try {
         await subscription.handler(event);
         this.metrics.eventsProcessed++;
-        console.log(`[EventBus] Successfully processed event ${event.id} with subscription ${subscription.id}`);
+        console.log(
+          `[EventBus] Successfully processed event ${event.id} with subscription ${subscription.id}`
+        );
       } catch (error) {
-        console.error(`[EventBus] Error processing event ${event.id} with subscription ${subscription.id}:`, error);
-        
+        console.error(
+          `[EventBus] Error processing event ${event.id} with subscription ${subscription.id}:`,
+          error
+
         // Handle retries
         subscription.retryCount++;
         if (subscription.retryCount <= subscription.maxRetries) {
-          console.log(`[EventBus] Retrying event ${event.id} with subscription ${subscription.id} (attempt ${subscription.retryCount})`);
-          
+          console.log(
+            `[EventBus] Retrying event ${event.id} with subscription ${subscription.id} (attempt ${subscription.retryCount})`
+
           // Add back to queue with delay
           setTimeout(() => {
             this.eventQueue.unshift(event);
@@ -193,7 +210,9 @@ class EventBus {
             }
           }, this.config.retryDelay * subscription.retryCount);
         } else {
-          console.error(`[EventBus] Max retries exceeded for event ${event.id} with subscription ${subscription.id}`);
+          console.error(
+            `[EventBus] Max retries exceeded for event ${event.id} with subscription ${subscription.id}`
+          );
           this.metrics.eventsFailed++;
           subscription.isActive = false;
         }
@@ -209,7 +228,7 @@ class EventBus {
       subscriptionsByType: Object.fromEntries(
         Array.from(this.subscriptions.entries()).map(([type, subs]) => [
           type,
-          subs.filter(sub => sub.isActive).length
+          subs.filter((sub) => sub.isActive).length,
         ])
       ),
     };
@@ -219,7 +238,7 @@ class EventBus {
   getSubscriptions(): EventSubscription[] {
     const allSubscriptions: EventSubscription[] = [];
     for (const subscriptions of this.subscriptions.values()) {
-      allSubscriptions.push(...subscriptions.filter(sub => sub.isActive));
+      allSubscriptions.push(...subscriptions.filter((sub) => sub.isActive));
     }
     return allSubscriptions;
   }
@@ -228,13 +247,13 @@ class EventBus {
   clearSubscriptions(): void {
     this.subscriptions.clear();
     this.metrics.subscriptionsActive = 0;
-    console.log('[EventBus] Cleared all subscriptions');
+    console.log("[EventBus] Cleared all subscriptions");
   }
 
   // Clear event queue
   clearQueue(): void {
     this.eventQueue = [];
-    console.log('[EventBus] Cleared event queue');
+    console.log("[EventBus] Cleared event queue");
   }
 
   // Get queue status
@@ -266,7 +285,7 @@ export const subscribe = <T = any>(
 export const publish = (
   eventType: string,
   data: any,
-  metadata?: Event['metadata']
+  metadata?: Event["metadata"]
 ) => {
   return eventBus.publish(eventType, data, metadata);
 };

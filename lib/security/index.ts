@@ -1,1 +1,1 @@
-export * from './DataEthics';
+export * from "./DataEthics";

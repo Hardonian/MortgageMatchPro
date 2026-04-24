@@ -1,11 +1,11 @@
 /**
  * Mobile Optimized Image Component
- * 
+ *
  * Provides responsive, accessible, and performance-optimized image rendering
  * with automatic format selection, lazy loading, and accessibility features.
  */
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef } from "react";
 import {
   Image,
   ImageProps,
@@ -16,10 +16,14 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   AccessibilityInfo,
-} from 'react-native';
-import { imageOptimization, networkOptimization, accessibilityUtils } from '../utils/mobilePerformance';
+} from "react-native";
+import {
+  imageOptimization,
+  networkOptimization,
+  accessibilityUtils,
+} from "../utils/mobilePerformance";
 
-interface MobileOptimizedImageProps extends Omit<ImageProps, 'source'> {
+interface MobileOptimizedImageProps extends Omit<ImageProps, "source"> {
   source: { uri: string } | number;
   alt?: string;
   fallbackSource?: { uri: string } | number;
@@ -32,7 +36,7 @@ interface MobileOptimizedImageProps extends Omit<ImageProps, 'source'> {
   maxWidth?: number;
   maxHeight?: number;
   quality?: number;
-  format?: 'auto' | 'jpeg' | 'png' | 'webp';
+  format?: "auto" | "jpeg" | "png" | "webp";
 }
 
 export const MobileOptimizedImage: React.FC<MobileOptimizedImageProps> = ({
@@ -48,7 +52,7 @@ export const MobileOptimizedImage: React.FC<MobileOptimizedImageProps> = ({
   maxWidth,
   maxHeight,
   quality,
-  format = 'auto',
+  format = "auto",
   style,
   ...props
 }) => {
@@ -59,7 +63,7 @@ export const MobileOptimizedImage: React.FC<MobileOptimizedImageProps> = ({
 
   // Get optimized dimensions
   const getOptimizedDimensions = useCallback(() => {
-    if (typeof source === 'number') {
+    if (typeof source === "number") {
       // Local image - use original dimensions
       return { width: undefined, height: undefined };
     }
@@ -75,13 +79,16 @@ export const MobileOptimizedImage: React.FC<MobileOptimizedImageProps> = ({
   }, [source, maxWidth, maxHeight]);
 
   // Get optimized image URI
-  const getOptimizedUri = useCallback((uri: string) => {
-    if (format === 'auto') {
-      const optimalFormat = networkOptimization.getOptimalImageFormat();
-      return `${uri}?format=${optimalFormat}`;
-    }
-    return `${uri}?format=${format}`;
-  }, [format]);
+  const getOptimizedUri = useCallback(
+    (uri: string) => {
+      if (format === "auto") {
+        const optimalFormat = networkOptimization.getOptimalImageFormat();
+        return `${uri}?format=${optimalFormat}`;
+      }
+      return `${uri}?format=${format}`;
+    },
+    [format]
+  );
 
   // Handle image load
   const handleLoad = useCallback(() => {
@@ -106,20 +113,23 @@ export const MobileOptimizedImage: React.FC<MobileOptimizedImageProps> = ({
 
   // Get accessibility props
   const getAccessibilityProps = useCallback(() => {
-    const label = accessibilityLabel || alt || 'Image';
-    const hint = accessibilityHint || (enableZoom ? 'Double tap to zoom' : undefined);
-    
+    const label = accessibilityLabel || alt || "Image";
+    const hint =
+      accessibilityHint || (enableZoom ? "Double tap to zoom" : undefined);
+
     return {
       accessible: true,
       accessibilityLabel: accessibilityUtils.getScreenReaderText(label),
       accessibilityHint: hint,
-      accessibilityRole: 'image' as const,
+      accessibilityRole: "image" as const,
     };
   }, [accessibilityLabel, alt, accessibilityHint, enableZoom]);
 
   // Render loading indicator
   const renderLoadingIndicator = () => {
-    if (!showLoadingIndicator || !isLoading) return null;
+    if (!showLoadingIndicator || !isLoading) {
+      return null;
+    }
 
     return (
       <View style={styles.loadingContainer}>
@@ -130,7 +140,9 @@ export const MobileOptimizedImage: React.FC<MobileOptimizedImageProps> = ({
 
   // Render error state
   const renderErrorState = () => {
-    if (!hasError) return null;
+    if (!hasError) {
+      return null;
+    }
 
     return (
       <View style={styles.errorContainer}>
@@ -152,7 +164,7 @@ export const MobileOptimizedImage: React.FC<MobileOptimizedImageProps> = ({
       return fallbackSource;
     }
 
-    if (typeof source === 'string') {
+    if (typeof source === "string") {
       return { uri: getOptimizedUri(source) };
     }
 
@@ -163,19 +175,19 @@ export const MobileOptimizedImage: React.FC<MobileOptimizedImageProps> = ({
   const getImageStyle = () => {
     const dimensions = getOptimizedDimensions();
     const baseStyle = [styles.image, style];
-    
+
     if (isZoomed) {
       baseStyle.push(styles.zoomedImage);
     }
-    
+
     if (dimensions.width) {
       baseStyle.push({ width: dimensions.width });
     }
-    
+
     if (dimensions.height) {
       baseStyle.push({ height: dimensions.height });
     }
-    
+
     return baseStyle;
   };
 
@@ -212,50 +224,46 @@ export const MobileOptimizedImage: React.FC<MobileOptimizedImageProps> = ({
     );
   };
 
-  return (
-    <View style={styles.container}>
-      {renderImage()}
-    </View>
-  );
+  return <View style={styles.container}>{renderImage()}</View>;
 };
 
 const styles = StyleSheet.create({
   container: {
-    position: 'relative',
+    position: "relative",
   },
   imageContainer: {
-    position: 'relative',
+    position: "relative",
   },
   image: {
-    width: '100%',
-    height: 'auto',
+    width: "100%",
+    height: "auto",
     minHeight: 100,
   },
   zoomedImage: {
-    width: Dimensions.get('window').width * 0.9,
-    height: Dimensions.get('window').height * 0.9,
+    width: Dimensions.get("window").width * 0.9,
+    height: Dimensions.get("window").height * 0.9,
   },
   loadingContainer: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.1)",
   },
   errorContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     borderRadius: 8,
   },
   errorText: {
-    color: '#666',
+    color: "#666",
     fontSize: 14,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 10,
   },
   fallbackImage: {

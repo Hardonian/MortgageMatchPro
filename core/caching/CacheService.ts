@@ -3,15 +3,15 @@
  * Centralized caching service with multiple backends and intelligent invalidation
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 
 // Cache configuration schema
 export const CacheConfigSchema = z.object({
   ttl: z.number().default(3600), // Time to live in seconds
   maxSize: z.number().default(1000), // Maximum number of items
-  strategy: z.enum(['lru', 'lfu', 'fifo']).default('lru'),
+  strategy: z.enum(["lru", "lfu", "fifo"]).default("lru"),
   compression: z.boolean().default(true),
-  encryption: z.boolean().default(false)
+  encryption: z.boolean().default(false),
 });
 
 export type CacheConfig = z.infer<typeof CacheConfigSchema>;
@@ -24,7 +24,7 @@ export const CacheItemSchema = z.object({
   createdAt: z.date(),
   accessCount: z.number().default(0),
   lastAccessed: z.date(),
-  tags: z.array(z.string()).default([])
+  tags: z.array(z.string()).default([]),
 });
 
 export type CacheItem = z.infer<typeof CacheItemSchema>;
@@ -36,7 +36,7 @@ export const CacheStatsSchema = z.object({
   evictions: z.number(),
   size: z.number(),
   hitRate: z.number(),
-  memoryUsage: z.number()
+  memoryUsage: z.number(),
 });
 
 export type CacheStats = z.infer<typeof CacheStatsSchema>;
@@ -56,7 +56,7 @@ export class CacheService {
       evictions: 0,
       size: 0,
       hitRate: 0,
-      memoryUsage: 0
+      memoryUsage: 0,
     };
     this.compressionEnabled = this.config.compression;
     this.encryptionEnabled = this.config.encryption;
@@ -67,7 +67,7 @@ export class CacheService {
    */
   async get<T>(key: string): Promise<T | null> {
     const item = this.cache.get(key);
-    
+
     if (!item) {
       this.stats.misses++;
       this.updateHitRate();
@@ -103,7 +103,12 @@ export class CacheService {
   /**
    * Set a value in the cache
    */
-  async set<T>(key: string, value: T, ttl?: number, tags: string[] = []): Promise<void> {
+  async set<T>(
+    key: string,
+    value: T,
+    ttl?: number,
+    tags: string[] = []
+  ): Promise<void> {
     // Check if cache is full
     if (this.cache.size >= this.config.maxSize) {
       await this.evict();
@@ -125,7 +130,7 @@ export class CacheService {
       createdAt: new Date(),
       accessCount: 0,
       lastAccessed: new Date(),
-      tags
+      tags,
     };
 
     this.cache.set(key, item);
@@ -159,14 +164,14 @@ export class CacheService {
    */
   async clearByTags(tags: string[]): Promise<number> {
     let cleared = 0;
-    
+
     for (const [key, item] of this.cache.entries()) {
-      if (tags.some(tag => item.tags.includes(tag))) {
+      if (tags.some((tag) => item.tags.includes(tag))) {
         this.cache.delete(key);
         cleared++;
       }
     }
-    
+
     this.stats.size = this.cache.size;
     this.updateMemoryUsage();
     return cleared;
@@ -210,20 +215,20 @@ export class CacheService {
     let itemToEvict: [string, CacheItem] | null = null;
 
     switch (this.config.strategy) {
-      case 'lru':
-        itemToEvict = items.reduce((oldest, current) => 
+      case "lru":
+        itemToEvict = items.reduce((oldest, current) =>
           current[1].lastAccessed < oldest[1].lastAccessed ? current : oldest
         );
         break;
-      
-      case 'lfu':
-        itemToEvict = items.reduce((least, current) => 
+
+      case "lfu":
+        itemToEvict = items.reduce((least, current) =>
           current[1].accessCount < least[1].accessCount ? current : least
         );
         break;
-      
-      case 'fifo':
-        itemToEvict = items.reduce((oldest, current) => 
+
+      case "fifo":
+        itemToEvict = items.reduce((oldest, current) =>
           current[1].createdAt < oldest[1].createdAt ? current : oldest
         );
         break;

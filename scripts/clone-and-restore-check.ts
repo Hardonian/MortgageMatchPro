@@ -2,7 +2,7 @@
 
 /**
  * Disaster Recovery: Clone and Restore Check
- * 
+ *
  * This script performs disaster recovery rehearsals by:
  * 1. Creating a temporary shadow database
  * 2. Restoring from latest backup/PITR timestamp
@@ -10,10 +10,10 @@
  * 4. Generating a DR report
  */
 
-import { createClient } from '@supabase/supabase-js';
-import { PrismaClient } from '@prisma/client';
-import * as fs from 'fs';
-import * as path from 'path';
+import { createClient } from "@supabase/supabase-js";
+import { PrismaClient } from "@prisma/client";
+import * as fs from "fs";
+import * as path from "path";
 
 interface DRConfig {
   sourceProjectRef: string;
@@ -28,13 +28,16 @@ interface DRReport {
   sourceProjectRef: string;
   shadowProjectRef: string;
   restoreTimeMs: number;
-  checksumResults: Record<string, {
-    sourceRows: number;
-    shadowRows: number;
-    checksumMatch: boolean;
-    error?: string;
-  }>;
-  overallStatus: 'PASS' | 'FAIL' | 'PARTIAL';
+  checksumResults: Record<
+    string,
+    {
+      sourceRows: number;
+      shadowRows: number;
+      checksumMatch: boolean;
+      error?: string;
+    }
+  >;
+  overallStatus: "PASS" | "FAIL" | "PARTIAL";
   recommendations: string[];
 }
 
@@ -57,8 +60,10 @@ class DRRehearsalManager {
     this.sourcePrisma = new PrismaClient({
       datasources: {
         db: {
-          url: process.env.SUPABASE_URL || `postgresql://postgres:${process.env.SUPABASE_SERVICE_KEY}@db.${config.sourceProjectRef}.supabase.co:5432/postgres`
-        }
+          url:
+            process.env.SUPABASE_URL ||
+            `postgresql://postgres:${process.env.SUPABASE_SERVICE_KEY}@db.${config.sourceProjectRef}.supabase.co:5432/postgres`,
+        },
       }
     });
 
@@ -72,116 +77,125 @@ class DRRehearsalManager {
       this.shadowPrisma = new PrismaClient({
         datasources: {
           db: {
-            url: `postgresql://postgres:${process.env.SUPABASE_SERVICE_KEY}@db.${config.shadowProjectRef}.supabase.co:5432/postgres`
+            url: `postgresql://postgres:${process.env.SUPABASE_SERVICE_KEY}@db.${config.shadowProjectRef}.supabase.co:5432/postgres`,
           }
-        }
+        },
       });
     }
   }
 
   async createShadowDatabase(): Promise<string> {
-    console.log('🔄 Creating shadow database...');
-    
+    console.log("🔄 Creating shadow database...");
+
     try {
       // Create a new Supabase project for shadow database
       const { data: project, error } = await this.sourceSupabase
-        .from('projects')
+        .from("projects")
         .insert({
           name: `dr-shadow-${Date.now()}`,
-          region: 'us-east-1',
-          plan: 'free'
+          region: "us-east-1",
+          plan: "free",
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {throw error;}
 
       console.log(`✅ Shadow database created: ${project.id}`);
       return project.id;
-
     } catch (error) {
-      console.error('❌ Failed to create shadow database:', error);
+      console.error("❌ Failed to create shadow database:", error);
       throw error;
     }
   }
 
-  async restoreFromBackup(shadowProjectRef: string, restoreTime?: Date): Promise<number> {
-    console.log('🔄 Restoring from backup...');
-    
+  async restoreFromBackup(
+    shadowProjectRef: string,
+    restoreTime?: Date
+  ): Promise<number> {
+    console.log("🔄 Restoring from backup...");
+
     const startTime = Date.now();
 
     try {
       // Get latest backup or PITR restore point
       const { data: backups, error: backupError } = await this.sourceSupabase
-        .from('backups')
-        .select('*')
-        .order('created_at', { ascending: false })
+        .from("backups")
+        .select("*")
+        .order("created_at", { ascending: false })
         .limit(1);
 
       if (backupError) {
-        console.warn('No backup data found, using PITR...');
+        console.warn("No backup data found, using PITR...");
       }
 
       // Perform PITR restore to shadow database
-      const { error: restoreError } = await this.sourceSupabase.rpc('restore_database', {
-        target_project_ref: shadowProjectRef,
-        restore_time: restoreTime?.toISOString() || new Date().toISOString(),
-        source_project_ref: this.config.sourceProjectRef
-      });
+      const { error: restoreError } = await this.sourceSupabase.rpc(
+        "restore_database",
+        {
+          target_project_ref: shadowProjectRef,
+          restore_time: restoreTime?.toISOString() || new Date().toISOString(),
+          source_project_ref: this.config.sourceProjectRef,
+        }
+      );
 
-      if (restoreError) throw restoreError;
+      if (restoreError) {throw restoreError;}
 
       const restoreTimeMs = Date.now() - startTime;
       console.log(`✅ Restore completed in ${restoreTimeMs}ms`);
-      
-      return restoreTimeMs;
 
+      return restoreTimeMs;
     } catch (error) {
-      console.error('❌ Restore failed:', error);
+      console.error("❌ Restore failed:", error);
       throw error;
     }
   }
 
-  async runChecksumValidation(shadowProjectRef: string): Promise<Record<string, any>> {
-    console.log('🔍 Running checksum validation...');
-    
+  async runChecksumValidation(
+    shadowProjectRef: string
+  ): Promise<Record<string, any>> {
+    console.log("🔍 Running checksum validation...");
+
     const results: Record<string, any> = {};
 
     for (const tableName of this.config.checksumTables) {
       try {
         console.log(`Checking table: ${tableName}`);
-        
+
         // Get source table checksum
-        const sourceChecksum = await this.getTableChecksum(tableName, this.sourcePrisma);
-        
+        const sourceChecksum = await this.getTableChecksum(
+          tableName,
+          this.sourcePrisma
+
         // Get shadow table checksum
         const shadowPrisma = new PrismaClient({
           datasources: {
             db: {
-              url: `postgresql://postgres:${process.env.SUPABASE_SERVICE_KEY}@db.${shadowProjectRef}.supabase.co:5432/postgres`
+              url: `postgresql://postgres:${process.env.SUPABASE_SERVICE_KEY}@db.${shadowProjectRef}.supabase.co:5432/postgres`,
             }
-          }
+          },
         });
 
-        const shadowChecksum = await this.getTableChecksum(tableName, shadowPrisma);
-        
+        const shadowChecksum = await this.getTableChecksum(
+          tableName,
+          shadowPrisma
+
         results[tableName] = {
           sourceRows: sourceChecksum.rowCount,
           shadowRows: shadowChecksum.rowCount,
           checksumMatch: sourceChecksum.checksum === shadowChecksum.checksum,
           sourceChecksum: sourceChecksum.checksum,
-          shadowChecksum: shadowChecksum.checksum
+          shadowChecksum: shadowChecksum.checksum,
         };
 
         await shadowPrisma.$disconnect();
-
       } catch (error) {
         console.error(`❌ Checksum validation failed for ${tableName}:`, error);
         results[tableName] = {
           sourceRows: 0,
           shadowRows: 0,
           checksumMatch: false,
-          error: error.message
+          error: error.message,
         };
       }
     }
@@ -189,10 +203,14 @@ class DRRehearsalManager {
     return results;
   }
 
-  private async getTableChecksum(tableName: string, prisma: PrismaClient): Promise<{ rowCount: number; checksum: string }> {
+  private async getTableChecksum(
+    tableName: string,
+    prisma: PrismaClient
+  ): Promise<{ rowCount: number; checksum: string }> {
     try {
       // Get row count
-      const rowCountResult = await prisma.$queryRaw`SELECT COUNT(*) as count FROM ${tableName}`;
+      const rowCountResult =
+        await prisma.$queryRaw`SELECT COUNT(*) as count FROM ${tableName}`;
       const rowCount = parseInt((rowCountResult as any)[0].count);
 
       // Get checksum of all data
@@ -203,29 +221,27 @@ class DRRehearsalManager {
       const checksum = (checksumResult as any)[0].checksum;
 
       return { rowCount, checksum };
-
     } catch (error) {
       console.warn(`Could not get checksum for ${tableName}:`, error.message);
-      return { rowCount: 0, checksum: '' };
+      return { rowCount: 0, checksum: "" };
     }
   }
 
   async cleanupShadowDatabase(shadowProjectRef: string): Promise<void> {
-    console.log('🧹 Cleaning up shadow database...');
-    
+    console.log("🧹 Cleaning up shadow database...");
+
     try {
       // Delete the shadow project
       const { error } = await this.sourceSupabase
-        .from('projects')
+        .from("projects")
         .delete()
-        .eq('id', shadowProjectRef);
+        .eq("id", shadowProjectRef);
 
-      if (error) throw error;
+      if (error) {throw error;}
 
-      console.log('✅ Shadow database cleaned up');
-
+      console.log("✅ Shadow database cleaned up");
     } catch (error) {
-      console.warn('⚠️ Failed to cleanup shadow database:', error);
+      console.warn("⚠️ Failed to cleanup shadow database:", error);
     }
   }
 
@@ -235,22 +251,36 @@ class DRRehearsalManager {
     checksumResults: Record<string, any>
   ): DRReport {
     const timestamp = new Date().toISOString();
-    const failedChecksums = Object.values(checksumResults).filter((r: any) => !r.checksumMatch);
-    const overallStatus = failedChecksums.length === 0 ? 'PASS' : 
-                         failedChecksums.length === Object.keys(checksumResults).length ? 'FAIL' : 'PARTIAL';
+    const failedChecksums = Object.values(checksumResults).filter(
+      (r: any) => !r.checksumMatch
+    );
+    const overallStatus =
+      failedChecksums.length === 0
+        ? "PASS"
+        : failedChecksums.length === Object.keys(checksumResults).length
+        ? "FAIL"
+        : "PARTIAL";
 
     const recommendations: string[] = [];
-    
-    if (overallStatus === 'FAIL') {
-      recommendations.push('Critical: All checksums failed. Review backup integrity and restore process.');
-    } else if (overallStatus === 'PARTIAL') {
-      recommendations.push('Warning: Some checksums failed. Investigate specific table issues.');
+
+    if (overallStatus === "FAIL") {
+      recommendations.push(
+        "Critical: All checksums failed. Review backup integrity and restore process."
+      );
+    } else if (overallStatus === "PARTIAL") {
+      recommendations.push(
+        "Warning: Some checksums failed. Investigate specific table issues."
+      );
     } else {
-      recommendations.push('Success: All checksums passed. DR process is working correctly.');
+      recommendations.push(
+        "Success: All checksums passed. DR process is working correctly."
+      );
     }
 
     if (restoreTimeMs > this.config.maxRestoreTimeMinutes * 60 * 1000) {
-      recommendations.push(`Warning: Restore time (${restoreTimeMs}ms) exceeded target (${this.config.maxRestoreTimeMinutes} minutes).`);
+      recommendations.push(
+        `Warning: Restore time (${restoreTimeMs}ms) exceeded target (${this.config.maxRestoreTimeMinutes} minutes).`
+      );
     }
 
     return {
@@ -260,24 +290,26 @@ class DRRehearsalManager {
       restoreTimeMs,
       checksumResults,
       overallStatus,
-      recommendations
+      recommendations,
     };
   }
 
   async saveDRReport(report: DRReport): Promise<void> {
-    const reportPath = path.join(this.config.reportPath, `dr-report-${Date.now()}.json`);
-    
+    const reportPath = path.join(
+      this.config.reportPath,
+      `dr-report-${Date.now()}.json`
+
     // Ensure directory exists
     fs.mkdirSync(path.dirname(reportPath), { recursive: true });
-    
+
     // Save JSON report
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
-    
+
     // Generate markdown report
     const markdownReport = this.generateMarkdownReport(report);
-    const markdownPath = reportPath.replace('.json', '.md');
+    const markdownPath = reportPath.replace(".json", ".md");
     fs.writeFileSync(markdownPath, markdownReport);
-    
+
     console.log(`📄 DR report saved to: ${reportPath}`);
     console.log(`📄 Markdown report saved to: ${markdownPath}`);
   }
@@ -293,18 +325,27 @@ class DRRehearsalManager {
 ## Restore Performance
 - **Restore Time**: ${report.restoreTimeMs}ms
 - **Target Time**: ${this.config.maxRestoreTimeMinutes} minutes
-- **Status**: ${report.restoreTimeMs <= this.config.maxRestoreTimeMinutes * 60 * 1000 ? '✅ PASS' : '❌ FAIL'}
+- **Status**: ${
+      report.restoreTimeMs <= this.config.maxRestoreTimeMinutes * 60 * 1000
+        ? "✅ PASS"
+        : "❌ FAIL"
+    }
 
 ## Checksum Validation Results
 
 | Table | Source Rows | Shadow Rows | Checksum Match | Status |
 |-------|-------------|-------------|----------------|--------|
-${Object.entries(report.checksumResults).map(([table, result]: [string, any]) => 
-  `| ${table} | ${result.sourceRows} | ${result.shadowRows} | ${result.checksumMatch ? '✅' : '❌'} | ${result.error || 'OK'} |`
-).join('\n')}
+${Object.entries(report.checksumResults)
+  .map(
+    ([table, result]: [string, any]) =>
+      `| ${table} | ${result.sourceRows} | ${result.shadowRows} | ${
+        result.checksumMatch ? "✅" : "❌"
+      } | ${result.error || "OK"} |`
+  )
+  .join("\n")}
 
 ## Recommendations
-${report.recommendations.map(rec => `- ${rec}`).join('\n')}
+${report.recommendations.map((rec) => `- ${rec}`).join("\n")}
 
 ## Next Steps
 1. Review any failed checksums
@@ -315,8 +356,8 @@ ${report.recommendations.map(rec => `- ${rec}`).join('\n')}
   }
 
   async runDRRehearsal(): Promise<DRReport> {
-    console.log('🚀 Starting DR Rehearsal');
-    
+    console.log("🚀 Starting DR Rehearsal");
+
     let shadowProjectRef = this.config.shadowProjectRef;
     let restoreTimeMs = 0;
     let checksumResults: Record<string, any> = {};
@@ -334,24 +375,27 @@ ${report.recommendations.map(rec => `- ${rec}`).join('\n')}
       checksumResults = await this.runChecksumValidation(shadowProjectRef);
 
       // Generate report
-      const report = this.generateDRReport(shadowProjectRef, restoreTimeMs, checksumResults);
-      
+      const report = this.generateDRReport(
+        shadowProjectRef,
+        restoreTimeMs,
+        checksumResults
+
       // Save report
       await this.saveDRReport(report);
 
-      console.log(`🎉 DR Rehearsal completed with status: ${report.overallStatus}`);
-      
-      return report;
+      console.log(
+        `🎉 DR Rehearsal completed with status: ${report.overallStatus}`
 
+      return report;
     } catch (error) {
-      console.error('❌ DR Rehearsal failed:', error);
+      console.error("❌ DR Rehearsal failed:", error);
       throw error;
     } finally {
       // Cleanup shadow database if we created it
       if (!this.config.shadowProjectRef && shadowProjectRef) {
         await this.cleanupShadowDatabase(shadowProjectRef);
       }
-      
+
       // Disconnect from databases
       await this.sourcePrisma.$disconnect();
       if (this.shadowPrisma) {
@@ -364,17 +408,18 @@ ${report.recommendations.map(rec => `- ${rec}`).join('\n')}
 // CLI interface
 if (require.main === module) {
   const config: DRConfig = {
-    sourceProjectRef: process.env.SUPABASE_PROJECT_REF || 'ghqyxhbyyirveptgwoqm',
+    sourceProjectRef:
+      process.env.SUPABASE_PROJECT_REF || "ghqyxhbyyirveptgwoqm",
     shadowProjectRef: process.env.SHADOW_PROJECT_REF,
     checksumTables: [
-      'users',
-      'mortgage_applications',
-      'broker_profiles',
-      'rate_quotes',
-      'analytics_events'
+      "users",
+      "mortgage_applications",
+      "broker_profiles",
+      "rate_quotes",
+      "analytics_events",
     ],
     maxRestoreTimeMinutes: 30,
-    reportPath: './reports/dr'
+    reportPath: "./reports/dr",
   };
 
   const manager = new DRRehearsalManager(config);

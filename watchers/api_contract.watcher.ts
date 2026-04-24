@@ -5,10 +5,10 @@
  * Runs nightly to detect API drift
  */
 
-import { Octokit } from '@octokit/rest';
-import { createClient } from '@supabase/supabase-js';
-import fs from 'fs/promises';
-import path from 'path';
+import { Octokit } from "@octokit/rest";
+import { createClient } from "@supabase/supabase-js";
+import fs from "fs/promises";
+import path from "path";
 
 interface APIContract {
   path: string;
@@ -22,8 +22,13 @@ interface APIContract {
 }
 
 interface ContractViolation {
-  type: 'missing_endpoint' | 'changed_schema' | 'deprecated_usage' | 'status_mismatch' | 'header_mismatch';
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  type:
+    | "missing_endpoint"
+    | "changed_schema"
+    | "deprecated_usage"
+    | "status_mismatch"
+    | "header_mismatch";
+  severity: "low" | "medium" | "high" | "critical";
   endpoint: string;
   method: string;
   message: string;
@@ -38,7 +43,7 @@ interface ContractReport {
   violations: ContractViolation[];
   deprecated_endpoints: string[];
   new_endpoints: string[];
-  overall_health: 'healthy' | 'warning' | 'critical';
+  overall_health: "healthy" | "warning" | "critical";
   recommendations: string[];
 }
 
@@ -52,10 +57,10 @@ class APIContractWatcher {
 
   constructor() {
     this.githubToken = process.env.GITHUB_TOKEN!;
-    this.repoOwner = process.env.GITHUB_REPOSITORY_OWNER || 'your-org';
-    this.repoName = process.env.GITHUB_REPOSITORY_NAME || 'mortgagematch-pro';
-    this.baseUrl = process.env.API_BASE_URL || 'https://api.mortgagematch.com';
-    
+    this.repoOwner = process.env.GITHUB_REPOSITORY_OWNER || "your-org";
+    this.repoName = process.env.GITHUB_REPOSITORY_NAME || "mortgagematch-pro";
+    this.baseUrl = process.env.API_BASE_URL || "https://api.mortgagematch.com";
+
     this.octokit = new Octokit({
       auth: this.githubToken,
     });
@@ -70,24 +75,28 @@ class APIContractWatcher {
    * Main contract validation function
    */
   async runContractCheck(): Promise<ContractReport> {
-    console.log('🔍 Starting API contract validation...');
+    console.log("🔍 Starting API contract validation...");
 
     try {
       // 1. Load OpenAPI specification
       const openApiSpec = await this.loadOpenAPISpec();
-      
+
       // 2. Discover actual endpoints
       const actualEndpoints = await this.discoverEndpoints();
-      
+
       // 3. Compare contracts
-      const violations = await this.compareContracts(openApiSpec, actualEndpoints);
-      
+      const violations = await this.compareContracts(
+        openApiSpec,
+        actualEndpoints
+
       // 4. Check for deprecated usage
       const deprecatedUsage = await this.checkDeprecatedUsage();
-      
+
       // 5. Generate recommendations
-      const recommendations = this.generateRecommendations(violations, deprecatedUsage);
-      
+      const recommendations = this.generateRecommendations(
+        violations,
+        deprecatedUsage
+
       // 6. Calculate overall health
       const overallHealth = this.calculateOverallHealth(violations);
 
@@ -98,20 +107,19 @@ class APIContractWatcher {
         deprecated_endpoints: this.extractDeprecatedEndpoints(openApiSpec),
         new_endpoints: this.extractNewEndpoints(openApiSpec, actualEndpoints),
         overall_health: overallHealth,
-        recommendations
+        recommendations,
       };
 
       console.log(`✅ Contract validation completed. Health: ${overallHealth}`);
-      
+
       // Create GitHub issue if critical violations found
-      if (overallHealth === 'critical') {
+      if (overallHealth === "critical") {
         await this.createContractIssue(report);
       }
 
       return report;
-
     } catch (error) {
-      console.error('❌ Contract validation failed:', error);
+      console.error("❌ Contract validation failed:", error);
       throw error;
     }
   }
@@ -122,18 +130,18 @@ class APIContractWatcher {
   private async loadOpenAPISpec(): Promise<any> {
     try {
       // Try to load from local file first
-      const localSpecPath = path.join(process.cwd(), 'openapi.json');
+      const localSpecPath = path.join(process.cwd(), "openapi.json");
       try {
-        const localSpec = await fs.readFile(localSpecPath, 'utf-8');
+        const localSpec = await fs.readFile(localSpecPath, "utf-8");
         return JSON.parse(localSpec);
       } catch (localError) {
-        console.log('No local OpenAPI spec found, generating from code...');
+        console.log("No local OpenAPI spec found, generating from code...");
       }
 
       // Generate spec from code analysis
       return await this.generateOpenAPISpec();
     } catch (error) {
-      console.error('Error loading OpenAPI spec:', error);
+      console.error("Error loading OpenAPI spec:", error);
       throw error;
     }
   }
@@ -143,43 +151,45 @@ class APIContractWatcher {
    */
   private async generateOpenAPISpec(): Promise<any> {
     const spec = {
-      openapi: '3.0.0',
+      openapi: "3.0.0",
       info: {
-        title: 'MortgageMatch API',
-        version: '1.0.0',
-        description: 'API for mortgage calculation and rate checking'
+        title: "MortgageMatch API",
+        version: "1.0.0",
+        description: "API for mortgage calculation and rate checking",
       },
-      servers: [
-        { url: this.baseUrl }
-      ],
-      paths: {}
+      servers: [{ url: this.baseUrl }],
+      paths: {},
     };
 
     // Analyze API routes from Next.js pages/api directory
     const apiRoutes = await this.analyzeAPIRoutes();
-    
+
     for (const route of apiRoutes) {
       spec.paths[route.path] = {
         [route.method.toLowerCase()]: {
           summary: route.description || `${route.method} ${route.path}`,
           responses: {
             [route.status_code]: {
-              description: 'Success',
-              content: route.response_schema ? {
-                'application/json': {
-                  schema: route.response_schema
-                }
-              } : undefined
-            }
+              description: "Success",
+              content: route.response_schema
+                ? {
+                    "application/json": {
+                      schema: route.response_schema,
+                    },
+                  }
+                : undefined,
+            },
           },
-          requestBody: route.request_schema ? {
-            content: {
-              'application/json': {
-                schema: route.request_schema
+          requestBody: route.request_schema
+            ? {
+                content: {
+                  "application/json": {
+                    schema: route.request_schema,
+                  },
+                },
               }
-            }
-          } : undefined,
-          deprecated: route.deprecated || false
+            : undefined,
+          deprecated: route.deprecated || false,
         }
       };
     }
@@ -197,151 +207,150 @@ class APIContractWatcher {
       // Common API endpoints for mortgage application
       const commonEndpoints = [
         {
-          path: '/api/health',
-          method: 'GET',
+          path: "/api/health",
+          method: "GET",
           status_code: 200,
           response_schema: {
-            type: 'object',
+            type: "object",
             properties: {
-              status: { type: 'string' },
-              timestamp: { type: 'string' },
-              version: { type: 'string' }
-            }
+              status: { type: "string" },
+              timestamp: { type: "string" },
+              version: { type: "string" },
+            },
           },
-          description: 'Health check endpoint'
+          description: "Health check endpoint",
         },
         {
-          path: '/api/mortgage/calculate',
-          method: 'POST',
+          path: "/api/mortgage/calculate",
+          method: "POST",
           status_code: 200,
           request_schema: {
-            type: 'object',
+            type: "object",
             properties: {
-              income: { type: 'number' },
-              debts: { type: 'number' },
-              down_payment: { type: 'number' },
-              property_price: { type: 'number' },
-              interest_rate: { type: 'number' }
+              income: { type: "number" },
+              debts: { type: "number" },
+              down_payment: { type: "number" },
+              property_price: { type: "number" },
+              interest_rate: { type: "number" },
             },
-            required: ['income', 'property_price']
+            required: ["income", "property_price"],
           },
           response_schema: {
-            type: 'object',
+            type: "object",
             properties: {
-              monthly_payment: { type: 'number' },
-              gds_ratio: { type: 'number' },
-              tds_ratio: { type: 'number' },
-              dti_ratio: { type: 'number' },
-              qualified: { type: 'boolean' }
-            }
+              monthly_payment: { type: "number" },
+              gds_ratio: { type: "number" },
+              tds_ratio: { type: "number" },
+              dti_ratio: { type: "number" },
+              qualified: { type: "boolean" },
+            },
           },
-          description: 'Calculate mortgage affordability'
+          description: "Calculate mortgage affordability",
         },
         {
-          path: '/api/rates/check',
-          method: 'GET',
+          path: "/api/rates/check",
+          method: "GET",
           status_code: 200,
           response_schema: {
-            type: 'object',
+            type: "object",
             properties: {
               rates: {
-                type: 'array',
+                type: "array",
                 items: {
-                  type: 'object',
+                  type: "object",
                   properties: {
-                    lender: { type: 'string' },
-                    rate: { type: 'number' },
-                    term: { type: 'number' },
-                    type: { type: 'string' }
-                  }
+                    lender: { type: "string" },
+                    rate: { type: "number" },
+                    term: { type: "number" },
+                    type: { type: "string" },
+                  },
                 }
-              }
+              },
             }
           },
-          description: 'Get current mortgage rates'
+          description: "Get current mortgage rates",
         },
         {
-          path: '/api/leads/submit',
-          method: 'POST',
+          path: "/api/leads/submit",
+          method: "POST",
           status_code: 201,
           request_schema: {
-            type: 'object',
+            type: "object",
             properties: {
-              name: { type: 'string' },
-              email: { type: 'string' },
-              phone: { type: 'string' },
-              property_value: { type: 'number' },
-              down_payment: { type: 'number' }
+              name: { type: "string" },
+              email: { type: "string" },
+              phone: { type: "string" },
+              property_value: { type: "number" },
+              down_payment: { type: "number" },
             },
-            required: ['name', 'email', 'phone']
+            required: ["name", "email", "phone"],
           },
           response_schema: {
-            type: 'object',
+            type: "object",
             properties: {
-              lead_id: { type: 'string' },
-              status: { type: 'string' },
-              message: { type: 'string' }
-            }
+              lead_id: { type: "string" },
+              status: { type: "string" },
+              message: { type: "string" },
+            },
           },
-          description: 'Submit lead information'
+          description: "Submit lead information",
         },
         {
-          path: '/api/auth/login',
-          method: 'POST',
+          path: "/api/auth/login",
+          method: "POST",
           status_code: 200,
           request_schema: {
-            type: 'object',
+            type: "object",
             properties: {
-              email: { type: 'string' },
-              password: { type: 'string' }
+              email: { type: "string" },
+              password: { type: "string" },
             },
-            required: ['email', 'password']
+            required: ["email", "password"],
           },
           response_schema: {
-            type: 'object',
+            type: "object",
             properties: {
-              token: { type: 'string' },
+              token: { type: "string" },
               user: {
-                type: 'object',
+                type: "object",
                 properties: {
-                  id: { type: 'string' },
-                  email: { type: 'string' },
-                  name: { type: 'string' }
-                }
+                  id: { type: "string" },
+                  email: { type: "string" },
+                  name: { type: "string" },
+                },
               }
-            }
+            },
           },
-          description: 'User authentication'
+          description: "User authentication",
         },
         {
-          path: '/api/subscriptions/status',
-          method: 'GET',
+          path: "/api/subscriptions/status",
+          method: "GET",
           status_code: 200,
           response_schema: {
-            type: 'object',
+            type: "object",
             properties: {
-              active: { type: 'boolean' },
-              plan: { type: 'string' },
-              expires_at: { type: 'string' }
-            }
+              active: { type: "boolean" },
+              plan: { type: "string" },
+              expires_at: { type: "string" },
+            },
           },
-          description: 'Get subscription status'
-        }
+          description: "Get subscription status",
+        },
       ];
 
       routes.push(...commonEndpoints);
 
       // Add deprecated endpoints
       routes.push({
-        path: '/api/v1/legacy/calculate',
-        method: 'POST',
+        path: "/api/v1/legacy/calculate",
+        method: "POST",
         status_code: 200,
         deprecated: true,
-        description: 'Legacy calculation endpoint (deprecated)'
+        description: "Legacy calculation endpoint (deprecated)",
       });
-
     } catch (error) {
-      console.error('Error analyzing API routes:', error);
+      console.error("Error analyzing API routes:", error);
     }
 
     return routes;
@@ -356,32 +365,36 @@ class APIContractWatcher {
     try {
       // Test common endpoints
       const testEndpoints = [
-        { path: '/api/health', method: 'GET' },
-        { path: '/api/mortgage/calculate', method: 'POST' },
-        { path: '/api/rates/check', method: 'GET' },
-        { path: '/api/leads/submit', method: 'POST' },
-        { path: '/api/auth/login', method: 'POST' },
-        { path: '/api/subscriptions/status', method: 'GET' }
+        { path: "/api/health", method: "GET" },
+        { path: "/api/mortgage/calculate", method: "POST" },
+        { path: "/api/rates/check", method: "GET" },
+        { path: "/api/leads/submit", method: "POST" },
+        { path: "/api/auth/login", method: "POST" },
+        { path: "/api/subscriptions/status", method: "GET" },
       ];
 
       for (const endpoint of testEndpoints) {
         try {
-          const response = await this.testEndpoint(endpoint.path, endpoint.method);
+          const response = await this.testEndpoint(
+            endpoint.path,
+            endpoint.method
+          );
           endpoints.push({
             path: endpoint.path,
             method: endpoint.method,
             status_code: response.status,
             response_schema: response.schema,
-            headers: response.headers
+            headers: response.headers,
           });
         } catch (error) {
           // Endpoint not found or error
-          console.log(`Endpoint ${endpoint.method} ${endpoint.path} not accessible`);
+          console.log(
+            `Endpoint ${endpoint.method} ${endpoint.path} not accessible`
+          );
         }
       }
-
     } catch (error) {
-      console.error('Error discovering endpoints:', error);
+      console.error("Error discovering endpoints:", error);
     }
 
     return endpoints;
@@ -393,40 +406,40 @@ class APIContractWatcher {
   private async testEndpoint(path: string, method: string): Promise<any> {
     // Simulate endpoint testing
     // In a real implementation, you would make actual HTTP requests
-    
+
     const mockResponses: Record<string, any> = {
-      'GET /api/health': {
+      "GET /api/health": {
         status: 200,
         schema: {
-          type: 'object',
+          type: "object",
           properties: {
-            status: { type: 'string' },
-            timestamp: { type: 'string' }
-          }
+            status: { type: "string" },
+            timestamp: { type: "string" },
+          },
         },
-        headers: { 'content-type': 'application/json' }
+        headers: { "content-type": "application/json" },
       },
-      'POST /api/mortgage/calculate': {
+      "POST /api/mortgage/calculate": {
         status: 200,
         schema: {
-          type: 'object',
+          type: "object",
           properties: {
-            monthly_payment: { type: 'number' },
-            qualified: { type: 'boolean' }
-          }
+            monthly_payment: { type: "number" },
+            qualified: { type: "boolean" },
+          },
         },
-        headers: { 'content-type': 'application/json' }
+        headers: { "content-type": "application/json" },
       },
-      'GET /api/rates/check': {
+      "GET /api/rates/check": {
         status: 200,
         schema: {
-          type: 'object',
+          type: "object",
           properties: {
-            rates: { type: 'array' }
-          }
+            rates: { type: "array" },
+          },
         },
-        headers: { 'content-type': 'application/json' }
-      }
+        headers: { "content-type": "application/json" },
+      },
     };
 
     const key = `${method} ${path}`;
@@ -436,12 +449,17 @@ class APIContractWatcher {
   /**
    * Compare OpenAPI spec with actual endpoints
    */
-  private async compareContracts(openApiSpec: any, actualEndpoints: APIContract[]): Promise<ContractViolation[]> {
+  private async compareContracts(
+    openApiSpec: any,
+    actualEndpoints: APIContract[]
+  ): Promise<ContractViolation[]> {
     const violations: ContractViolation[] = [];
 
     try {
       const specPaths = openApiSpec.paths || {};
-      const actualPaths = new Map(actualEndpoints.map(ep => [`${ep.method} ${ep.path}`, ep]));
+      const actualPaths = new Map(
+        actualEndpoints.map((ep) => [`${ep.method} ${ep.path}`, ep])
+      );
 
       // Check for missing endpoints
       for (const [path, methods] of Object.entries(specPaths)) {
@@ -451,41 +469,53 @@ class APIContractWatcher {
 
           if (!actual) {
             violations.push({
-              type: 'missing_endpoint',
-              severity: 'high',
+              type: "missing_endpoint",
+              severity: "high",
               endpoint: path,
               method: method.toUpperCase(),
               message: `Endpoint ${key} is documented but not accessible`,
-              impact: 'API consumers will receive 404 errors'
+              impact: "API consumers will receive 404 errors",
             });
           } else {
             // Check status code mismatch
-            if (spec.responses && spec.responses['200'] && actual.status_code !== 200) {
+            if (
+              spec.responses &&
+              spec.responses["200"] &&
+              actual.status_code !== 200
+            ) {
               violations.push({
-                type: 'status_mismatch',
-                severity: 'medium',
+                type: "status_mismatch",
+                severity: "medium",
                 endpoint: path,
                 method: method.toUpperCase(),
                 message: `Expected status 200, got ${actual.status_code}`,
                 expected: 200,
                 actual: actual.status_code,
-                impact: 'API consumers may receive unexpected status codes'
+                impact: "API consumers may receive unexpected status codes",
               });
             }
 
             // Check response schema mismatch
-            if (spec.responses && spec.responses['200'] && spec.responses['200'].content) {
-              const expectedSchema = spec.responses['200'].content['application/json']?.schema;
-              if (expectedSchema && !this.compareSchemas(expectedSchema, actual.response_schema)) {
+            if (
+              spec.responses &&
+              spec.responses["200"] &&
+              spec.responses["200"].content
+            ) {
+              const expectedSchema =
+                spec.responses["200"].content["application/json"]?.schema;
+              if (
+                expectedSchema &&
+                !this.compareSchemas(expectedSchema, actual.response_schema)
+              ) {
                 violations.push({
-                  type: 'changed_schema',
-                  severity: 'high',
+                  type: "changed_schema",
+                  severity: "high",
                   endpoint: path,
                   method: method.toUpperCase(),
-                  message: 'Response schema has changed',
+                  message: "Response schema has changed",
                   expected: expectedSchema,
                   actual: actual.response_schema,
-                  impact: 'API consumers may receive unexpected data structure'
+                  impact: "API consumers may receive unexpected data structure",
                 });
               }
             }
@@ -501,18 +531,17 @@ class APIContractWatcher {
 
         if (!specMethod) {
           violations.push({
-            type: 'missing_endpoint',
-            severity: 'medium',
+            type: "missing_endpoint",
+            severity: "medium",
             endpoint: actual.path,
             method: actual.method,
             message: `Endpoint ${key} is accessible but not documented`,
-            impact: 'API consumers may not know about this endpoint'
+            impact: "API consumers may not know about this endpoint",
           });
         }
       }
-
     } catch (error) {
-      console.error('Error comparing contracts:', error);
+      console.error("Error comparing contracts:", error);
     }
 
     return violations;
@@ -522,8 +551,8 @@ class APIContractWatcher {
    * Compare JSON schemas
    */
   private compareSchemas(expected: any, actual: any): boolean {
-    if (!expected || !actual) return expected === actual;
-    
+    if (!expected || !actual) {return expected === actual;}
+
     // Simple schema comparison - in production, use a proper schema comparison library
     return JSON.stringify(expected) === JSON.stringify(actual);
   }
@@ -537,31 +566,33 @@ class APIContractWatcher {
     try {
       // Check Supabase for recent API calls to deprecated endpoints
       const { data: deprecatedCalls, error } = await this.supabase
-        .from('api_logs')
-        .select('endpoint, method, count')
-        .eq('deprecated', true)
-        .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());
+        .from("api_logs")
+        .select("endpoint, method, count")
+        .eq("deprecated", true)
+        .gte(
+          "created_at",
+          new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+        );
 
       if (error) {
-        console.error('Error checking deprecated usage:', error);
+        console.error("Error checking deprecated usage:", error);
         return violations;
       }
 
       if (deprecatedCalls && deprecatedCalls.length > 0) {
         for (const call of deprecatedCalls) {
           violations.push({
-            type: 'deprecated_usage',
-            severity: 'medium',
+            type: "deprecated_usage",
+            severity: "medium",
             endpoint: call.endpoint,
             method: call.method,
             message: `Deprecated endpoint used ${call.count} times in the last 7 days`,
-            impact: 'Consider migrating consumers to new endpoints'
+            impact: "Consider migrating consumers to new endpoints",
           });
         }
       }
-
     } catch (error) {
-      console.error('Error checking deprecated usage:', error);
+      console.error("Error checking deprecated usage:", error);
     }
 
     return violations;
@@ -587,9 +618,12 @@ class APIContractWatcher {
   /**
    * Extract new endpoints not in spec
    */
-  private extractNewEndpoints(spec: any, actualEndpoints: APIContract[]): string[] {
+  private extractNewEndpoints(
+    spec: any,
+    actualEndpoints: APIContract[]
+  ): string[] {
     const specPaths = new Set();
-    
+
     for (const [path, methods] of Object.entries(spec.paths || {})) {
       for (const method of Object.keys(methods as any)) {
         specPaths.add(`${method.toUpperCase()} ${path}`);
@@ -597,50 +631,71 @@ class APIContractWatcher {
     }
 
     return actualEndpoints
-      .map(ep => `${ep.method} ${ep.path}`)
-      .filter(key => !specPaths.has(key));
+      .map((ep) => `${ep.method} ${ep.path}`)
+      .filter((key) => !specPaths.has(key));
   }
 
   /**
    * Generate recommendations based on violations
    */
-  private generateRecommendations(violations: ContractViolation[], deprecatedUsage: ContractViolation[]): string[] {
+  private generateRecommendations(
+    violations: ContractViolation[],
+    deprecatedUsage: ContractViolation[]
+  ): string[] {
     const recommendations: string[] = [];
 
-    const criticalViolations = violations.filter(v => v.severity === 'critical');
-    const highViolations = violations.filter(v => v.severity === 'high');
-    const mediumViolations = violations.filter(v => v.severity === 'medium');
+    const criticalViolations = violations.filter(
+      (v) => v.severity === "critical"
+    );
+    const highViolations = violations.filter((v) => v.severity === "high");
+    const mediumViolations = violations.filter((v) => v.severity === "medium");
 
     if (criticalViolations.length > 0) {
-      recommendations.push('🚨 Critical API contract violations detected - immediate attention required');
-      recommendations.push('Fix all critical endpoint issues before next release');
+      recommendations.push(
+        "🚨 Critical API contract violations detected - immediate attention required"
+      );
+      recommendations.push(
+        "Fix all critical endpoint issues before next release"
+      );
     }
 
     if (highViolations.length > 0) {
-      recommendations.push('⚠️ High priority contract issues found - address within 24 hours');
-      recommendations.push('Update API documentation and notify consumers of changes');
+      recommendations.push(
+        "⚠️ High priority contract issues found - address within 24 hours"
+      );
+      recommendations.push(
+        "Update API documentation and notify consumers of changes"
+      );
     }
 
     if (mediumViolations.length > 0) {
-      recommendations.push('📋 Medium priority issues found - address within 1 week');
-      recommendations.push('Consider implementing API versioning strategy');
+      recommendations.push(
+        "📋 Medium priority issues found - address within 1 week"
+      );
+      recommendations.push("Consider implementing API versioning strategy");
     }
 
     if (deprecatedUsage.length > 0) {
-      recommendations.push('🔄 Deprecated endpoints still in use - plan migration strategy');
-      recommendations.push('Communicate deprecation timeline to API consumers');
+      recommendations.push(
+        "🔄 Deprecated endpoints still in use - plan migration strategy"
+      );
+      recommendations.push("Communicate deprecation timeline to API consumers");
     }
 
-    const missingEndpoints = violations.filter(v => v.type === 'missing_endpoint');
+    const missingEndpoints = violations.filter(
+      (v) => v.type === "missing_endpoint"
+    );
     if (missingEndpoints.length > 0) {
-      recommendations.push('📝 Update OpenAPI specification to match actual endpoints');
-      recommendations.push('Implement automated API documentation generation');
+      recommendations.push(
+        "📝 Update OpenAPI specification to match actual endpoints"
+      );
+      recommendations.push("Implement automated API documentation generation");
     }
 
-    const schemaChanges = violations.filter(v => v.type === 'changed_schema');
+    const schemaChanges = violations.filter((v) => v.type === "changed_schema");
     if (schemaChanges.length > 0) {
-      recommendations.push('🔍 Review and update API schemas for consistency');
-      recommendations.push('Implement schema validation in CI/CD pipeline');
+      recommendations.push("🔍 Review and update API schemas for consistency");
+      recommendations.push("Implement schema validation in CI/CD pipeline");
     }
 
     return recommendations;
@@ -649,14 +704,20 @@ class APIContractWatcher {
   /**
    * Calculate overall health based on violations
    */
-  private calculateOverallHealth(violations: ContractViolation[]): 'healthy' | 'warning' | 'critical' {
-    const criticalCount = violations.filter(v => v.severity === 'critical').length;
-    const highCount = violations.filter(v => v.severity === 'high').length;
-    const mediumCount = violations.filter(v => v.severity === 'medium').length;
+  private calculateOverallHealth(
+    violations: ContractViolation[]
+  ): "healthy" | "warning" | "critical" {
+    const criticalCount = violations.filter(
+      (v) => v.severity === "critical"
+    ).length;
+    const highCount = violations.filter((v) => v.severity === "high").length;
+    const mediumCount = violations.filter(
+      (v) => v.severity === "medium"
+    ).length;
 
-    if (criticalCount > 0) return 'critical';
-    if (highCount > 2 || mediumCount > 5) return 'warning';
-    return 'healthy';
+    if (criticalCount > 0) {return 'critical';}
+    if (highCount > 2 || mediumCount > 5) {return 'warning';}
+    return "healthy";
   }
 
   /**
@@ -672,12 +733,12 @@ class APIContractWatcher {
         repo: this.repoName,
         title,
         body,
-        labels: ['api', 'contract', 'critical', 'automated']
+        labels: ["api", "contract", "critical", "automated"],
       });
 
-      console.log('📝 Created API contract issue in GitHub');
+      console.log("📝 Created API contract issue in GitHub");
     } catch (error) {
-      console.error('Error creating contract issue:', error);
+      console.error("Error creating contract issue:", error);
     }
   }
 
@@ -685,8 +746,12 @@ class APIContractWatcher {
    * Format contract issue body
    */
   private formatContractIssueBody(report: ContractReport): string {
-    const criticalViolations = report.violations.filter(v => v.severity === 'critical');
-    const highViolations = report.violations.filter(v => v.severity === 'high');
+    const criticalViolations = report.violations.filter(
+      (v) => v.severity === "critical"
+    );
+    const highViolations = report.violations.filter(
+      (v) => v.severity === "high"
+    );
 
     return `
 ## 🚨 API Contract Alert
@@ -698,27 +763,39 @@ class APIContractWatcher {
 **New Endpoints:** ${report.new_endpoints.length}
 
 ### Critical Violations
-${criticalViolations.length > 0 ? criticalViolations.map(v => 
-  `- **${v.method} ${v.endpoint}:** ${v.message}`
-).join('\n') : 'None'}
+${
+  criticalViolations.length > 0
+    ? criticalViolations
+        .map((v) => `- **${v.method} ${v.endpoint}:** ${v.message}`)
+        .join("\n")
+    : "None"
+}
 
 ### High Priority Violations
-${highViolations.length > 0 ? highViolations.map(v => 
-  `- **${v.method} ${v.endpoint}:** ${v.message}`
-).join('\n') : 'None'}
+${
+  highViolations.length > 0
+    ? highViolations
+        .map((v) => `- **${v.method} ${v.endpoint}:** ${v.message}`)
+        .join("\n")
+    : "None"
+}
 
 ### Deprecated Endpoints
-${report.deprecated_endpoints.length > 0 ? report.deprecated_endpoints.map(ep => 
-  `- ${ep}`
-).join('\n') : 'None'}
+${
+  report.deprecated_endpoints.length > 0
+    ? report.deprecated_endpoints.map((ep) => `- ${ep}`).join("\n")
+    : "None"
+}
 
 ### New Endpoints
-${report.new_endpoints.length > 0 ? report.new_endpoints.map(ep => 
-  `- ${ep}`
-).join('\n') : 'None'}
+${
+  report.new_endpoints.length > 0
+    ? report.new_endpoints.map((ep) => `- ${ep}`).join("\n")
+    : "None"
+}
 
 ### Recommendations
-${report.recommendations.map(rec => `- ${rec}`).join('\n')}
+${report.recommendations.map((rec) => `- ${rec}`).join("\n")}
 
 ### Next Steps
 1. Review all contract violations
@@ -739,18 +816,19 @@ export { APIContractWatcher, ContractViolation, ContractReport };
 // CLI usage
 if (require.main === module) {
   const watcher = new APIContractWatcher();
-  
-  watcher.runContractCheck()
+
+  watcher
+    .runContractCheck()
     .then((report) => {
-      console.log('API contract check completed');
+      console.log("API contract check completed");
       console.log(`Overall health: ${report.overall_health}`);
       console.log(`Total endpoints: ${report.total_endpoints}`);
       console.log(`Violations: ${report.violations.length}`);
-      
-      process.exit(report.overall_health === 'critical' ? 1 : 0);
+
+      process.exit(report.overall_health === "critical" ? 1 : 0);
     })
     .catch((error) => {
-      console.error('API contract check failed:', error);
+      console.error("API contract check failed:", error);
       process.exit(1);
     });
 }

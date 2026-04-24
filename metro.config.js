@@ -11,7 +11,18 @@ const config = {
     // Enable tree shaking for better bundle size
     unstable_enablePackageExports: true,
     // Optimize asset resolution
-    assetExts: ['bin', 'txt', 'jpg', 'png', 'json', 'svg', 'ttf', 'otf', 'woff', 'woff2'],
+    assetExts: [
+      'bin',
+      'txt',
+      'jpg',
+      'png',
+      'json',
+      'svg',
+      'ttf',
+      'otf',
+      'woff',
+      'woff2',
+    ],
     sourceExts: ['js', 'jsx', 'ts', 'tsx', 'json'],
   },
   transformer: {
@@ -36,15 +47,20 @@ const config = {
   },
   serializer: {
     // Optimize bundle splitting
-    createModuleIdFactory: function () {
+    createModuleIdFactory() {
       return function (path) {
         // Use shorter module IDs to reduce bundle size
-        return path.replace(__dirname, '').replace(/[^a-zA-Z0-9]/g, '_').substring(0, 20);
+        return path
+          .replace(__dirname, "")
+          .replace(/[^a-zA-Z0-9]/g, "_")
+          .substring(0, 20);
       };
     },
     // Filter out unnecessary modules
     processModuleFilter: (module) => {
-      return !module.path.includes('node_modules/react-native/Libraries/NewAppScreen');
+      return !module.path.includes(
+        'node_modules/react-native/Libraries/NewAppScreen'
+      );
     },
   },
   // Performance optimizations

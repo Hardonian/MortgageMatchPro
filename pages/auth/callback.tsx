@@ -1,36 +1,40 @@
-import { useEffect } from 'react'
-import { useRouter } from 'next/router'
-import { supabase } from '@/lib/supabase'
+import { useEffect } from "react";
+import { useRouter } from "next/router";
+import { supabase } from "@/lib/supabase";
 
 export default function AuthCallback() {
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        const { data, error } = await supabase.auth.getSession()
-        
+        const { data, error } = await supabase.auth.getSession();
+
         if (error) {
-          console.error('Auth callback error:', error)
-          router.push('/auth/error?message=' + encodeURIComponent(error.message))
-          return
+          console.error("Auth callback error:", error);
+          router.push(
+            `/auth/error?message=${encodeURIComponent(error.message)}`
+          );
+          return;
         }
 
         if (data.session) {
           // User is authenticated, redirect to main app
-          router.push('/')
+          router.push("/");
         } else {
           // No session, redirect to login
-          router.push('/auth/login')
+          router.push("/auth/login");
         }
       } catch (error) {
-        console.error('Auth callback error:', error)
-        router.push('/auth/error?message=' + encodeURIComponent('Authentication failed'))
+        console.error("Auth callback error:", error);
+        router.push(
+          `/auth/error?message=${encodeURIComponent("Authentication failed")}`
+        );
       }
-    }
+    };
 
-    handleAuthCallback()
-  }, [router])
+    handleAuthCallback();
+  }, [router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -39,5 +43,5 @@ export default function AuthCallback() {
         <p>Completing authentication...</p>
       </div>
     </div>
-  )
+  );
 }

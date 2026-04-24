@@ -1,7 +1,13 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User } from '../types';
-import { authService } from '../services/authService';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { User } from "../types";
+import { authService } from "../services/authService";
 
 interface AuthContextType {
   user: User | null;
@@ -21,7 +27,7 @@ interface RegisterData {
   firstName: string;
   lastName: string;
   phone?: string;
-  subscriptionTier?: 'free' | 'premium' | 'broker';
+  subscriptionTier?: "free" | "premium" | "broker";
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,24 +48,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const initializeAuth = async () => {
     try {
       setIsLoading(true);
-      
+
       // Check if it's the first time opening the app
-      const hasLaunched = await AsyncStorage.getItem('hasLaunched');
+      const hasLaunched = await AsyncStorage.getItem("hasLaunched");
       if (!hasLaunched) {
         setIsFirstTime(true);
-        await AsyncStorage.setItem('hasLaunched', 'true');
+        await AsyncStorage.setItem("hasLaunched", "true");
         setIsLoading(false);
         return;
       }
 
       // Check for stored auth token
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem("authToken");
       if (token) {
         const userData = await authService.getCurrentUser();
         setUser(userData);
       }
     } catch (error) {
-      console.error('Auth initialization error:', error);
+      console.error("Auth initialization error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -68,9 +74,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const { user: userData, token } = await authService.login(email, password);
-      
-      await AsyncStorage.setItem('authToken', token);
+      const { user: userData, token } = await authService.login(
+        email,
+        password
+
+      await AsyncStorage.setItem("authToken", token);
       setUser(userData);
     } catch (error) {
       throw error;
@@ -83,8 +91,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       const { user: newUser, token } = await authService.register(userData);
-      
-      await AsyncStorage.setItem('authToken', token);
+
+      await AsyncStorage.setItem("authToken", token);
       setUser(newUser);
     } catch (error) {
       throw error;
@@ -96,10 +104,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async () => {
     try {
       await authService.logout();
-      await AsyncStorage.removeItem('authToken');
+      await AsyncStorage.removeItem("authToken");
       setUser(null);
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     }
   };
 
@@ -117,7 +125,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const userData = await authService.getCurrentUser();
       setUser(userData);
     } catch (error) {
-      console.error('Refresh user error:', error);
+      console.error("Refresh user error:", error);
     }
   };
 
@@ -133,17 +141,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     refreshUser,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

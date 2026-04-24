@@ -1,8 +1,20 @@
-import React, { memo, ReactNode } from 'react';
-import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ResponsiveContainer } from '../ui/ResponsiveContainer';
-import { spacing, layout, isSmallScreen, isMediumScreen, isLargeScreen } from '../../utils/responsive';
+import React, { memo, ReactNode } from "react";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ResponsiveContainer } from "../ui/ResponsiveContainer";
+import {
+  spacing,
+  layout,
+  isSmallScreen,
+  isMediumScreen,
+  isLargeScreen,
+} from "../../utils/responsive";
 
 interface ResponsiveLayoutProps {
   children: ReactNode;
@@ -14,60 +26,60 @@ interface ResponsiveLayoutProps {
   style?: any;
 }
 
-export const ResponsiveLayout = memo<ResponsiveLayoutProps>(({
-  children,
-  scrollable = true,
-  keyboardAvoiding = true,
-  safeArea = true,
-  padding = 'lg',
-  backgroundColor,
-  style,
-}) => {
-  const insets = useSafeAreaInsets();
-  
-  const containerStyle = [
-    styles.container,
-    {
-      backgroundColor,
-      paddingTop: safeArea ? insets.top + spacing[padding] : spacing[padding],
-      paddingBottom: safeArea ? insets.bottom + spacing[padding] : spacing[padding],
-    },
+export const ResponsiveLayout = memo<ResponsiveLayoutProps>(
+  ({
+    children,
+    scrollable = true,
+    keyboardAvoiding = true,
+    safeArea = true,
+    padding = "lg",
+    backgroundColor,
     style,
-  ];
+  }) => {
+    const insets = useSafeAreaInsets();
 
-  const content = (
-    <View style={containerStyle}>
-      {children}
-    </View>
-  );
+    const containerStyle = [
+      styles.container,
+      {
+        backgroundColor,
+        paddingTop: safeArea ? insets.top + spacing[padding] : spacing[padding],
+        paddingBottom: safeArea
+          ? insets.bottom + spacing[padding]
+          : spacing[padding],
+      },
+      style,
+    ];
 
-  if (scrollable) {
-    return (
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        {content}
-      </ScrollView>
-    );
+    const content = <View style={containerStyle}>{children}</View>;
+
+    if (scrollable) {
+      return (
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {content}
+        </ScrollView>
+      );
+    }
+
+    if (keyboardAvoiding) {
+      return (
+        <KeyboardAvoidingView
+          style={styles.keyboardAvoidingView}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+        >
+          {content}
+        </KeyboardAvoidingView>
+      );
+    }
+
+    return content;
   }
-
-  if (keyboardAvoiding) {
-    return (
-      <KeyboardAvoidingView
-        style={styles.keyboardAvoidingView}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-      >
-        {content}
-      </KeyboardAvoidingView>
-    );
-  }
-
-  return content;
-});
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -84,4 +96,4 @@ const styles = StyleSheet.create({
   },
 });
 
-ResponsiveLayout.displayName = 'ResponsiveLayout';
+ResponsiveLayout.displayName = "ResponsiveLayout";

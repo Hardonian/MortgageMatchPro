@@ -1,57 +1,72 @@
-'use client'
+"use client";
 
-import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { TrendingUp, Phone, Mail, ExternalLink, Star } from 'lucide-react'
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { TrendingUp, Phone, Mail, ExternalLink, Star } from "lucide-react";
 
 interface RateResult {
-  lender: string
-  rate: number
-  apr: number
-  term: number
-  type: 'fixed' | 'variable'
-  paymentEstimate: number
-  features: string[]
+  lender: string;
+  rate: number;
+  apr: number;
+  term: number;
+  type: "fixed" | "variable";
+  paymentEstimate: number;
+  features: string[];
   contactInfo: {
-    phone: string
-    email: string
-    website: string
-  }
+    phone: string;
+    email: string;
+    website: string;
+  };
 }
 
 interface RateComparisonTableProps {
-  rates: RateResult[]
-  loading?: boolean
-  onContactLender?: (lender: string) => void
+  rates: RateResult[];
+  loading?: boolean;
+  onContactLender?: (lender: string) => void;
 }
 
-export function RateComparisonTable({ rates, loading = false, onContactLender }: RateComparisonTableProps) {
+export function RateComparisonTable({
+  rates,
+  loading = false,
+  onContactLender,
+}: RateComparisonTableProps) {
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-CA', {
-      style: 'currency',
-      currency: 'CAD',
-    }).format(value)
-  }
+    return new Intl.NumberFormat("en-CA", {
+      style: "currency",
+      currency: "CAD",
+    }).format(value);
+  };
 
   const formatRate = (rate: number) => {
-    return `${rate.toFixed(3)}%`
-  }
+    return `${rate.toFixed(3)}%`;
+  };
 
-  const getRateTypeColor = (type: 'fixed' | 'variable') => {
-    return type === 'fixed' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-  }
+  const getRateTypeColor = (type: "fixed" | "variable") => {
+    return type === "fixed"
+      ? "bg-green-100 text-green-800"
+      : "bg-blue-100 text-blue-800";
+  };
 
   const getBestRate = () => {
-    if (rates.length === 0) return null
-    return rates.reduce((best, current) => 
+    if (rates.length === 0) {
+      return null;
+    }
+    return rates.reduce((best, current) =>
       current.rate < best.rate ? current : best
-    )
-  }
+    );
+  };
 
-  const bestRate = getBestRate()
+  const bestRate = getBestRate();
 
   if (loading) {
     return (
@@ -69,7 +84,7 @@ export function RateComparisonTable({ rates, loading = false, onContactLender }:
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (rates.length === 0) {
@@ -87,7 +102,7 @@ export function RateComparisonTable({ rates, loading = false, onContactLender }:
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -118,12 +133,20 @@ export function RateComparisonTable({ rates, loading = false, onContactLender }:
             </TableHeader>
             <TableBody>
               {rates.map((rate, index) => (
-                <TableRow key={index} className={bestRate?.lender === rate.lender ? 'bg-green-50' : ''}>
+                <TableRow
+                  key={index}
+                  className={
+                    bestRate?.lender === rate.lender ? "bg-green-50" : ""
+                  }
+                >
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
                       {rate.lender}
                       {bestRate?.lender === rate.lender && (
-                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                        <Badge
+                          variant="secondary"
+                          className="bg-green-100 text-green-800"
+                        >
                           <Star className="h-3 w-3 mr-1" />
                           Best Rate
                         </Badge>
@@ -166,7 +189,9 @@ export function RateComparisonTable({ rates, loading = false, onContactLender }:
                       </div>
                       <div className="flex items-center gap-1 text-xs">
                         <Mail className="h-3 w-3" />
-                        <span className="truncate max-w-20">{rate.contactInfo.email}</span>
+                        <span className="truncate max-w-20">
+                          {rate.contactInfo.email}
+                        </span>
                       </div>
                     </div>
                   </TableCell>
@@ -182,7 +207,9 @@ export function RateComparisonTable({ rates, loading = false, onContactLender }:
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => window.open(rate.contactInfo.website, '_blank')}
+                        onClick={() =>
+                          window.open(rate.contactInfo.website, "_blank")
+                        }
                       >
                         <ExternalLink className="h-3 w-3" />
                       </Button>
@@ -193,11 +220,14 @@ export function RateComparisonTable({ rates, loading = false, onContactLender }:
             </TableBody>
           </Table>
         </div>
-        
+
         <div className="mt-4 p-4 bg-muted/50 rounded-lg">
           <div className="flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              <p>💡 <strong>Tip:</strong> Rates are subject to change and approval. Contact lenders directly for final rates.</p>
+              <p>
+                💡 <strong>Tip:</strong> Rates are subject to change and
+                approval. Contact lenders directly for final rates.
+              </p>
             </div>
             <div className="text-xs text-muted-foreground">
               Last updated: {new Date().toLocaleTimeString()}
@@ -206,5 +236,5 @@ export function RateComparisonTable({ rates, loading = false, onContactLender }:
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -24,14 +24,8 @@ const ProfileScreen = () => {
               title="Name"
               description={`${user?.firstName} ${user?.lastName}`}
             />
-            <List.Item
-              title="Email"
-              description={user?.email}
-            />
-            <List.Item
-              title="Role"
-              description={user?.role}
-            />
+            <List.Item title="Email" description={user?.email} />
+            <List.Item title="Role" description={user?.role} />
           </Card.Content>
         </Card>
 

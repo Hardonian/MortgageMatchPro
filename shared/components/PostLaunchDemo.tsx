@@ -3,103 +3,113 @@
  * Demonstrates how to integrate the post-launch features
  */
 
-import React, { useEffect, useState } from 'react'
-import { 
-  trackUserEvent, 
-  trackAIQuery, 
-  collectFeedback, 
+import React, { useEffect, useState } from "react";
+import {
+  trackUserEvent,
+  trackAIQuery,
+  collectFeedback,
   checkFeatureAccess,
-  getFeatureConfig 
-} from '../lib/post-launch-integration'
+  getFeatureConfig,
+} from "../lib/post-launch-integration";
 
 interface PostLaunchDemoProps {
-  userId: string
+  userId: string;
 }
 
 export default function PostLaunchDemo({ userId }: PostLaunchDemoProps) {
-  const [hasAdvancedFeatures, setHasAdvancedFeatures] = useState(false)
-  const [featureConfig, setFeatureConfig] = useState<any>({})
-  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false)
+  const [hasAdvancedFeatures, setHasAdvancedFeatures] = useState(false);
+  const [featureConfig, setFeatureConfig] = useState<any>({});
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
 
   useEffect(() => {
     const initializeFeatures = async () => {
       try {
         // Check if user has access to advanced features
-        const hasAccess = await checkFeatureAccess(userId, 'advanced_calculator')
-        setHasAdvancedFeatures(hasAccess)
+        const hasAccess = await checkFeatureAccess(
+          userId,
+          "advanced_calculator"
+        );
+        setHasAdvancedFeatures(hasAccess);
 
         // Get feature configuration for A/B testing
-        const config = await getFeatureConfig(userId, 'prompt_style')
-        setFeatureConfig(config)
+        const config = await getFeatureConfig(userId, "prompt_style");
+        setFeatureConfig(config);
 
         // Track page view
-        await trackUserEvent(userId, 'demo_page_viewed', {
+        await trackUserEvent(userId, "demo_page_viewed", {
           hasAdvancedFeatures: hasAccess,
-          promptStyle: config.style || 'default'
-        })
+          promptStyle: config.style || "default",
+        });
       } catch (error) {
-        console.error('Failed to initialize features:', error)
+        console.error("Failed to initialize features:", error);
       }
-    }
+    };
 
-    initializeFeatures()
-  }, [userId])
+    initializeFeatures();
+  }, [userId]);
 
   const handleCalculate = async () => {
-    const startTime = Date.now()
-    
+    const startTime = Date.now();
+
     try {
       // Simulate AI query
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // Track successful AI query
-      await trackAIQuery(userId, 'mortgage', true, Date.now() - startTime)
-      
+      await trackAIQuery(userId, "mortgage", true, Date.now() - startTime);
+
       // Track calculation event
-      await trackUserEvent(userId, 'mortgage_calculated', {
+      await trackUserEvent(userId, "mortgage_calculated", {
         propertyValue: 500000,
         downPayment: 100000,
-        hasAdvancedFeatures
-      })
-      
-      alert('Calculation completed successfully!')
+        hasAdvancedFeatures,
+      });
+
+      alert("Calculation completed successfully!");
     } catch (error) {
       // Track failed AI query
-      await trackAIQuery(userId, 'mortgage', false, Date.now() - startTime, error.message)
-      alert('Calculation failed. Please try again.')
+      await trackAIQuery(
+        userId,
+        "mortgage",
+        false,
+        Date.now() - startTime,
+        error.message
+      );
+      alert("Calculation failed. Please try again.");
     }
-  }
+  };
 
   const handleFeedback = async (rating: number, comment: string) => {
     try {
       const feedbackId = await collectFeedback(
         userId,
-        'recommendation',
-        rating >= 4 ? 'positive' : rating >= 3 ? 'neutral' : 'negative',
+        "recommendation",
+        rating >= 4 ? "positive" : rating >= 3 ? "neutral" : "negative",
         rating,
         comment
-      )
-      
-      setFeedbackSubmitted(true)
-      alert(`Feedback submitted! ID: ${feedbackId}`)
+      );
+
+      setFeedbackSubmitted(true);
+      alert(`Feedback submitted! ID: ${feedbackId}`);
     } catch (error) {
-      console.error('Failed to submit feedback:', error)
-      alert('Failed to submit feedback. Please try again.')
+      console.error("Failed to submit feedback:", error);
+      alert("Failed to submit feedback. Please try again.");
     }
-  }
+  };
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold mb-6">Post-Launch System Demo</h2>
-      
+
       {/* Feature Access Demo */}
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-2">Feature Access</h3>
         <p className="text-gray-600 mb-2">
-          Advanced Features: {hasAdvancedFeatures ? '✅ Enabled' : '❌ Disabled'}
+          Advanced Features:{" "}
+          {hasAdvancedFeatures ? "✅ Enabled" : "❌ Disabled"}
         </p>
         <p className="text-gray-600 mb-2">
-          Prompt Style: {featureConfig.style || 'default'}
+          Prompt Style: {featureConfig.style || "default"}
         </p>
         {hasAdvancedFeatures && (
           <div className="bg-green-100 p-3 rounded">
@@ -134,7 +144,9 @@ export default function PostLaunchDemo({ userId }: PostLaunchDemoProps) {
               {[1, 2, 3, 4, 5].map((rating) => (
                 <button
                   key={rating}
-                  onClick={() => handleFeedback(rating, `Rated ${rating} stars`)}
+                  onClick={() =>
+                    handleFeedback(rating, `Rated ${rating} stars`)
+                  }
                   className="bg-gray-200 text-gray-700 px-3 py-1 rounded hover:bg-gray-300"
                 >
                   {rating} ⭐
@@ -144,7 +156,9 @@ export default function PostLaunchDemo({ userId }: PostLaunchDemoProps) {
           </div>
         ) : (
           <div className="bg-green-100 p-3 rounded">
-            <p className="text-green-800">✅ Feedback submitted successfully!</p>
+            <p className="text-green-800">
+              ✅ Feedback submitted successfully!
+            </p>
           </div>
         )}
       </div>
@@ -157,20 +171,25 @@ export default function PostLaunchDemo({ userId }: PostLaunchDemoProps) {
             <span className="font-medium">User ID:</span> {userId}
           </div>
           <div>
-            <span className="font-medium">Features:</span> {hasAdvancedFeatures ? 'Pro' : 'Free'}
+            <span className="font-medium">Features:</span>{" "}
+            {hasAdvancedFeatures ? "Pro" : "Free"}
           </div>
           <div>
-            <span className="font-medium">Prompt Style:</span> {featureConfig.style || 'default'}
+            <span className="font-medium">Prompt Style:</span>{" "}
+            {featureConfig.style || "default"}
           </div>
           <div>
-            <span className="font-medium">Feedback:</span> {feedbackSubmitted ? 'Submitted' : 'Pending'}
+            <span className="font-medium">Feedback:</span>{" "}
+            {feedbackSubmitted ? "Submitted" : "Pending"}
           </div>
         </div>
       </div>
 
       {/* Instructions */}
       <div className="bg-blue-50 p-4 rounded">
-        <h4 className="font-semibold text-blue-800 mb-2">What's Happening Behind the Scenes:</h4>
+        <h4 className="font-semibold text-blue-800 mb-2">
+          What's Happening Behind the Scenes:
+        </h4>
         <ul className="text-sm text-blue-700 space-y-1">
           <li>• User events are being tracked for analytics</li>
           <li>• AI queries are monitored for performance and cost</li>
@@ -180,5 +199,5 @@ export default function PostLaunchDemo({ userId }: PostLaunchDemoProps) {
         </ul>
       </div>
     </div>
-  )
+  );
 }

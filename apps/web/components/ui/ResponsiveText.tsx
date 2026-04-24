@@ -1,6 +1,6 @@
-import React, { memo } from 'react';
-import { Text, TextProps, StyleSheet } from 'react-native';
-import { typography, fontSize, scale } from '../../utils/responsive';
+import React, { memo } from "react";
+import { Text, TextProps, StyleSheet } from "react-native";
+import { typography, fontSize, scale } from "../../utils/responsive";
 
 interface ResponsiveTextProps extends TextProps {
   variant?: keyof typeof typography;
@@ -11,44 +11,46 @@ interface ResponsiveTextProps extends TextProps {
   children: React.ReactNode;
 }
 
-export const ResponsiveText = memo<ResponsiveTextProps>(({
-  variant = 'body',
-  size,
-  color,
-  center = false,
-  bold = false,
-  style,
-  children,
-  ...props
-}) => {
-  const textStyle = [
-    styles.text,
-    typography[variant],
-    size && { fontSize: fontSize[size] },
-    color && { color },
-    center && styles.center,
-    bold && styles.bold,
+export const ResponsiveText = memo<ResponsiveTextProps>(
+  ({
+    variant = "body",
+    size,
+    color,
+    center = false,
+    bold = false,
     style,
-  ];
+    children,
+    ...props
+  }) => {
+    const textStyle = [
+      styles.text,
+      typography[variant],
+      size && { fontSize: fontSize[size] },
+      color && { color },
+      center && styles.center,
+      bold && styles.bold,
+      style,
+    ];
 
-  return (
-    <Text style={textStyle} {...props}>
-      {children}
-    </Text>
-  );
-});
+    return (
+      <Text style={textStyle} {...props}>
+        {children}
+      </Text>
+    );
+  }
+);
 
 const styles = StyleSheet.create({
   text: {
     includeFontPadding: false,
-    textAlignVertical: 'center',
+    textAlignVertical: "center",
   },
   center: {
-    textAlign: 'center',
+    textAlign: "center",
   },
   bold: {
-    fontWeight: '700',
+    fontWeight: "700",
   },
 });
 
-ResponsiveText.displayName = 'ResponsiveText';
+ResponsiveText.displayName = "ResponsiveText";

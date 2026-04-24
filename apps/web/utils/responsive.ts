@@ -1,6 +1,6 @@
-import { Dimensions, PixelRatio, Platform } from 'react-native';
+import { Dimensions, PixelRatio, Platform } from "react-native";
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 // Base dimensions for mobile-first design (iPhone 12 Pro as reference)
 const BASE_WIDTH = 390;
@@ -8,12 +8,12 @@ const BASE_HEIGHT = 844;
 
 // Breakpoints for different screen sizes
 export const BREAKPOINTS = {
-  xs: 320,   // Small phones
-  sm: 375,   // iPhone SE, iPhone 12 mini
-  md: 390,   // iPhone 12 Pro (base)
-  lg: 414,   // iPhone 12 Pro Max
-  xl: 428,   // iPhone 14 Pro Max
-  xxl: 480,  // Large phones
+  xs: 320, // Small phones
+  sm: 375, // iPhone SE, iPhone 12 mini
+  md: 390, // iPhone 12 Pro (base)
+  lg: 414, // iPhone 12 Pro Max
+  xl: 428, // iPhone 14 Pro Max
+  xxl: 480, // Large phones
 } as const;
 
 // Responsive scaling functions
@@ -27,14 +27,17 @@ export const verticalScale = (size: number): number => {
   return Math.round(PixelRatio.roundToNearestPixel(size * scaleFactor));
 };
 
-export const moderateScale = (size: number, factor: number = 0.5): number => {
+export const moderateScale = (size: number, factor = 0.5): number => {
   const scaleFactor = SCREEN_WIDTH / BASE_WIDTH;
-  return Math.round(PixelRatio.roundToNearestPixel(size + (scaleFactor - 1) * factor));
+  return Math.round(
+    PixelRatio.roundToNearestPixel(size + (scaleFactor - 1) * factor)
+  );
 };
 
 // Screen size detection
 export const isSmallScreen = (): boolean => SCREEN_WIDTH < BREAKPOINTS.sm;
-export const isMediumScreen = (): boolean => SCREEN_WIDTH >= BREAKPOINTS.sm && SCREEN_WIDTH < BREAKPOINTS.lg;
+export const isMediumScreen = (): boolean =>
+  SCREEN_WIDTH >= BREAKPOINTS.sm && SCREEN_WIDTH < BREAKPOINTS.lg;
 export const isLargeScreen = (): boolean => SCREEN_WIDTH >= BREAKPOINTS.lg;
 export const isTablet = (): boolean => SCREEN_WIDTH >= BREAKPOINTS.xl;
 
@@ -83,8 +86,8 @@ export const layout = {
   screenWidth: SCREEN_WIDTH,
   screenHeight: SCREEN_HEIGHT,
   isLandscape: SCREEN_WIDTH > SCREEN_HEIGHT,
-  safeAreaTop: Platform.OS === 'ios' ? 44 : 24,
-  safeAreaBottom: Platform.OS === 'ios' ? 34 : 0,
+  safeAreaTop: Platform.OS === "ios" ? 44 : 24,
+  safeAreaBottom: Platform.OS === "ios" ? 34 : 0,
 } as const;
 
 // Performance-optimized dimensions
@@ -109,32 +112,32 @@ export const typography = {
   h1: {
     fontSize: fontSize.xxxl,
     lineHeight: scale(36),
-    fontWeight: '700' as const,
+    fontWeight: "700" as const,
   },
   h2: {
     fontSize: fontSize.xxl,
     lineHeight: scale(32),
-    fontWeight: '600' as const,
+    fontWeight: "600" as const,
   },
   h3: {
     fontSize: fontSize.xl,
     lineHeight: scale(28),
-    fontWeight: '600' as const,
+    fontWeight: "600" as const,
   },
   body: {
     fontSize: fontSize.md,
     lineHeight: scale(24),
-    fontWeight: '400' as const,
+    fontWeight: "400" as const,
   },
   caption: {
     fontSize: fontSize.sm,
     lineHeight: scale(20),
-    fontWeight: '400' as const,
+    fontWeight: "400" as const,
   },
   button: {
     fontSize: fontSize.md,
     lineHeight: scale(24),
-    fontWeight: '600' as const,
+    fontWeight: "600" as const,
   },
 } as const;
 

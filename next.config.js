@@ -43,7 +43,7 @@ const nextConfig = {
     // Tree shaking optimization
     config.optimization.usedExports = true;
     config.optimization.sideEffects = false;
-    
+
     // Reduce bundle size
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
@@ -64,7 +64,7 @@ const nextConfig = {
         },
       };
     }
-    
+
     return config;
   },
   // Compression and caching
@@ -77,15 +77,24 @@ const nextConfig = {
         source: '/api/:path*',
         headers: [
           { key: 'Access-Control-Allow-Origin', value: '*' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
-          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, PUT, DELETE, OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Authorization',
+          },
           { key: 'Cache-Control', value: 'public, max-age=300, s-maxage=300' },
         ],
       },
       {
         source: '/_next/static/:path*',
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
         ],
       },
       {

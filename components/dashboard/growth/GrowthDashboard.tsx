@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
-import { Button } from '../../ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs';
-import { Badge } from '../../ui/badge';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Users, 
-  DollarSign, 
-  Activity, 
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
+import { Button } from "../../ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
+import { Badge } from "../../ui/badge";
+import {
+  TrendingUp,
+  TrendingDown,
+  Users,
+  DollarSign,
+  Activity,
   Target,
   Download,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw,
+} from "lucide-react";
 
 interface RevenueMetrics {
   totalRevenue: number;
@@ -68,7 +68,9 @@ interface GrowthDashboardProps {
 }
 
 export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
-  const [revenueMetrics, setRevenueMetrics] = useState<RevenueMetrics | null>(null);
+  const [revenueMetrics, setRevenueMetrics] = useState<RevenueMetrics | null>(
+    null
+  );
   const [usageMetrics, setUsageMetrics] = useState<UsageMetrics | null>(null);
   const [cohortData, setCohortData] = useState<CohortData[]>([]);
   const [funnelData, setFunnelData] = useState<FunnelStep[]>([]);
@@ -81,35 +83,48 @@ export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
       setLoading(true);
       setError(null);
 
-      const baseUrl = '/api/reports/metrics';
+      const baseUrl = "/api/reports/metrics";
       const params = new URLSearchParams();
-      if (tenantId) params.append('tenantId', tenantId);
+      if (tenantId) {
+        params.append("tenantId", tenantId);
+      }
 
       // Fetch all metrics in parallel
-      const [revenueRes, usageRes, cohortsRes, funnelRes, tenantsRes] = await Promise.all([
-        fetch(`${baseUrl}?${params.toString()}&metric=revenue`),
-        fetch(`${baseUrl}?${params.toString()}&metric=usage`),
-        fetch(`${baseUrl}?${params.toString()}&metric=cohorts`),
-        fetch(`${baseUrl}?${params.toString()}&metric=funnel`),
-        fetch(`${baseUrl}?${params.toString()}&metric=tenants`)
-      ]);
+      const [revenueRes, usageRes, cohortsRes, funnelRes, tenantsRes] =
+        await Promise.all([
+          fetch(`${baseUrl}?${params.toString()}&metric=revenue`),
+          fetch(`${baseUrl}?${params.toString()}&metric=usage`),
+          fetch(`${baseUrl}?${params.toString()}&metric=cohorts`),
+          fetch(`${baseUrl}?${params.toString()}&metric=funnel`),
+          fetch(`${baseUrl}?${params.toString()}&metric=tenants`),
+        ]);
 
       const [revenue, usage, cohorts, funnel, tenants] = await Promise.all([
         revenueRes.json(),
         usageRes.json(),
         cohortsRes.json(),
         funnelRes.json(),
-        tenantsRes.json()
+        tenantsRes.json(),
       ]);
 
-      if (revenue.success) setRevenueMetrics(revenue.data);
-      if (usage.success) setUsageMetrics(usage.data);
-      if (cohorts.success) setCohortData(cohorts.data);
-      if (funnel.success) setFunnelData(funnel.data);
-      if (tenants.success) setTenantMetrics(tenants.data);
+      if (revenue.success) {
+        setRevenueMetrics(revenue.data);
+      }
+      if (usage.success) {
+        setUsageMetrics(usage.data);
+      }
+      if (cohorts.success) {
+        setCohortData(cohorts.data);
+      }
+      if (funnel.success) {
+        setFunnelData(funnel.data);
+      }
+      if (tenants.success) {
+        setTenantMetrics(tenants.data);
+      }
     } catch (err) {
-      setError('Failed to fetch metrics');
-      console.error('Error fetching metrics:', err);
+      setError("Failed to fetch metrics");
+      console.error("Error fetching metrics:", err);
     } finally {
       setLoading(false);
     }
@@ -120,11 +135,11 @@ export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
   }, [tenantId]);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
@@ -133,21 +148,21 @@ export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
   };
 
   const formatNumber = (value: number) => {
-    return new Intl.NumberFormat('en-US').format(value);
+    return new Intl.NumberFormat("en-US").format(value);
   };
 
-  const exportReport = async (format: 'csv' | 'json') => {
+  const exportReport = async (format: "csv" | "json") => {
     try {
-      const response = await fetch('/api/reports?type=monthly');
+      const response = await fetch("/api/reports?type=monthly");
       const data = await response.json();
-      
+
       if (data.success) {
         const reportId = data.data.id;
         const exportUrl = `/api/reports/export?reportId=${reportId}&format=${format}`;
-        window.open(exportUrl, '_blank');
+        window.open(exportUrl, "_blank");
       }
     } catch (err) {
-      console.error('Error exporting report:', err);
+      console.error("Error exporting report:", err);
     }
   };
 
@@ -178,14 +193,16 @@ export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Growth Dashboard</h1>
-          <p className="text-gray-600">Key performance indicators and growth metrics</p>
+          <p className="text-gray-600">
+            Key performance indicators and growth metrics
+          </p>
         </div>
         <div className="flex space-x-2">
-          <Button onClick={() => exportReport('csv')} variant="outline">
+          <Button onClick={() => exportReport("csv")} variant="outline">
             <Download className="h-4 w-4 mr-2" />
             Export CSV
           </Button>
-          <Button onClick={() => exportReport('json')} variant="outline">
+          <Button onClick={() => exportReport("json")} variant="outline">
             <Download className="h-4 w-4 mr-2" />
             Export JSON
           </Button>
@@ -205,10 +222,15 @@ export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {revenueMetrics ? formatCurrency(revenueMetrics.totalRevenue) : 'N/A'}
+              {revenueMetrics
+                ? formatCurrency(revenueMetrics.totalRevenue)
+                : "N/A"}
             </div>
             <p className="text-xs text-muted-foreground">
-              {revenueMetrics ? formatCurrency(revenueMetrics.monthlyRecurringRevenue) : 'N/A'} MRR
+              {revenueMetrics
+                ? formatCurrency(revenueMetrics.monthlyRecurringRevenue)
+                : "N/A"}{" "}
+              MRR
             </p>
           </CardContent>
         </Card>
@@ -220,7 +242,9 @@ export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {usageMetrics ? formatNumber(usageMetrics.peakConcurrentUsers) : 'N/A'}
+              {usageMetrics
+                ? formatNumber(usageMetrics.peakConcurrentUsers)
+                : "N/A"}
             </div>
             <p className="text-xs text-muted-foreground">
               Peak concurrent users
@@ -235,10 +259,15 @@ export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {usageMetrics ? formatNumber(usageMetrics.totalAIRequests) : 'N/A'}
+              {usageMetrics
+                ? formatNumber(usageMetrics.totalAIRequests)
+                : "N/A"}
             </div>
             <p className="text-xs text-muted-foreground">
-              {usageMetrics ? formatNumber(usageMetrics.averageRequestsPerUser) : 'N/A'} per user
+              {usageMetrics
+                ? formatNumber(usageMetrics.averageRequestsPerUser)
+                : "N/A"}{" "}
+              per user
             </p>
           </CardContent>
         </Card>
@@ -250,11 +279,11 @@ export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {revenueMetrics ? formatPercentage(revenueMetrics.churnRate) : 'N/A'}
+              {revenueMetrics
+                ? formatPercentage(revenueMetrics.churnRate)
+                : "N/A"}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Monthly churn rate
-            </p>
+            <p className="text-xs text-muted-foreground">Monthly churn rate</p>
           </CardContent>
         </Card>
       </div>
@@ -273,11 +302,15 @@ export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Average Revenue Per User</CardTitle>
+                <CardTitle className="text-sm">
+                  Average Revenue Per User
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {revenueMetrics ? formatCurrency(revenueMetrics.averageRevenuePerUser) : 'N/A'}
+                  {revenueMetrics
+                    ? formatCurrency(revenueMetrics.averageRevenuePerUser)
+                    : "N/A"}
                 </div>
               </CardContent>
             </Card>
@@ -287,7 +320,9 @@ export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {revenueMetrics ? formatCurrency(revenueMetrics.lifetimeValue) : 'N/A'}
+                  {revenueMetrics
+                    ? formatCurrency(revenueMetrics.lifetimeValue)
+                    : "N/A"}
                 </div>
               </CardContent>
             </Card>
@@ -297,7 +332,9 @@ export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {revenueMetrics ? formatPercentage(revenueMetrics.grossMargin) : 'N/A'}
+                  {revenueMetrics
+                    ? formatPercentage(revenueMetrics.grossMargin)
+                    : "N/A"}
                 </div>
               </CardContent>
             </Card>
@@ -307,7 +344,9 @@ export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {revenueMetrics ? formatPercentage(revenueMetrics.netRevenueRetention) : 'N/A'}
+                  {revenueMetrics
+                    ? formatPercentage(revenueMetrics.netRevenueRetention)
+                    : "N/A"}
                 </div>
               </CardContent>
             </Card>
@@ -322,7 +361,9 @@ export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {usageMetrics ? `${usageMetrics.averageResponseTime}ms` : 'N/A'}
+                  {usageMetrics
+                    ? `${usageMetrics.averageResponseTime}ms`
+                    : "N/A"}
                 </div>
               </CardContent>
             </Card>
@@ -332,7 +373,9 @@ export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {usageMetrics ? formatPercentage(usageMetrics.errorRate) : 'N/A'}
+                  {usageMetrics
+                    ? formatPercentage(usageMetrics.errorRate)
+                    : "N/A"}
                 </div>
               </CardContent>
             </Card>
@@ -342,7 +385,7 @@ export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {usageMetrics ? formatPercentage(usageMetrics.uptime) : 'N/A'}
+                  {usageMetrics ? formatPercentage(usageMetrics.uptime) : "N/A"}
                 </div>
               </CardContent>
             </Card>
@@ -371,15 +414,29 @@ export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
                     {cohortData.map((cohort) => (
                       <tr key={cohort.cohort} className="border-b">
                         <td className="p-2 font-medium">{cohort.cohort}</td>
-                        <td className="text-right p-2">{formatNumber(cohort.totalUsers)}</td>
-                        <td className="text-right p-2">{formatNumber(cohort.retainedUsers)}</td>
                         <td className="text-right p-2">
-                          <Badge variant={cohort.retentionRate > 0.7 ? 'default' : 'secondary'}>
+                          {formatNumber(cohort.totalUsers)}
+                        </td>
+                        <td className="text-right p-2">
+                          {formatNumber(cohort.retainedUsers)}
+                        </td>
+                        <td className="text-right p-2">
+                          <Badge
+                            variant={
+                              cohort.retentionRate > 0.7
+                                ? "default"
+                                : "secondary"
+                            }
+                          >
                             {formatPercentage(cohort.retentionRate)}
                           </Badge>
                         </td>
-                        <td className="text-right p-2">{formatCurrency(cohort.revenue)}</td>
-                        <td className="text-right p-2">{formatCurrency(cohort.averageLifetimeValue)}</td>
+                        <td className="text-right p-2">
+                          {formatCurrency(cohort.revenue)}
+                        </td>
+                        <td className="text-right p-2">
+                          {formatCurrency(cohort.averageLifetimeValue)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -409,14 +466,18 @@ export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
-                        <div 
+                        <div
                           className="bg-primary h-2 rounded-full transition-all duration-300"
                           style={{ width: `${step.conversionRate * 100}%` }}
                         />
                       </div>
                       <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                        <span>{formatPercentage(step.conversionRate)} conversion</span>
-                        <span>{formatPercentage(step.dropoffRate)} dropoff</span>
+                        <span>
+                          {formatPercentage(step.conversionRate)} conversion
+                        </span>
+                        <span>
+                          {formatPercentage(step.dropoffRate)} dropoff
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -448,17 +509,35 @@ export default function GrowthDashboard({ tenantId }: GrowthDashboardProps) {
                   <tbody>
                     {tenantMetrics.map((tenant) => (
                       <tr key={tenant.tenantId} className="border-b">
-                        <td className="p-2 font-mono text-sm">{tenant.tenantId}</td>
-                        <td className="text-right p-2">{formatNumber(tenant.totalUsers)}</td>
-                        <td className="text-right p-2">{formatNumber(tenant.activeUsers)}</td>
-                        <td className="text-right p-2">{formatCurrency(tenant.totalRevenue)}</td>
-                        <td className="text-right p-2">{formatCurrency(tenant.monthlyRecurringRevenue)}</td>
+                        <td className="p-2 font-mono text-sm">
+                          {tenant.tenantId}
+                        </td>
                         <td className="text-right p-2">
-                          <Badge variant={tenant.churnRate < 0.05 ? 'default' : 'destructive'}>
+                          {formatNumber(tenant.totalUsers)}
+                        </td>
+                        <td className="text-right p-2">
+                          {formatNumber(tenant.activeUsers)}
+                        </td>
+                        <td className="text-right p-2">
+                          {formatCurrency(tenant.totalRevenue)}
+                        </td>
+                        <td className="text-right p-2">
+                          {formatCurrency(tenant.monthlyRecurringRevenue)}
+                        </td>
+                        <td className="text-right p-2">
+                          <Badge
+                            variant={
+                              tenant.churnRate < 0.05
+                                ? "default"
+                                : "destructive"
+                            }
+                          >
                             {formatPercentage(tenant.churnRate)}
                           </Badge>
                         </td>
-                        <td className="text-right p-2">{formatNumber(tenant.totalAIRequests)}</td>
+                        <td className="text-right p-2">
+                          {formatNumber(tenant.totalAIRequests)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

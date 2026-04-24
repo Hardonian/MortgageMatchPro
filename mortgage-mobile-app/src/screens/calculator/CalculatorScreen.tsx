@@ -5,7 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMortgageStore } from '../../store/mortgageStore';
 
 const CalculatorScreen = () => {
-  const { mortgageData, setMortgageData, calculateMortgage, calculations } = useMortgageStore();
+  const { mortgageData, setMortgageData, calculateMortgage, calculations } =
+    useMortgageStore();
 
   const handleCalculate = () => {
     calculateMortgage();
@@ -27,32 +28,44 @@ const CalculatorScreen = () => {
             <TextInput
               label="Property Value"
               value={mortgageData.propertyValue.toString()}
-              onChangeText={(text) => setMortgageData({ propertyValue: Number(text) })}
+              onChangeText={(text) =>
+                setMortgageData({ propertyValue: Number(text) })
+              }
               keyboardType="numeric"
               style={styles.input}
             />
             <TextInput
               label="Down Payment"
               value={mortgageData.downPayment.toString()}
-              onChangeText={(text) => setMortgageData({ downPayment: Number(text) })}
+              onChangeText={(text) =>
+                setMortgageData({ downPayment: Number(text) })
+              }
               keyboardType="numeric"
               style={styles.input}
             />
             <TextInput
               label="Interest Rate (%)"
               value={mortgageData.interestRate.toString()}
-              onChangeText={(text) => setMortgageData({ interestRate: Number(text) })}
+              onChangeText={(text) =>
+                setMortgageData({ interestRate: Number(text) })
+              }
               keyboardType="numeric"
               style={styles.input}
             />
             <TextInput
               label="Loan Term (years)"
               value={mortgageData.loanTerm.toString()}
-              onChangeText={(text) => setMortgageData({ loanTerm: Number(text) })}
+              onChangeText={(text) =>
+                setMortgageData({ loanTerm: Number(text) })
+              }
               keyboardType="numeric"
               style={styles.input}
             />
-            <Button mode="contained" onPress={handleCalculate} style={styles.button}>
+            <Button
+              mode="contained"
+              onPress={handleCalculate}
+              style={styles.button}
+            >
               Calculate
             </Button>
           </Card.Content>

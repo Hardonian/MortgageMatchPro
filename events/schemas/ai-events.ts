@@ -124,4 +124,4 @@ export const AI_EVENT_TYPES = {
   EXPLAINABILITY_GENERATED: 'ai.explainability.generated',
 } as const;
 
-export type AIEventType = typeof AI_EVENT_TYPES[keyof typeof AI_EVENT_TYPES];
+export type AIEventType = (typeof AI_EVENT_TYPES)[keyof typeof AI_EVENT_TYPES];

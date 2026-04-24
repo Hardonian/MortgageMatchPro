@@ -31,8 +31,7 @@ const AuthScreen = () => {
           <Text variant="bodyMedium" style={styles.subtitle}>
             {isLogin
               ? 'Sign in to your account'
-              : 'Sign up to get started with your mortgage journey'
-            }
+              : 'Sign up to get started with your mortgage journey'}
           </Text>
         </View>
 

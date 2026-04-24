@@ -3,7 +3,7 @@
  * Efficient connection pooling with monitoring and optimization
  */
 
-import { trackConnectionPool, ConnectionPoolMetrics } from './profiling-suite';
+import { trackConnectionPool, ConnectionPoolMetrics } from "./profiling-suite";
 
 export interface PoolConfig {
   minConnections: number;
@@ -105,14 +105,16 @@ class ConnectionPool {
       // Wait for a connection to become available
       return new Promise((resolve, reject) => {
         const waitStart = Date.now();
-        
+
         const timeout = setTimeout(() => {
-          const index = this.waitingQueue.findIndex(item => item.resolve === resolve);
+          const index = this.waitingQueue.findIndex(
+            (item) => item.resolve === resolve
+          );
           if (index !== -1) {
             this.waitingQueue.splice(index, 1);
             this.stats.failedRequests++;
             this.updateStats();
-            reject(new Error('Connection acquisition timeout'));
+            reject(new Error("Connection acquisition timeout"));
           }
         }, this.config.acquireTimeout);
 
@@ -147,7 +149,7 @@ class ConnectionPool {
   async release(connection: Connection): Promise<void> {
     try {
       if (!this.connections.has(connection.id)) {
-        throw new Error('Connection not found in pool');
+        throw new Error("Connection not found in pool");
       }
 
       // Mark as idle
@@ -168,7 +170,7 @@ class ConnectionPool {
       this.updateStats();
       this.trackPoolMetrics();
     } catch (error) {
-      console.error('[ConnectionPool] Error releasing connection:', error);
+      console.error("[ConnectionPool] Error releasing connection:", error);
       throw error;
     }
   }
@@ -183,7 +185,7 @@ class ConnectionPool {
         this.trackPoolMetrics();
       }
     } catch (error) {
-      console.error('[ConnectionPool] Error closing connection:', error);
+      console.error("[ConnectionPool] Error closing connection:", error);
       throw error;
     }
   }
@@ -200,18 +202,20 @@ class ConnectionPool {
 
   // Get active connections
   getActiveConnections(): Connection[] {
-    return Array.from(this.connections.values()).filter(c => c.isActive);
+    return Array.from(this.connections.values()).filter((c) => c.isActive);
   }
 
   // Get idle connections
   getIdleConnections(): Connection[] {
-    return Array.from(this.connections.values()).filter(c => c.isIdle);
+    return Array.from(this.connections.values()).filter((c) => c.isIdle);
   }
 
   // Check if pool is healthy
   isHealthy(): boolean {
-    return this.stats.totalConnections >= this.config.minConnections &&
-           this.stats.poolEfficiency > 0.5;
+    return (
+      this.stats.totalConnections >= this.config.minConnections &&
+      this.stats.poolEfficiency > 0.5
+    );
   }
 
   // Force cleanup of expired connections
@@ -223,8 +227,10 @@ class ConnectionPool {
       const age = now - connection.createdAt;
       const idleTime = now - connection.lastUsed;
 
-      if (age > this.config.maxLifetime || 
-          (connection.isIdle && idleTime > this.config.idleTimeout)) {
+      if (
+        age > this.config.maxLifetime ||
+        (connection.isIdle && idleTime > this.config.idleTimeout)
+      ) {
         expiredConnections.push(connection);
       }
     }
@@ -234,7 +240,9 @@ class ConnectionPool {
     }
 
     if (expiredConnections.length > 0) {
-      console.log(`[ConnectionPool] Cleaned up ${expiredConnections.length} expired connections`);
+      console.log(
+        `[ConnectionPool] Cleaned up ${expiredConnections.length} expired connections`
+      );
     }
   }
 
@@ -246,7 +254,7 @@ class ConnectionPool {
         connection.isIdle = true;
         connection.isActive = false;
       } catch (error) {
-        console.error('[ConnectionPool] Error initializing pool:', error);
+        console.error("[ConnectionPool] Error initializing pool:", error);
       }
     }
   }
@@ -254,10 +262,10 @@ class ConnectionPool {
   private async createConnection(): Promise<Connection> {
     const startTime = Date.now();
     const connectionId = `conn_${++this.connectionIdCounter}_${Date.now()}`;
-    
+
     // Simulate connection creation - replace with actual connection logic
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     const connection: Connection = {
       id: connectionId,
       createdAt: Date.now(),
@@ -269,10 +277,10 @@ class ConnectionPool {
 
     this.connections.set(connectionId, connection);
     this.stats.totalConnections++;
-    
+
     const connectionTime = Date.now() - startTime;
     this.updateAverageConnectionTime(connectionTime);
-    
+
     return connection;
   }
 
@@ -293,24 +301,30 @@ class ConnectionPool {
 
   private updateStats(): void {
     const connections = Array.from(this.connections.values());
-    this.stats.activeConnections = connections.filter(c => c.isActive).length;
-    this.stats.idleConnections = connections.filter(c => c.isIdle).length;
+    this.stats.activeConnections = connections.filter((c) => c.isActive).length;
+    this.stats.idleConnections = connections.filter((c) => c.isIdle).length;
     this.stats.waitingRequests = this.waitingQueue.length;
-    
+
     // Calculate pool efficiency
     const totalConnections = this.stats.totalConnections;
     const activeConnections = this.stats.activeConnections;
-    this.stats.poolEfficiency = totalConnections > 0 ? activeConnections / totalConnections : 0;
+    this.stats.poolEfficiency =
+      totalConnections > 0 ? activeConnections / totalConnections : 0;
   }
 
   private updateAverageWaitTime(waitTime: number): void {
-    const totalWaitTime = this.stats.averageWaitTime * (this.stats.successfulRequests - 1) + waitTime;
+    const totalWaitTime =
+      this.stats.averageWaitTime * (this.stats.successfulRequests - 1) +
+      waitTime;
     this.stats.averageWaitTime = totalWaitTime / this.stats.successfulRequests;
   }
 
   private updateAverageConnectionTime(connectionTime: number): void {
-    const totalConnectionTime = this.stats.averageConnectionTime * (this.stats.totalConnections - 1) + connectionTime;
-    this.stats.averageConnectionTime = totalConnectionTime / this.stats.totalConnections;
+    const totalConnectionTime =
+      this.stats.averageConnectionTime * (this.stats.totalConnections - 1) +
+      connectionTime;
+    this.stats.averageConnectionTime =
+      totalConnectionTime / this.stats.totalConnections;
   }
 
   private startCleanupTimer(): void {
@@ -322,7 +336,7 @@ class ConnectionPool {
   private trackPoolMetrics(): void {
     if (this.config.enableMetrics) {
       trackConnectionPool({
-        poolName: 'default',
+        poolName: "default",
         activeConnections: this.stats.activeConnections,
         idleConnections: this.stats.idleConnections,
         totalConnections: this.stats.totalConnections,
@@ -338,13 +352,13 @@ class ConnectionPool {
     if (this.cleanupTimer) {
       clearInterval(this.cleanupTimer);
     }
-    
+
     // Reject all waiting requests
     for (const request of this.waitingQueue) {
-      request.reject(new Error('Connection pool destroyed'));
+      request.reject(new Error("Connection pool destroyed"));
     }
     this.waitingQueue = [];
-    
+
     // Close all connections
     for (const connection of this.connections.values()) {
       this.close(connection);

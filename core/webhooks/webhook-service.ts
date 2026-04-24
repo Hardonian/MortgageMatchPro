@@ -1,34 +1,34 @@
-import { supabaseAdmin } from '../supabase'
-import { WebhookEvent, TenantError } from '../types/tenancy'
-import { MeteringService } from '../billing/metering-service'
-import crypto from 'crypto'
+import { supabaseAdmin } from "../supabase";
+import { WebhookEvent, TenantError } from "../types/tenancy";
+import { MeteringService } from "../billing/metering-service";
+import crypto from "crypto";
 
 export interface WebhookEndpoint {
-  id: string
-  organizationId: string
-  url: string
-  secret: string
-  events: string[]
-  isActive: boolean
-  createdAt: string
-  updatedAt: string
+  id: string;
+  organizationId: string;
+  url: string;
+  secret: string;
+  events: string[];
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface WebhookDelivery {
-  id: string
-  webhookId: string
-  eventId: string
-  url: string
-  status: 'pending' | 'delivered' | 'failed' | 'retrying'
-  attempts: number
-  maxAttempts: number
-  nextRetryAt?: string
-  deliveredAt?: string
-  errorMessage?: string
-  responseCode?: number
-  responseBody?: string
-  createdAt: string
-  updatedAt: string
+  id: string;
+  webhookId: string;
+  eventId: string;
+  url: string;
+  status: "pending" | "delivered" | "failed" | "retrying";
+  attempts: number;
+  maxAttempts: number;
+  nextRetryAt?: string;
+  deliveredAt?: string;
+  errorMessage?: string;
+  responseCode?: number;
+  responseBody?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export class WebhookService {
@@ -46,19 +46,23 @@ export class WebhookService {
       // Check permissions
       if (!this.canManageWebhooks(userRole)) {
         throw new TenantError(
-          'Insufficient permissions to create webhook',
-          'INSUFFICIENT_PERMISSIONS',
+          "Insufficient permissions to create webhook",
+          "INSUFFICIENT_PERMISSIONS",
           organizationId
-        )
+        );
       }
 
       // Validate URL
       if (!this.isValidUrl(url)) {
-        throw new TenantError('Invalid webhook URL', 'INVALID_URL', organizationId)
+        throw new TenantError(
+          "Invalid webhook URL",
+          "INVALID_URL",
+          organizationId
+        );
       }
 
       // Generate secret
-      const secret = this.generateWebhookSecret()
+      const secret = this.generateWebhookSecret();
 
       const webhookEndpoint: WebhookEndpoint = {
         id: crypto.randomUUID(),
@@ -68,22 +72,22 @@ export class WebhookService {
         events,
         isActive: true,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
+        updatedAt: new Date().toISOString(),
+      };
 
       // Store in database
       const { error } = await supabaseAdmin
-        .from('webhook_endpoints')
-        .insert(webhookEndpoint)
+        .from("webhook_endpoints")
+        .insert(webhookEndpoint);
 
       if (error) {
-        throw new Error(`Failed to create webhook endpoint: ${error.message}`)
+        throw new Error(`Failed to create webhook endpoint: ${error.message}`);
       }
 
-      return webhookEndpoint
+      return webhookEndpoint;
     } catch (error) {
-      console.error('Create webhook endpoint error:', error)
-      throw error
+      console.error("Create webhook endpoint error:", error);
+      throw error;
     }
   }
 
@@ -99,26 +103,26 @@ export class WebhookService {
       // Check permissions
       if (!this.canManageWebhooks(userRole)) {
         throw new TenantError(
-          'Insufficient permissions to view webhooks',
-          'INSUFFICIENT_PERMISSIONS',
+          "Insufficient permissions to view webhooks",
+          "INSUFFICIENT_PERMISSIONS",
           organizationId
-        )
+        );
       }
 
       const { data, error } = await supabaseAdmin
-        .from('webhook_endpoints')
-        .select('*')
-        .eq('organization_id', organizationId)
-        .order('created_at', { ascending: false })
+        .from("webhook_endpoints")
+        .select("*")
+        .eq("organization_id", organizationId)
+        .order("created_at", { ascending: false });
 
       if (error) {
-        throw new Error(`Failed to get webhook endpoints: ${error.message}`)
+        throw new Error(`Failed to get webhook endpoints: ${error.message}`);
       }
 
-      return data || []
+      return data || [];
     } catch (error) {
-      console.error('Get webhook endpoints error:', error)
-      throw error
+      console.error("Get webhook endpoints error:", error);
+      throw error;
     }
   }
 
@@ -128,7 +132,7 @@ export class WebhookService {
   static async updateWebhookEndpoint(
     webhookId: string,
     organizationId: string,
-    updates: Partial<Pick<WebhookEndpoint, 'url' | 'events' | 'isActive'>>,
+    updates: Partial<Pick<WebhookEndpoint, "url" | "events" | "isActive">>,
     userId: string,
     userRole: string
   ): Promise<WebhookEndpoint> {
@@ -136,36 +140,40 @@ export class WebhookService {
       // Check permissions
       if (!this.canManageWebhooks(userRole)) {
         throw new TenantError(
-          'Insufficient permissions to update webhook',
-          'INSUFFICIENT_PERMISSIONS',
+          "Insufficient permissions to update webhook",
+          "INSUFFICIENT_PERMISSIONS",
           organizationId
-        )
+        );
       }
 
       // Validate URL if provided
       if (updates.url && !this.isValidUrl(updates.url)) {
-        throw new TenantError('Invalid webhook URL', 'INVALID_URL', organizationId)
+        throw new TenantError(
+          "Invalid webhook URL",
+          "INVALID_URL",
+          organizationId
+        );
       }
 
       const { data, error } = await supabaseAdmin
-        .from('webhook_endpoints')
+        .from("webhook_endpoints")
         .update({
           ...updates,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
         })
-        .eq('id', webhookId)
-        .eq('organization_id', organizationId)
+        .eq("id", webhookId)
+        .eq("organization_id", organizationId)
         .select()
-        .single()
+        .single();
 
       if (error) {
-        throw new Error(`Failed to update webhook endpoint: ${error.message}`)
+        throw new Error(`Failed to update webhook endpoint: ${error.message}`);
       }
 
-      return data
+      return data;
     } catch (error) {
-      console.error('Update webhook endpoint error:', error)
-      throw error
+      console.error("Update webhook endpoint error:", error);
+      throw error;
     }
   }
 
@@ -182,24 +190,24 @@ export class WebhookService {
       // Check permissions
       if (!this.canManageWebhooks(userRole)) {
         throw new TenantError(
-          'Insufficient permissions to delete webhook',
-          'INSUFFICIENT_PERMISSIONS',
+          "Insufficient permissions to delete webhook",
+          "INSUFFICIENT_PERMISSIONS",
           organizationId
-        )
+        );
       }
 
       const { error } = await supabaseAdmin
-        .from('webhook_endpoints')
+        .from("webhook_endpoints")
         .delete()
-        .eq('id', webhookId)
-        .eq('organization_id', organizationId)
+        .eq("id", webhookId)
+        .eq("organization_id", organizationId);
 
       if (error) {
-        throw new Error(`Failed to delete webhook endpoint: ${error.message}`)
+        throw new Error(`Failed to delete webhook endpoint: ${error.message}`);
       }
     } catch (error) {
-      console.error('Delete webhook endpoint error:', error)
-      throw error
+      console.error("Delete webhook endpoint error:", error);
+      throw error;
     }
   }
 
@@ -214,18 +222,18 @@ export class WebhookService {
     try {
       // Get active webhook endpoints for this organization
       const { data: endpoints, error } = await supabaseAdmin
-        .from('webhook_endpoints')
-        .select('*')
-        .eq('organization_id', organizationId)
-        .eq('is_active', true)
-        .contains('events', [eventType])
+        .from("webhook_endpoints")
+        .select("*")
+        .eq("organization_id", organizationId)
+        .eq("is_active", true)
+        .contains("events", [eventType]);
 
       if (error) {
-        throw new Error(`Failed to get webhook endpoints: ${error.message}`)
+        throw new Error(`Failed to get webhook endpoints: ${error.message}`);
       }
 
       if (!endpoints || endpoints.length === 0) {
-        return []
+        return [];
       }
 
       // Create webhook event
@@ -234,30 +242,30 @@ export class WebhookService {
         organizationId,
         eventType,
         payload,
-        status: 'pending',
+        status: "pending",
         attempts: 0,
         maxAttempts: 3,
-        createdAt: new Date().toISOString()
-      }
+        createdAt: new Date().toISOString(),
+      };
 
       // Store webhook event
       const { error: eventError } = await supabaseAdmin
-        .from('webhook_events')
-        .insert(webhookEvent)
+        .from("webhook_events")
+        .insert(webhookEvent);
 
       if (eventError) {
-        throw new Error(`Failed to store webhook event: ${eventError.message}`)
+        throw new Error(`Failed to store webhook event: ${eventError.message}`);
       }
 
       // Send to all matching endpoints
       const deliveries = await Promise.all(
-        endpoints.map(endpoint => this.deliverWebhook(webhookEvent, endpoint))
-      )
+        endpoints.map((endpoint) => this.deliverWebhook(webhookEvent, endpoint))
+      );
 
-      return deliveries
+      return deliveries;
     } catch (error) {
-      console.error('Send webhook event error:', error)
-      throw error
+      console.error("Send webhook event error:", error);
+      throw error;
     }
   }
 
@@ -275,28 +283,30 @@ export class WebhookService {
         webhookId: endpoint.id,
         eventId: webhookEvent.id,
         url: endpoint.url,
-        status: 'pending',
+        status: "pending",
         attempts: 0,
         maxAttempts: 3,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
+        updatedAt: new Date().toISOString(),
+      };
 
       const { error: deliveryError } = await supabaseAdmin
-        .from('webhook_deliveries')
-        .insert(delivery)
+        .from("webhook_deliveries")
+        .insert(delivery);
 
       if (deliveryError) {
-        throw new Error(`Failed to create delivery record: ${deliveryError.message}`)
+        throw new Error(
+          `Failed to create delivery record: ${deliveryError.message}`
+        );
       }
 
       // Attempt delivery
-      await this.attemptDelivery(delivery, webhookEvent, endpoint)
+      await this.attemptDelivery(delivery, webhookEvent, endpoint);
 
-      return webhookEvent
+      return webhookEvent;
     } catch (error) {
-      console.error('Deliver webhook error:', error)
-      throw error
+      console.error("Deliver webhook error:", error);
+      throw error;
     }
   }
 
@@ -312,53 +322,55 @@ export class WebhookService {
       const signature = this.generateSignature(
         JSON.stringify(webhookEvent.payload),
         endpoint.secret
-      )
+      );
 
       const response = await fetch(endpoint.url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'X-Webhook-Event': webhookEvent.eventType,
-          'X-Webhook-Signature': signature,
-          'X-Webhook-Delivery': delivery.id,
-          'User-Agent': 'MortgageMatchPro-Webhooks/1.0'
+          "Content-Type": "application/json",
+          "X-Webhook-Event": webhookEvent.eventType,
+          "X-Webhook-Signature": signature,
+          "X-Webhook-Delivery": delivery.id,
+          "User-Agent": "MortgageMatchPro-Webhooks/1.0",
         },
         body: JSON.stringify({
           id: webhookEvent.id,
           event: webhookEvent.eventType,
           data: webhookEvent.payload,
-          created: webhookEvent.createdAt
-        })
-      })
+          created: webhookEvent.createdAt,
+        }),
+      });
 
-      const responseBody = await response.text()
-      const isSuccess = response.ok
+      const responseBody = await response.text();
+      const isSuccess = response.ok;
 
       // Update delivery record
       await supabaseAdmin
-        .from('webhook_deliveries')
+        .from("webhook_deliveries")
         .update({
-          status: isSuccess ? 'delivered' : 'failed',
+          status: isSuccess ? "delivered" : "failed",
           attempts: delivery.attempts + 1,
           deliveredAt: isSuccess ? new Date().toISOString() : undefined,
-          errorMessage: isSuccess ? undefined : `HTTP ${response.status}: ${responseBody}`,
+          errorMessage: isSuccess
+            ? undefined
+            : `HTTP ${response.status}: ${responseBody}`,
           responseCode: response.status,
           responseBody: responseBody.substring(0, 1000), // Limit response body
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
         })
-        .eq('id', delivery.id)
+        .eq("id", delivery.id);
 
       // Update webhook event status
       if (isSuccess) {
         await supabaseAdmin
-          .from('webhook_events')
+          .from("webhook_events")
           .update({
-            status: 'delivered',
-            deliveredAt: new Date().toISOString()
+            status: "delivered",
+            deliveredAt: new Date().toISOString(),
           })
-          .eq('id', webhookEvent.id)
+          .eq("id", webhookEvent.id);
       } else {
-        await this.scheduleRetry(delivery, webhookEvent)
+        await this.scheduleRetry(delivery, webhookEvent);
       }
 
       // Record usage
@@ -367,24 +379,25 @@ export class WebhookService {
         delivery.id,
         isSuccess,
         0.01
-      )
+      );
     } catch (error) {
-      console.error('Webhook delivery attempt error:', error)
-      
+      console.error("Webhook delivery attempt error:", error);
+
       // Update delivery record with error
       await supabaseAdmin
-        .from('webhook_deliveries')
+        .from("webhook_deliveries")
         .update({
-          status: 'failed',
+          status: "failed",
           attempts: delivery.attempts + 1,
-          errorMessage: error instanceof Error ? error.message : 'Unknown error',
-          updatedAt: new Date().toISOString()
+          errorMessage:
+            error instanceof Error ? error.message : "Unknown error",
+          updatedAt: new Date().toISOString(),
         })
-        .eq('id', delivery.id)
+        .eq("id", delivery.id);
 
       // Schedule retry if not exceeded max attempts
       if (delivery.attempts < delivery.maxAttempts) {
-        await this.scheduleRetry(delivery, webhookEvent)
+        await this.scheduleRetry(delivery, webhookEvent);
       }
     }
   }
@@ -396,26 +409,26 @@ export class WebhookService {
     delivery: WebhookDelivery,
     webhookEvent: WebhookEvent
   ): Promise<void> {
-    const retryDelay = Math.pow(2, delivery.attempts) * 1000 // Exponential backoff
-    const nextRetryAt = new Date(Date.now() + retryDelay)
+    const retryDelay = Math.pow(2, delivery.attempts) * 1000; // Exponential backoff
+    const nextRetryAt = new Date(Date.now() + retryDelay);
 
     await supabaseAdmin
-      .from('webhook_deliveries')
+      .from("webhook_deliveries")
       .update({
-        status: 'retrying',
+        status: "retrying",
         nextRetryAt: nextRetryAt.toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       })
-      .eq('id', delivery.id)
+      .eq("id", delivery.id);
 
     // Update webhook event status
     await supabaseAdmin
-      .from('webhook_events')
+      .from("webhook_events")
       .update({
-        status: 'retrying',
-        nextRetryAt: nextRetryAt.toISOString()
+        status: "retrying",
+        nextRetryAt: nextRetryAt.toISOString(),
       })
-      .eq('id', webhookEvent.id)
+      .eq("id", webhookEvent.id);
   }
 
   /**
@@ -426,11 +439,11 @@ export class WebhookService {
     signature: string,
     secret: string
   ): boolean {
-    const expectedSignature = this.generateSignature(payload, secret)
+    const expectedSignature = this.generateSignature(payload, secret);
     return crypto.timingSafeEqual(
       Buffer.from(signature),
       Buffer.from(expectedSignature)
-    )
+    );
   }
 
   /**
@@ -438,16 +451,16 @@ export class WebhookService {
    */
   private static generateSignature(payload: string, secret: string): string {
     return `sha256=${crypto
-      .createHmac('sha256', secret)
+      .createHmac("sha256", secret)
       .update(payload)
-      .digest('hex')}`
+      .digest("hex")}`;
   }
 
   /**
    * Generate webhook secret
    */
   private static generateWebhookSecret(): string {
-    return crypto.randomBytes(32).toString('hex')
+    return crypto.randomBytes(32).toString("hex");
   }
 
   /**
@@ -455,10 +468,10 @@ export class WebhookService {
    */
   private static isValidUrl(url: string): boolean {
     try {
-      new URL(url)
-      return true
+      new URL(url);
+      return true;
     } catch {
-      return false
+      return false;
     }
   }
 
@@ -466,7 +479,7 @@ export class WebhookService {
    * Check if user can manage webhooks
    */
   private static canManageWebhooks(userRole: string): boolean {
-    return ['OWNER', 'ADMIN'].includes(userRole)
+    return ["OWNER", "ADMIN"].includes(userRole);
   }
 
   /**
@@ -479,33 +492,35 @@ export class WebhookService {
   ): Promise<WebhookDelivery[]> {
     try {
       let query = supabaseAdmin
-        .from('webhook_deliveries')
-        .select(`
+        .from("webhook_deliveries")
+        .select(
+          `
           *,
           webhook_endpoints (
             id,
             url,
             events
           )
-        `)
-        .eq('organization_id', organizationId)
-        .order('created_at', { ascending: false })
-        .limit(limit)
+        `
+        )
+        .eq("organization_id", organizationId)
+        .order("created_at", { ascending: false })
+        .limit(limit);
 
       if (webhookId) {
-        query = query.eq('webhook_id', webhookId)
+        query = query.eq("webhook_id", webhookId);
       }
 
-      const { data, error } = await query
+      const { data, error } = await query;
 
       if (error) {
-        throw new Error(`Failed to get webhook deliveries: ${error.message}`)
+        throw new Error(`Failed to get webhook deliveries: ${error.message}`);
       }
 
-      return data || []
+      return data || [];
     } catch (error) {
-      console.error('Get webhook deliveries error:', error)
-      throw error
+      console.error("Get webhook deliveries error:", error);
+      throw error;
     }
   }
 
@@ -522,61 +537,65 @@ export class WebhookService {
       // Check permissions
       if (!this.canManageWebhooks(userRole)) {
         throw new TenantError(
-          'Insufficient permissions to retry webhook',
-          'INSUFFICIENT_PERMISSIONS',
+          "Insufficient permissions to retry webhook",
+          "INSUFFICIENT_PERMISSIONS",
           organizationId
-        )
+        );
       }
 
       // Get delivery record
       const { data: delivery, error: deliveryError } = await supabaseAdmin
-        .from('webhook_deliveries')
-        .select('*')
-        .eq('id', deliveryId)
-        .eq('organization_id', organizationId)
-        .single()
+        .from("webhook_deliveries")
+        .select("*")
+        .eq("id", deliveryId)
+        .eq("organization_id", organizationId)
+        .single();
 
       if (deliveryError) {
-        throw new Error(`Failed to get delivery record: ${deliveryError.message}`)
+        throw new Error(
+          `Failed to get delivery record: ${deliveryError.message}`
+        );
       }
 
       // Get webhook event
       const { data: webhookEvent, error: eventError } = await supabaseAdmin
-        .from('webhook_events')
-        .select('*')
-        .eq('id', delivery.eventId)
-        .single()
+        .from("webhook_events")
+        .select("*")
+        .eq("id", delivery.eventId)
+        .single();
 
       if (eventError) {
-        throw new Error(`Failed to get webhook event: ${eventError.message}`)
+        throw new Error(`Failed to get webhook event: ${eventError.message}`);
       }
 
       // Get webhook endpoint
       const { data: endpoint, error: endpointError } = await supabaseAdmin
-        .from('webhook_endpoints')
-        .select('*')
-        .eq('id', delivery.webhookId)
-        .single()
+        .from("webhook_endpoints")
+        .select("*")
+        .eq("id", delivery.webhookId)
+        .single();
 
       if (endpointError) {
-        throw new Error(`Failed to get webhook endpoint: ${endpointError.message}`)
+        throw new Error(
+          `Failed to get webhook endpoint: ${endpointError.message}`
+        );
       }
 
       // Reset delivery status
       await supabaseAdmin
-        .from('webhook_deliveries')
+        .from("webhook_deliveries")
         .update({
-          status: 'pending',
+          status: "pending",
           errorMessage: undefined,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
         })
-        .eq('id', deliveryId)
+        .eq("id", deliveryId);
 
       // Attempt delivery
-      await this.attemptDelivery(delivery, webhookEvent, endpoint)
+      await this.attemptDelivery(delivery, webhookEvent, endpoint);
     } catch (error) {
-      console.error('Retry webhook delivery error:', error)
-      throw error
+      console.error("Retry webhook delivery error:", error);
+      throw error;
     }
   }
 }

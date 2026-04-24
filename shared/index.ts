@@ -2,22 +2,22 @@
 // This is the main entry point for all shared functionality
 
 // Types
-export * from './types';
+export * from "./types";
 
 // Utils
-export * from './utils';
+export * from "./utils";
 
 // Constants
-export * from './constants';
+export * from "./constants";
 
 // Hooks
-export * from './hooks';
+export * from "./hooks";
 
 // Components
-export * from './components';
+export * from "./components";
 
 // Services
-export * from './services';
+export * from "./services";
 
 // Schemas
-export * from './schemas';
+export * from "./schemas";

@@ -1,13 +1,13 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
-import { spacing } from '../../constants/theme';
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import { Text, useTheme } from "react-native-paper";
+import { spacing } from "../../constants/theme";
 
 interface MetricsCardProps {
   title: string;
   value: string;
   change: string;
-  changeType: 'positive' | 'negative' | 'neutral';
+  changeType: "positive" | "negative" | "neutral";
   icon: string;
 }
 
@@ -22,9 +22,9 @@ export const MetricsCard: React.FC<MetricsCardProps> = ({
 
   const getChangeColor = () => {
     switch (changeType) {
-      case 'positive':
+      case "positive":
         return theme.colors.secondary;
-      case 'negative':
+      case "negative":
         return theme.colors.error;
       default:
         return theme.colors.onSurfaceVariant;
@@ -33,12 +33,12 @@ export const MetricsCard: React.FC<MetricsCardProps> = ({
 
   const getChangeIcon = () => {
     switch (changeType) {
-      case 'positive':
-        return '↗️';
-      case 'negative':
-        return '↘️';
+      case "positive":
+        return "↗️";
+      case "negative":
+        return "↘️";
       default:
-        return '→';
+        return "→";
     }
   };
 
@@ -65,15 +65,15 @@ export const MetricsCard: React.FC<MetricsCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: '48%',
+    width: "48%",
     padding: spacing.md,
     borderRadius: 12,
     marginBottom: spacing.sm,
     elevation: 2,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: spacing.xs,
   },
   icon: {
@@ -82,17 +82,17 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: "500",
     flex: 1,
   },
   value: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: spacing.xs,
   },
   changeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   changeIcon: {
     fontSize: 12,
@@ -100,6 +100,6 @@ const styles = StyleSheet.create({
   },
   change: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: "500",
   },
 });

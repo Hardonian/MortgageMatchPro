@@ -40,10 +40,7 @@ const SettingsScreen = () => {
               title="Biometric Login"
               description="Use fingerprint or face ID to sign in"
               right={() => (
-                <Switch
-                  value={biometric}
-                  onValueChange={setBiometric}
-                />
+                <Switch value={biometric} onValueChange={setBiometric} />
               )}
             />
           </Card.Content>
@@ -52,10 +49,7 @@ const SettingsScreen = () => {
         <Card style={styles.card}>
           <Card.Content>
             <Title>About</Title>
-            <List.Item
-              title="Version"
-              description="1.0.0"
-            />
+            <List.Item title="Version" description="1.0.0" />
             <List.Item
               title="Terms of Service"
               right={() => <List.Icon icon="chevron-right" />}

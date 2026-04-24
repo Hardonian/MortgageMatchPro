@@ -1,20 +1,20 @@
-import React from 'react';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { createStackNavigator } from '@react-navigation/stack';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useTheme } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
+import React from "react";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import { createStackNavigator } from "@react-navigation/stack";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import { useTheme } from "react-native-paper";
+import { useTranslation } from "react-i18next";
 
 // Broker Screens
-import { BrokerDashboardScreen } from '../screens/broker/BrokerDashboardScreen';
-import { LeadsScreen } from '../screens/broker/LeadsScreen';
-import { AnalyticsScreen } from '../screens/broker/AnalyticsScreen';
-import { CommissionsScreen } from '../screens/broker/CommissionsScreen';
-import { BrokerSettingsScreen } from '../screens/broker/BrokerSettingsScreen';
-import { LeadDetailsScreen } from '../screens/broker/LeadDetailsScreen';
-import { CommissionDetailsScreen } from '../screens/broker/CommissionDetailsScreen';
-import { ReportsScreen } from '../screens/broker/ReportsScreen';
-import { CustomDrawerContent } from '../components/broker/CustomDrawerContent';
+import { BrokerDashboardScreen } from "../screens/broker/BrokerDashboardScreen";
+import { LeadsScreen } from "../screens/broker/LeadsScreen";
+import { AnalyticsScreen } from "../screens/broker/AnalyticsScreen";
+import { CommissionsScreen } from "../screens/broker/CommissionsScreen";
+import { BrokerSettingsScreen } from "../screens/broker/BrokerSettingsScreen";
+import { LeadDetailsScreen } from "../screens/broker/LeadDetailsScreen";
+import { CommissionDetailsScreen } from "../screens/broker/CommissionDetailsScreen";
+import { ReportsScreen } from "../screens/broker/ReportsScreen";
+import { CustomDrawerContent } from "../components/broker/CustomDrawerContent";
 
 const Drawer = createDrawerNavigator<BrokerStackParamList>();
 const Stack = createStackNavigator();
@@ -24,71 +24,71 @@ const BrokerStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        cardStyle: { backgroundColor: '#ffffff' },
+        cardStyle: { backgroundColor: "#ffffff" },
       }}
     >
       <Stack.Screen name="Dashboard" component={BrokerDashboardScreen} />
-      <Stack.Screen 
-        name="Leads" 
+      <Stack.Screen
+        name="Leads"
         component={LeadsScreen}
-        options={{ 
+        options={{
           headerShown: true,
-          title: 'Lead Management',
-          headerBackTitle: 'Dashboard'
+          title: "Lead Management",
+          headerBackTitle: "Dashboard",
         }}
       />
-      <Stack.Screen 
-        name="Analytics" 
+      <Stack.Screen
+        name="Analytics"
         component={AnalyticsScreen}
-        options={{ 
+        options={{
           headerShown: true,
-          title: 'Analytics',
-          headerBackTitle: 'Dashboard'
+          title: "Analytics",
+          headerBackTitle: "Dashboard",
         }}
       />
-      <Stack.Screen 
-        name="Commissions" 
+      <Stack.Screen
+        name="Commissions"
         component={CommissionsScreen}
-        options={{ 
+        options={{
           headerShown: true,
-          title: 'Commissions',
-          headerBackTitle: 'Dashboard'
+          title: "Commissions",
+          headerBackTitle: "Dashboard",
         }}
       />
-      <Stack.Screen 
-        name="Settings" 
+      <Stack.Screen
+        name="Settings"
         component={BrokerSettingsScreen}
-        options={{ 
+        options={{
           headerShown: true,
-          title: 'Settings',
-          headerBackTitle: 'Dashboard'
+          title: "Settings",
+          headerBackTitle: "Dashboard",
         }}
       />
-      <Stack.Screen 
-        name="LeadDetails" 
+      <Stack.Screen
+        name="LeadDetails"
         component={LeadDetailsScreen}
-        options={{ 
+        options={{
           headerShown: true,
-          title: 'Lead Details',
-          headerBackTitle: 'Leads'
+          title: "Lead Details",
+          headerBackTitle: "Leads",
         }}
       />
-      <Stack.Screen 
-        name="CommissionDetails" 
+      <Stack.Screen
+        name="CommissionDetails"
         component={CommissionDetailsScreen}
-        options={{ 
+        options={{
           headerShown: true,
-          title: 'Commission Details',
-          headerBackTitle: 'Commissions'
+          title: "Commission Details",
+          headerBackTitle: "Commissions",
         }}
       />
-      <Stack.Screen 
-        name="Reports" 
+      <Stack.Screen
+        name="Reports"
         component={ReportsScreen}
-        options={{ 
+        options={{
           headerShown: true,
-          title: 'Reports',
-          headerBackTitle: 'Analytics'
+          title: "Reports",
+          headerBackTitle: "Analytics",
         }}
       />
     </Stack.Navigator>
@@ -112,18 +112,18 @@ export const BrokerNavigator: React.FC = () => {
         drawerInactiveTintColor: theme.colors.onSurfaceVariant,
         drawerLabelStyle: {
           fontSize: 16,
-          fontWeight: '500',
+          fontWeight: "500",
         },
       }}
     >
-      <Drawer.Screen 
-        name="Dashboard" 
+      <Drawer.Screen
+        name="Dashboard"
         component={BrokerStack}
         options={{
           drawerIcon: ({ color, size }) => (
             <Icon name="dashboard" size={size} color={color} />
           ),
-          drawerLabel: t('broker.dashboard'),
+          drawerLabel: t("broker.dashboard"),
         }}
       />
     </Drawer.Navigator>

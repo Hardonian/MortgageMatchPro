@@ -14,7 +14,9 @@ export const mortgageApi = {
   },
 
   // Calculate mortgage payment
-  calculatePayment: async (data: MortgageData): Promise<MortgageCalculation> => {
+  calculatePayment: async (
+    data: MortgageData
+  ): Promise<MortgageCalculation> => {
     const response = await apiClient.post('/calculate', data);
     return response.data;
   },
@@ -60,7 +62,9 @@ export const mortgageApi = {
 
   // Get market insights
   getMarketInsights: async (location: string) => {
-    const response = await apiClient.get('/market-insights', { params: { location } });
+    const response = await apiClient.get('/market-insights', {
+      params: { location },
+    });
     return response.data;
   },
 };

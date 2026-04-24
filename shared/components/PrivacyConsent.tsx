@@ -1,132 +1,138 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
-import { 
-  Shield, 
-  Eye, 
-  Database, 
-  Mail, 
-  BarChart3, 
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import {
+  Shield,
+  Eye,
+  Database,
+  Mail,
+  BarChart3,
   CheckCircle,
-  AlertCircle
-} from 'lucide-react'
-import { useAuth } from '@/lib/auth'
-import { supabase } from '@/lib/supabase'
-import { setAnalyticsConsent, getAnalyticsConsent } from '@/lib/analytics'
+  AlertCircle,
+} from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
+import { setAnalyticsConsent, getAnalyticsConsent } from "@/lib/analytics";
 
 interface PrivacySettings {
-  analytics: boolean
-  marketing: boolean
-  data_processing: boolean
+  analytics: boolean;
+  marketing: boolean;
+  data_processing: boolean;
 }
 
 export default function PrivacyConsent() {
-  const { user } = useAuth()
+  const { user } = useAuth();
   const [settings, setSettings] = useState<PrivacySettings>({
     analytics: false,
     marketing: false,
     data_processing: false,
-  })
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    loadPrivacySettings()
-  }, [user])
+    loadPrivacySettings();
+  }, [user]);
 
   const loadPrivacySettings = async () => {
     if (!user) {
-      setLoading(false)
-      return
+      setLoading(false);
+      return;
     }
 
     try {
       // Load from database
       const { data, error } = await supabase
-        .from('privacy_consent')
-        .select('*')
-        .eq('user_id', user.id)
+        .from("privacy_consent")
+        .select("*")
+        .eq("user_id", user.id);
 
-      if (error) throw error
+      if (error) {
+        throw error;
+      }
 
       const consentSettings: PrivacySettings = {
         analytics: false,
         marketing: false,
         data_processing: false,
-      }
+      };
 
-      data?.forEach(consent => {
-        if (consent.consent_type === 'analytics') {
-          consentSettings.analytics = consent.consent_given
-        } else if (consent.consent_type === 'marketing') {
-          consentSettings.marketing = consent.consent_given
-        } else if (consent.consent_type === 'data_processing') {
-          consentSettings.data_processing = consent.consent_given
+      data?.forEach((consent) => {
+        if (consent.consent_type === "analytics") {
+          consentSettings.analytics = consent.consent_given;
+        } else if (consent.consent_type === "marketing") {
+          consentSettings.marketing = consent.consent_given;
+        } else if (consent.consent_type === "data_processing") {
+          consentSettings.data_processing = consent.consent_given;
         }
-      })
+      });
 
-      setSettings(consentSettings)
-      
+      setSettings(consentSettings);
+
       // Also check PostHog consent
-      const analyticsConsent = getAnalyticsConsent()
+      const analyticsConsent = getAnalyticsConsent();
       if (analyticsConsent !== consentSettings.analytics) {
-        setAnalyticsConsent(consentSettings.analytics)
+        setAnalyticsConsent(consentSettings.analytics);
       }
     } catch (error) {
-      console.error('Error loading privacy settings:', error)
+      console.error("Error loading privacy settings:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const handleSettingChange = async (type: keyof PrivacySettings, value: boolean) => {
-    if (!user) return
+  const handleSettingChange = async (
+    type: keyof PrivacySettings,
+    value: boolean
+  ) => {
+    if (!user) {
+      return;
+    }
 
-    setSaving(true)
+    setSaving(true);
     try {
       // Update in database
-      const { error } = await supabase
-        .from('privacy_consent')
-        .upsert({
-          user_id: user.id,
-          consent_type: type,
-          consent_given: value,
-          consent_method: 'explicit',
-          ip_address: null, // Would be set server-side
-          user_agent: navigator.userAgent,
-        })
+      const { error } = await supabase.from("privacy_consent").upsert({
+        user_id: user.id,
+        consent_type: type,
+        consent_given: value,
+        consent_method: "explicit",
+        ip_address: null, // Would be set server-side
+        user_agent: navigator.userAgent,
+      });
 
-      if (error) throw error
-
-      // Update local state
-      setSettings(prev => ({ ...prev, [type]: value }))
-
-      // Update PostHog consent for analytics
-      if (type === 'analytics') {
-        setAnalyticsConsent(value)
+      if (error) {
+        throw error;
       }
 
+      // Update local state
+      setSettings((prev) => ({ ...prev, [type]: value }));
+
+      // Update PostHog consent for analytics
+      if (type === "analytics") {
+        setAnalyticsConsent(value);
+      }
     } catch (error) {
-      console.error('Error updating privacy setting:', error)
+      console.error("Error updating privacy setting:", error);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4" />
           <p className="text-muted-foreground">Loading privacy settings...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -159,13 +165,15 @@ export default function PrivacyConsent() {
               <Switch
                 id="analytics"
                 checked={settings.analytics}
-                onCheckedChange={(value) => handleSettingChange('analytics', value)}
+                onCheckedChange={(value) =>
+                  handleSettingChange("analytics", value)
+                }
                 disabled={saving}
               />
             </div>
-            
+
             <Separator />
-            
+
             <div className="space-y-2 text-sm text-muted-foreground">
               <p>When enabled, we collect:</p>
               <ul className="list-disc list-inside space-y-1">
@@ -175,7 +183,8 @@ export default function PrivacyConsent() {
                 <li>Device and browser information</li>
               </ul>
               <p className="text-xs">
-                All data is anonymized and cannot be traced back to you personally.
+                All data is anonymized and cannot be traced back to you
+                personally.
               </p>
             </div>
           </CardContent>
@@ -200,13 +209,15 @@ export default function PrivacyConsent() {
               <Switch
                 id="marketing"
                 checked={settings.marketing}
-                onCheckedChange={(value) => handleSettingChange('marketing', value)}
+                onCheckedChange={(value) =>
+                  handleSettingChange("marketing", value)
+                }
                 disabled={saving}
               />
             </div>
-            
+
             <Separator />
-            
+
             <div className="space-y-2 text-sm text-muted-foreground">
               <p>When enabled, you may receive:</p>
               <ul className="list-disc list-inside space-y-1">
@@ -233,7 +244,9 @@ export default function PrivacyConsent() {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <Label htmlFor="data_processing">Essential Data Processing</Label>
+                <Label htmlFor="data_processing">
+                  Essential Data Processing
+                </Label>
                 <p className="text-sm text-muted-foreground">
                   Required for core platform functionality
                 </p>
@@ -241,13 +254,15 @@ export default function PrivacyConsent() {
               <Switch
                 id="data_processing"
                 checked={settings.data_processing}
-                onCheckedChange={(value) => handleSettingChange('data_processing', value)}
+                onCheckedChange={(value) =>
+                  handleSettingChange("data_processing", value)
+                }
                 disabled={saving}
               />
             </div>
-            
+
             <Separator />
-            
+
             <div className="space-y-2 text-sm text-muted-foreground">
               <p>This includes:</p>
               <ul className="list-disc list-inside space-y-1">
@@ -282,7 +297,7 @@ export default function PrivacyConsent() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-2">
                 <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
                 <div>
@@ -292,7 +307,7 @@ export default function PrivacyConsent() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-2">
                 <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
                 <div>
@@ -303,9 +318,9 @@ export default function PrivacyConsent() {
                 </div>
               </div>
             </div>
-            
+
             <Separator />
-            
+
             <div className="space-y-2 text-sm">
               <p className="font-medium">Your Rights:</p>
               <ul className="list-disc list-inside space-y-1 text-muted-foreground">
@@ -316,7 +331,7 @@ export default function PrivacyConsent() {
                 <li>Withdraw consent at any time</li>
               </ul>
             </div>
-            
+
             <Button variant="outline" className="w-full">
               <Eye className="h-4 w-4 mr-2" />
               View Privacy Policy
@@ -328,11 +343,11 @@ export default function PrivacyConsent() {
       {saving && (
         <div className="fixed bottom-4 right-4 bg-primary text-white px-4 py-2 rounded-lg shadow-lg">
           <div className="flex items-center gap-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
             <span>Saving settings...</span>
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -2,16 +2,16 @@
 
 /**
  * SLO (Service Level Objective) Checker
- * 
+ *
  * Monitors and validates SLOs for the application:
  * - API success rate (>= 99.9% 7-day)
  * - p95 latency for critical endpoints (≤ 400 ms Preview, ≤ 300 ms Prod)
  * - DB error rate (< 0.1%)
  */
 
-import { createClient } from '@supabase/supabase-js';
-import * as fs from 'fs';
-import * as path from 'path';
+import { createClient } from "@supabase/supabase-js";
+import * as fs from "fs";
+import * as path from "path";
 
 interface SLOConfig {
   apiSuccessRateThreshold: number; // 0.999 = 99.9%
@@ -47,7 +47,7 @@ interface SLOResult {
     latency: boolean;
     dbErrorRate: boolean;
   };
-  overallStatus: 'PASS' | 'FAIL';
+  overallStatus: "PASS" | "FAIL";
   errorBudget: {
     apiSuccessRate: number;
     latency: number;
@@ -70,16 +70,25 @@ class SLOChecker {
 
   async collectMetrics(environment: string): Promise<SLOMetrics> {
     console.log(`📊 Collecting SLO metrics for ${environment}...`);
-    
+
     const endTime = new Date();
-    const startTime = new Date(endTime.getTime() - (this.config.timeWindowDays * 24 * 60 * 60 * 1000));
+    const startTime = new Date(
+      endTime.getTime() - this.config.timeWindowDays * 24 * 60 * 60 * 1000
+    );
 
     try {
       // Collect API metrics
-      const apiMetrics = await this.collectAPIMetrics(environment, startTime, endTime);
-      
+      const apiMetrics = await this.collectAPIMetrics(
+        environment,
+        startTime,
+        endTime
+
       // Collect database metrics
-      const dbMetrics = await this.collectDatabaseMetrics(environment, startTime, endTime);
+      const dbMetrics = await this.collectDatabaseMetrics(
+        environment,
+        startTime,
+        endTime
+      );
 
       return {
         apiSuccessRate: apiMetrics.successRate,
@@ -91,17 +100,20 @@ class SLOChecker {
         totalDbQueries: dbMetrics.totalQueries,
         timeWindow: {
           start: startTime.toISOString(),
-          end: endTime.toISOString()
+          end: endTime.toISOString(),
         }
       };
-
     } catch (error) {
-      console.error('❌ Failed to collect metrics:', error);
+      console.error("❌ Failed to collect metrics:", error);
       throw error;
     }
   }
 
-  private async collectAPIMetrics(environment: string, startTime: Date, endTime: Date): Promise<{
+  private async collectAPIMetrics(
+    environment: string,
+    startTime: Date,
+    endTime: Date
+  ): Promise<{
     successRate: number;
     p95Latency: number;
     totalRequests: number;
@@ -110,17 +122,22 @@ class SLOChecker {
     try {
       // Query API logs from Supabase
       const { data: logs, error } = await this.supabase
-        .from('api_logs')
-        .select('*')
-        .eq('environment', environment)
-        .gte('timestamp', startTime.toISOString())
-        .lte('timestamp', endTime.toISOString());
+        .from("api_logs")
+        .select("*")
+        .eq("environment", environment)
+        .gte("timestamp", startTime.toISOString())
+        .lte("timestamp", endTime.toISOString());
 
-      if (error) throw error;
+      if (error) {throw error;}
 
       const totalRequests = logs.length;
-      const failedRequests = logs.filter((log: any) => log.status_code >= 400).length;
-      const successRate = totalRequests > 0 ? (totalRequests - failedRequests) / totalRequests : 1;
+      const failedRequests = logs.filter(
+        (log: any) => log.status_code >= 400
+      ).length;
+      const successRate =
+        totalRequests > 0
+          ? (totalRequests - failedRequests) / totalRequests
+          : 1;
 
       // Calculate p95 latency
       const latencies = logs
@@ -135,21 +152,24 @@ class SLOChecker {
         successRate,
         p95Latency,
         totalRequests,
-        failedRequests
+        failedRequests,
       };
-
     } catch (error) {
-      console.warn('Could not collect API metrics, using fallback values');
+      console.warn("Could not collect API metrics, using fallback values");
       return {
         successRate: 0.999, // Assume good performance
         p95Latency: 200,
         totalRequests: 1000,
-        failedRequests: 1
+        failedRequests: 1,
       };
     }
   }
 
-  private async collectDatabaseMetrics(environment: string, startTime: Date, endTime: Date): Promise<{
+  private async collectDatabaseMetrics(
+    environment: string,
+    startTime: Date,
+    endTime: Date
+  ): Promise<{
     errorRate: number;
     errors: number;
     totalQueries: number;
@@ -157,67 +177,103 @@ class SLOChecker {
     try {
       // Query database logs
       const { data: dbLogs, error } = await this.supabase
-        .from('db_logs')
-        .select('*')
-        .eq('environment', environment)
-        .gte('timestamp', startTime.toISOString())
-        .lte('timestamp', endTime.toISOString());
+        .from("db_logs")
+        .select("*")
+        .eq("environment", environment)
+        .gte("timestamp", startTime.toISOString())
+        .lte("timestamp", endTime.toISOString());
 
-      if (error) throw error;
+      if (error) {throw error;}
 
       const totalQueries = dbLogs.length;
-      const errors = dbLogs.filter((log: any) => log.error_message != null).length;
+      const errors = dbLogs.filter(
+        (log: any) => log.error_message != null
+      ).length;
       const errorRate = totalQueries > 0 ? errors / totalQueries : 0;
 
       return {
         errorRate,
         errors,
-        totalQueries
+        totalQueries,
       };
-
     } catch (error) {
-      console.warn('Could not collect database metrics, using fallback values');
+      console.warn("Could not collect database metrics, using fallback values");
       return {
         errorRate: 0.0001, // Assume very low error rate
         errors: 1,
-        totalQueries: 10000
+        totalQueries: 10000,
       };
     }
   }
 
   checkSLOs(metrics: SLOMetrics, environment: string): SLOResult {
     const violations = {
-      apiSuccessRate: metrics.apiSuccessRate < this.config.apiSuccessRateThreshold,
-      latency: metrics.p95Latency > this.config.latencyThresholds[environment as keyof typeof this.config.latencyThresholds],
-      dbErrorRate: metrics.dbErrorRate > this.config.dbErrorRateThreshold
+      apiSuccessRate:
+        metrics.apiSuccessRate < this.config.apiSuccessRateThreshold,
+      latency:
+        metrics.p95Latency >
+        this.config.latencyThresholds[
+          environment as keyof typeof this.config.latencyThresholds
+        ],
+      dbErrorRate: metrics.dbErrorRate > this.config.dbErrorRateThreshold,
     };
 
-    const overallStatus = Object.values(violations).some(v => v) ? 'FAIL' : 'PASS';
+    const overallStatus = Object.values(violations).some((v) => v)
+      ? "FAIL"
+      : "PASS";
 
     // Calculate error budget
     const errorBudget = {
-      apiSuccessRate: Math.max(0, metrics.apiSuccessRate - this.config.apiSuccessRateThreshold),
-      latency: Math.max(0, this.config.latencyThresholds[environment as keyof typeof this.config.latencyThresholds] - metrics.p95Latency),
-      dbErrorRate: Math.max(0, this.config.dbErrorRateThreshold - metrics.dbErrorRate)
+      apiSuccessRate: Math.max(
+        0,
+        metrics.apiSuccessRate - this.config.apiSuccessRateThreshold
+      ),
+      latency: Math.max(
+        0,
+        this.config.latencyThresholds[
+          environment as keyof typeof this.config.latencyThresholds
+        ] - metrics.p95Latency
+      ),
+      dbErrorRate: Math.max(
+        0,
+        this.config.dbErrorRateThreshold - metrics.dbErrorRate
+      ),
     };
 
     // Generate recommendations
     const recommendations: string[] = [];
-    
+
     if (violations.apiSuccessRate) {
-      recommendations.push(`API success rate ${(metrics.apiSuccessRate * 100).toFixed(2)}% is below threshold ${(this.config.apiSuccessRateThreshold * 100).toFixed(2)}%`);
-    }
-    
-    if (violations.latency) {
-      recommendations.push(`p95 latency ${metrics.p95Latency}ms exceeds threshold ${this.config.latencyThresholds[environment as keyof typeof this.config.latencyThresholds]}ms`);
-    }
-    
-    if (violations.dbErrorRate) {
-      recommendations.push(`DB error rate ${(metrics.dbErrorRate * 100).toFixed(3)}% exceeds threshold ${(this.config.dbErrorRateThreshold * 100).toFixed(3)}%`);
+      recommendations.push(
+        `API success rate ${(metrics.apiSuccessRate * 100).toFixed(
+          2
+        )}% is below threshold ${(
+          this.config.apiSuccessRateThreshold * 100
+        ).toFixed(2)}%`
+      );
     }
 
-    if (overallStatus === 'PASS') {
-      recommendations.push('All SLOs are within acceptable limits');
+    if (violations.latency) {
+      recommendations.push(
+        `p95 latency ${metrics.p95Latency}ms exceeds threshold ${
+          this.config.latencyThresholds[
+            environment as keyof typeof this.config.latencyThresholds
+          ]
+        }ms`
+      );
+
+    if (violations.dbErrorRate) {
+      recommendations.push(
+        `DB error rate ${(metrics.dbErrorRate * 100).toFixed(
+          3
+        )}% exceeds threshold ${(
+          this.config.dbErrorRateThreshold * 100
+        ).toFixed(3)}%`
+      );
+    }
+
+    if (overallStatus === "PASS") {
+      recommendations.push("All SLOs are within acceptable limits");
     }
 
     return {
@@ -227,30 +283,32 @@ class SLOChecker {
       violations,
       overallStatus,
       errorBudget,
-      recommendations
+      recommendations,
     };
   }
 
   async saveSLOReport(result: SLOResult): Promise<void> {
-    const reportPath = path.join('./reports/slo', `slo-report-${Date.now()}.json`);
-    
+    const reportPath = path.join(
+      "./reports/slo",
+      `slo-report-${Date.now()}.json`
+
     // Ensure directory exists
     fs.mkdirSync(path.dirname(reportPath), { recursive: true });
-    
+
     // Save JSON report
     fs.writeFileSync(reportPath, JSON.stringify(result, null, 2));
-    
+
     // Generate markdown report
     const markdownReport = this.generateMarkdownReport(result);
-    const markdownPath = reportPath.replace('.json', '.md');
+    const markdownPath = reportPath.replace(".json", ".md");
     fs.writeFileSync(markdownPath, markdownReport);
-    
+
     console.log(`📄 SLO report saved to: ${reportPath}`);
   }
 
   private generateMarkdownReport(result: SLOResult): string {
-    const statusEmoji = result.overallStatus === 'PASS' ? '✅' : '❌';
-    
+    const statusEmoji = result.overallStatus === "PASS" ? "✅" : "❌";
+
     return `# SLO Report
 
 **Generated**: ${result.timestamp}
@@ -261,9 +319,17 @@ class SLOChecker {
 
 | Metric | Value | Threshold | Status |
 |--------|-------|-----------|--------|
-| API Success Rate | ${(result.metrics.apiSuccessRate * 100).toFixed(2)}% | ${(this.config.apiSuccessRateThreshold * 100).toFixed(2)}% | ${result.violations.apiSuccessRate ? '❌' : '✅'} |
-| p95 Latency | ${result.metrics.p95Latency}ms | ${this.config.latencyThresholds[result.environment as keyof typeof this.config.latencyThresholds]}ms | ${result.violations.latency ? '❌' : '✅'} |
-| DB Error Rate | ${(result.metrics.dbErrorRate * 100).toFixed(3)}% | ${(this.config.dbErrorRateThreshold * 100).toFixed(3)}% | ${result.violations.dbErrorRate ? '❌' : '✅'} |
+| API Success Rate | ${(result.metrics.apiSuccessRate * 100).toFixed(2)}% | ${(
+      this.config.apiSuccessRateThreshold * 100
+    ).toFixed(2)}% | ${result.violations.apiSuccessRate ? "❌" : "✅"} |
+| p95 Latency | ${result.metrics.p95Latency}ms | ${
+      this.config.latencyThresholds[
+        result.environment as keyof typeof this.config.latencyThresholds
+      ]
+    }ms | ${result.violations.latency ? "❌" : "✅"} |
+| DB Error Rate | ${(result.metrics.dbErrorRate * 100).toFixed(3)}% | ${(
+      this.config.dbErrorRateThreshold * 100
+    ).toFixed(3)}% | ${result.violations.dbErrorRate ? "❌" : "✅"} |
 
 ## Detailed Metrics
 
@@ -271,7 +337,9 @@ class SLOChecker {
 - **Failed Requests**: ${result.metrics.failedRequests.toLocaleString()}
 - **DB Errors**: ${result.metrics.dbErrors.toLocaleString()}
 - **Total DB Queries**: ${result.metrics.totalDbQueries.toLocaleString()}
-- **Time Window**: ${result.metrics.timeWindow.start} to ${result.metrics.timeWindow.end}
+- **Time Window**: ${result.metrics.timeWindow.start} to ${
+      result.metrics.timeWindow.end
+    }
 
 ## Error Budget
 
@@ -281,7 +349,7 @@ class SLOChecker {
 
 ## Recommendations
 
-${result.recommendations.map(rec => `- ${rec}`).join('\n')}
+${result.recommendations.map((rec) => `- ${rec}`).join("\n")}
 
 ## Next Steps
 
@@ -294,19 +362,19 @@ ${result.recommendations.map(rec => `- ${rec}`).join('\n')}
 
   async runSLOCheck(environment: string): Promise<SLOResult> {
     console.log(`🚀 Starting SLO check for ${environment}`);
-    
+
     try {
       const metrics = await this.collectMetrics(environment);
       const result = this.checkSLOs(metrics, environment);
-      
-      await this.saveSLOReport(result);
-      
-      console.log(`🎉 SLO check completed with status: ${result.overallStatus}`);
-      
-      return result;
 
+      await this.saveSLOReport(result);
+
+      console.log(
+        `🎉 SLO check completed with status: ${result.overallStatus}`
+
+      return result;
     } catch (error) {
-      console.error('❌ SLO check failed:', error);
+      console.error("❌ SLO check failed:", error);
       throw error;
     }
   }
@@ -318,19 +386,19 @@ if (require.main === module) {
     apiSuccessRateThreshold: 0.999, // 99.9%
     latencyThresholds: {
       preview: 400, // ms
-      production: 300 // ms
+      production: 300, // ms
     },
     dbErrorRateThreshold: 0.001, // 0.1%
     timeWindowDays: 7,
     criticalEndpoints: [
-      '/api/health',
-      '/api/mortgage/calculate',
-      '/api/rates/search',
-      '/api/application/submit'
-    ]
+      "/api/health",
+      "/api/mortgage/calculate",
+      "/api/rates/search",
+      "/api/application/submit",
+    ],
   };
 
-  const environment = process.env.NODE_ENV || 'preview';
+  const environment = process.env.NODE_ENV || "preview";
   const checker = new SLOChecker(config);
   checker.runSLOCheck(environment).catch(console.error);
 }

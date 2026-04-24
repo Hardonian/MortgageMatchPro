@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   StyleSheet,
@@ -6,50 +6,52 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
-} from 'react-native';
-import { Text, TextInput, Button, Card, Divider } from 'react-native-paper';
-import { useTheme } from '../../contexts/ThemeContext';
-import { useI18n } from '../../contexts/I18nContext';
-import { useAuth } from '../../contexts/AuthContext';
-import { spacing } from '../../constants/theme';
+} from "react-native";
+import { Text, TextInput, Button, Card, Divider } from "react-native-paper";
+import { useTheme } from "../../contexts/ThemeContext";
+import { useI18n } from "../../contexts/I18nContext";
+import { useAuth } from "../../contexts/AuthContext";
+import { spacing } from "../../constants/theme";
 
 export const LoginScreen: React.FC = () => {
   const { theme } = useTheme();
   const { t } = useI18n();
   const { login, isLoading } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert("Error", "Please fill in all fields");
       return;
     }
 
     try {
       await login(email, password);
     } catch (error) {
-      Alert.alert('Login Failed', error.message);
+      Alert.alert("Login Failed", error.message);
     }
   };
 
   const handleDemoLogin = () => {
-    setEmail('demo@mortgagematchpro.com');
-    setPassword('demo123');
+    setEmail("demo@mortgagematchpro.com");
+    setPassword("demo123");
   };
 
   return (
     <KeyboardAvoidingView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <Text style={[styles.title, { color: theme.colors.onBackground }]}>
             Welcome Back
           </Text>
-          <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
+          <Text
+            style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}
+          >
             Sign in to your MortgageMatch Pro account
           </Text>
         </View>
@@ -81,7 +83,7 @@ export const LoginScreen: React.FC = () => {
               autoComplete="password"
               right={
                 <TextInput.Icon
-                  icon={showPassword ? 'eye-off' : 'eye'}
+                  icon={showPassword ? "eye-off" : "eye"}
                   onPress={() => setShowPassword(!showPassword)}
                 />
               }
@@ -106,7 +108,9 @@ export const LoginScreen: React.FC = () => {
 
             <Button
               mode="text"
-              onPress={() => {/* Navigate to forgot password */}}
+              onPress={() => {
+                /* Navigate to forgot password */
+              }}
               style={styles.forgotButton}
             >
               Forgot Password?
@@ -126,12 +130,19 @@ export const LoginScreen: React.FC = () => {
         </Card>
 
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: theme.colors.onSurfaceVariant }]}>
-            Don't have an account?{' '}
+          <Text
+            style={[
+              styles.footerText,
+              { color: theme.colors.onSurfaceVariant },
+            ]}
+          >
+            Don't have an account?{" "}
           </Text>
           <Button
             mode="text"
-            onPress={() => {/* Navigate to register */}}
+            onPress={() => {
+              /* Navigate to register */
+            }}
             labelStyle={[styles.linkText, { color: theme.colors.primary }]}
           >
             Sign Up
@@ -148,21 +159,21 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: spacing.lg,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: spacing.xl,
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: spacing.sm,
   },
   subtitle: {
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   card: {
     elevation: 4,
@@ -191,15 +202,15 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   footerText: {
     fontSize: 16,
   },
   linkText: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
   },
 });

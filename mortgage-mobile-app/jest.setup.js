@@ -33,7 +33,9 @@ jest.mock('react-native-biometrics', () => ({
 
 // Mock react-native-localize
 jest.mock('react-native-localize', () => ({
-  getLocales: jest.fn(() => [{ countryCode: 'US', languageTag: 'en-US', languageCode: 'en' }]),
+  getLocales: jest.fn(() => [
+    { countryCode: 'US', languageTag: 'en-US', languageCode: 'en' },
+  ]),
   getNumberFormatSettings: jest.fn(() => ({
     decimalSeparator: '.',
     groupingSeparator: ',',

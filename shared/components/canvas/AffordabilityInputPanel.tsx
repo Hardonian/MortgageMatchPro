@@ -1,63 +1,75 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Slider } from '@/components/ui/slider'
-import { Calculator, DollarSign, Home, TrendingUp } from 'lucide-react'
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Calculator, DollarSign, Home, TrendingUp } from "lucide-react";
 
 interface AffordabilityInputPanelProps {
-  onCalculate: (data: AffordabilityInput) => void
-  loading?: boolean
+  onCalculate: (data: AffordabilityInput) => void;
+  loading?: boolean;
 }
 
 export interface AffordabilityInput {
-  country: 'CA' | 'US'
-  income: number
-  debts: number
-  downPayment: number
-  propertyPrice: number
-  interestRate: number
-  termYears: number
-  location: string
-  taxes?: number
-  insurance?: number
-  hoa?: number
+  country: "CA" | "US";
+  income: number;
+  debts: number;
+  downPayment: number;
+  propertyPrice: number;
+  interestRate: number;
+  termYears: number;
+  location: string;
+  taxes?: number;
+  insurance?: number;
+  hoa?: number;
 }
 
-export function AffordabilityInputPanel({ onCalculate, loading = false }: AffordabilityInputPanelProps) {
+export function AffordabilityInputPanel({
+  onCalculate,
+  loading = false,
+}: AffordabilityInputPanelProps) {
   const [formData, setFormData] = useState<AffordabilityInput>({
-    country: 'CA',
+    country: "CA",
     income: 75000,
     debts: 500,
     downPayment: 50000,
     propertyPrice: 500000,
     interestRate: 5.5,
     termYears: 25,
-    location: '',
+    location: "",
     taxes: 0,
     insurance: 0,
     hoa: 0,
-  })
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onCalculate(formData)
-  }
+    e.preventDefault();
+    onCalculate(formData);
+  };
 
-  const handleSliderChange = (field: keyof AffordabilityInput, value: number[]) => {
-    setFormData(prev => ({ ...prev, [field]: value[0] }))
-  }
+  const handleSliderChange = (
+    field: keyof AffordabilityInput,
+    value: number[]
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value[0] }));
+  };
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-CA', {
-      style: 'currency',
-      currency: formData.country === 'CA' ? 'CAD' : 'USD',
-    }).format(value)
-  }
+    return new Intl.NumberFormat("en-CA", {
+      style: "currency",
+      currency: formData.country === "CA" ? "CAD" : "USD",
+    }).format(value);
+  };
 
   return (
     <Card className="w-full max-w-4xl mx-auto border-gray-200 shadow-sm">
@@ -67,7 +79,8 @@ export function AffordabilityInputPanel({ onCalculate, loading = false }: Afford
           Mortgage Affordability Calculator
         </CardTitle>
         <p className="text-sm text-gray-600 mt-2">
-          Calculate how much you can afford based on your income and financial situation
+          Calculate how much you can afford based on your income and financial
+          situation
         </p>
       </CardHeader>
       <CardContent className="pt-0">
@@ -77,7 +90,9 @@ export function AffordabilityInputPanel({ onCalculate, loading = false }: Afford
             <Label htmlFor="country">Country</Label>
             <Select
               value={formData.country}
-              onValueChange={(value: 'CA' | 'US') => setFormData(prev => ({ ...prev, country: value }))}
+              onValueChange={(value: "CA" | "US") =>
+                setFormData((prev) => ({ ...prev, country: value }))
+              }
             >
               <SelectTrigger>
                 <SelectValue />
@@ -95,7 +110,9 @@ export function AffordabilityInputPanel({ onCalculate, loading = false }: Afford
             <Input
               id="location"
               value={formData.location}
-              onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, location: e.target.value }))
+              }
               placeholder="e.g., Ontario, California"
               required
             />
@@ -107,7 +124,7 @@ export function AffordabilityInputPanel({ onCalculate, loading = false }: Afford
             <div className="space-y-2">
               <Slider
                 value={[formData.income]}
-                onValueChange={(value) => handleSliderChange('income', value)}
+                onValueChange={(value) => handleSliderChange("income", value)}
                 min={30000}
                 max={500000}
                 step={5000}
@@ -115,7 +132,9 @@ export function AffordabilityInputPanel({ onCalculate, loading = false }: Afford
               />
               <div className="flex justify-between text-sm text-muted-foreground">
                 <span>{formatCurrency(30000)}</span>
-                <span className="font-medium">{formatCurrency(formData.income)}</span>
+                <span className="font-medium">
+                  {formatCurrency(formData.income)}
+                </span>
                 <span>{formatCurrency(500000)}</span>
               </div>
             </div>
@@ -127,7 +146,7 @@ export function AffordabilityInputPanel({ onCalculate, loading = false }: Afford
             <div className="space-y-2">
               <Slider
                 value={[formData.debts]}
-                onValueChange={(value) => handleSliderChange('debts', value)}
+                onValueChange={(value) => handleSliderChange("debts", value)}
                 min={0}
                 max={5000}
                 step={50}
@@ -135,7 +154,9 @@ export function AffordabilityInputPanel({ onCalculate, loading = false }: Afford
               />
               <div className="flex justify-between text-sm text-muted-foreground">
                 <span>{formatCurrency(0)}</span>
-                <span className="font-medium">{formatCurrency(formData.debts)}</span>
+                <span className="font-medium">
+                  {formatCurrency(formData.debts)}
+                </span>
                 <span>{formatCurrency(5000)}</span>
               </div>
             </div>
@@ -147,7 +168,9 @@ export function AffordabilityInputPanel({ onCalculate, loading = false }: Afford
             <div className="space-y-2">
               <Slider
                 value={[formData.downPayment]}
-                onValueChange={(value) => handleSliderChange('downPayment', value)}
+                onValueChange={(value) =>
+                  handleSliderChange("downPayment", value)
+                }
                 min={0}
                 max={formData.propertyPrice}
                 step={5000}
@@ -155,7 +178,9 @@ export function AffordabilityInputPanel({ onCalculate, loading = false }: Afford
               />
               <div className="flex justify-between text-sm text-muted-foreground">
                 <span>{formatCurrency(0)}</span>
-                <span className="font-medium">{formatCurrency(formData.downPayment)}</span>
+                <span className="font-medium">
+                  {formatCurrency(formData.downPayment)}
+                </span>
                 <span>{formatCurrency(formData.propertyPrice)}</span>
               </div>
             </div>
@@ -167,7 +192,9 @@ export function AffordabilityInputPanel({ onCalculate, loading = false }: Afford
             <div className="space-y-2">
               <Slider
                 value={[formData.propertyPrice]}
-                onValueChange={(value) => handleSliderChange('propertyPrice', value)}
+                onValueChange={(value) =>
+                  handleSliderChange("propertyPrice", value)
+                }
                 min={100000}
                 max={2000000}
                 step={10000}
@@ -175,7 +202,9 @@ export function AffordabilityInputPanel({ onCalculate, loading = false }: Afford
               />
               <div className="flex justify-between text-sm text-muted-foreground">
                 <span>{formatCurrency(100000)}</span>
-                <span className="font-medium">{formatCurrency(formData.propertyPrice)}</span>
+                <span className="font-medium">
+                  {formatCurrency(formData.propertyPrice)}
+                </span>
                 <span>{formatCurrency(2000000)}</span>
               </div>
             </div>
@@ -187,7 +216,9 @@ export function AffordabilityInputPanel({ onCalculate, loading = false }: Afford
             <div className="space-y-2">
               <Slider
                 value={[formData.interestRate]}
-                onValueChange={(value) => handleSliderChange('interestRate', value)}
+                onValueChange={(value) =>
+                  handleSliderChange("interestRate", value)
+                }
                 min={1}
                 max={10}
                 step={0.1}
@@ -206,7 +237,9 @@ export function AffordabilityInputPanel({ onCalculate, loading = false }: Afford
             <Label htmlFor="termYears">Amortization Period (Years)</Label>
             <Select
               value={formData.termYears.toString()}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, termYears: parseInt(value) }))}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, termYears: parseInt(value) }))
+              }
             >
               <SelectTrigger>
                 <SelectValue />
@@ -228,7 +261,12 @@ export function AffordabilityInputPanel({ onCalculate, loading = false }: Afford
                 id="taxes"
                 type="number"
                 value={formData.taxes || 0}
-                onChange={(e) => setFormData(prev => ({ ...prev, taxes: parseFloat(e.target.value) || 0 }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    taxes: parseFloat(e.target.value) || 0,
+                  }))
+                }
                 placeholder="0"
               />
             </div>
@@ -238,7 +276,12 @@ export function AffordabilityInputPanel({ onCalculate, loading = false }: Afford
                 id="insurance"
                 type="number"
                 value={formData.insurance || 0}
-                onChange={(e) => setFormData(prev => ({ ...prev, insurance: parseFloat(e.target.value) || 0 }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    insurance: parseFloat(e.target.value) || 0,
+                  }))
+                }
                 placeholder="0"
               />
             </div>
@@ -248,15 +291,20 @@ export function AffordabilityInputPanel({ onCalculate, loading = false }: Afford
                 id="hoa"
                 type="number"
                 value={formData.hoa || 0}
-                onChange={(e) => setFormData(prev => ({ ...prev, hoa: parseFloat(e.target.value) || 0 }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    hoa: parseFloat(e.target.value) || 0,
+                  }))
+                }
                 placeholder="0"
               />
             </div>
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-150" 
+          <Button
+            type="submit"
+            className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-150"
             disabled={loading}
           >
             {loading ? (
@@ -274,5 +322,5 @@ export function AffordabilityInputPanel({ onCalculate, loading = false }: Afford
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

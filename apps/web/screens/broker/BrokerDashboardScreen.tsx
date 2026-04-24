@@ -1,26 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
   ScrollView,
   RefreshControl,
   Dimensions,
-} from 'react-native';
-import { Text, Card, FAB, useTheme } from 'react-native-paper';
-import { PieChart, BarChart } from 'react-native-chart-kit';
-import { useAuth } from '../../contexts/AuthContext';
-import { useI18n } from '../../contexts/I18nContext';
-import { mortgageService } from '../../services/mortgageService';
-import { DashboardMetrics, Lead, CommissionReport } from '../../types';
-import { spacing, shadows } from '../../constants/theme';
-import { BrokerMetricsCard } from '../../components/broker/BrokerMetricsCard';
-import { LeadStatusChart } from '../../components/broker/LeadStatusChart';
-import { RecentLeadsTable } from '../../components/broker/RecentLeadsTable';
-import { CommissionSummaryCard } from '../../components/broker/CommissionSummaryCard';
-import { PerformanceChart } from '../../components/broker/PerformanceChart';
+} from "react-native";
+import { Text, Card, FAB, useTheme } from "react-native-paper";
+import { PieChart, BarChart } from "react-native-chart-kit";
+import { useAuth } from "../../contexts/AuthContext";
+import { useI18n } from "../../contexts/I18nContext";
+import { mortgageService } from "../../services/mortgageService";
+import { DashboardMetrics, Lead, CommissionReport } from "../../types";
+import { spacing, shadows } from "../../constants/theme";
+import { BrokerMetricsCard } from "../../components/broker/BrokerMetricsCard";
+import { LeadStatusChart } from "../../components/broker/LeadStatusChart";
+import { RecentLeadsTable } from "../../components/broker/RecentLeadsTable";
+import { CommissionSummaryCard } from "../../components/broker/CommissionSummaryCard";
+import { PerformanceChart } from "../../components/broker/PerformanceChart";
 
-const { width } = Dimensions.get('window');
-const chartWidth = width - (spacing.lg * 2);
+const { width } = Dimensions.get("window");
+const chartWidth = width - spacing.lg * 2;
 
 export const BrokerDashboardScreen: React.FC = () => {
   const { theme } = useTheme();
@@ -44,12 +44,12 @@ export const BrokerDashboardScreen: React.FC = () => {
         mortgageService.getLeads(),
         mortgageService.getCommissions(),
       ]);
-      
+
       setMetrics(metricsData);
       setRecentLeads(leadsData.slice(0, 10));
       setCommissions(commissionsData);
     } catch (error) {
-      console.error('Error loading broker data:', error);
+      console.error("Error loading broker data:", error);
     } finally {
       setLoading(false);
     }
@@ -75,14 +75,18 @@ export const BrokerDashboardScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <View
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
         <Text>Loading broker dashboard...</Text>
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <ScrollView
         style={styles.scrollView}
         refreshControl={
@@ -95,8 +99,10 @@ export const BrokerDashboardScreen: React.FC = () => {
           <Text style={[styles.title, { color: theme.colors.onBackground }]}>
             Broker Dashboard
           </Text>
-          <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
-            Welcome back, {user?.firstName || 'Broker'}
+          <Text
+            style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}
+          >
+            Welcome back, {user?.firstName || "Broker"}
           </Text>
         </View>
 
@@ -135,9 +141,13 @@ export const BrokerDashboardScreen: React.FC = () => {
         )}
 
         {/* Performance Chart */}
-        <Card style={[styles.chartCard, { backgroundColor: theme.colors.surface }]}>
+        <Card
+          style={[styles.chartCard, { backgroundColor: theme.colors.surface }]}
+        >
           <Card.Content>
-            <Text style={[styles.chartTitle, { color: theme.colors.onSurface }]}>
+            <Text
+              style={[styles.chartTitle, { color: theme.colors.onSurface }]}
+            >
               Monthly Performance
             </Text>
             <PerformanceChart data={metrics?.monthlyTrends || []} />
@@ -145,9 +155,13 @@ export const BrokerDashboardScreen: React.FC = () => {
         </Card>
 
         {/* Lead Status Distribution */}
-        <Card style={[styles.chartCard, { backgroundColor: theme.colors.surface }]}>
+        <Card
+          style={[styles.chartCard, { backgroundColor: theme.colors.surface }]}
+        >
           <Card.Content>
-            <Text style={[styles.chartTitle, { color: theme.colors.onSurface }]}>
+            <Text
+              style={[styles.chartTitle, { color: theme.colors.onSurface }]}
+            >
               Lead Status Distribution
             </Text>
             <LeadStatusChart leads={recentLeads} />
@@ -158,9 +172,13 @@ export const BrokerDashboardScreen: React.FC = () => {
         <CommissionSummaryCard commissions={commissions} />
 
         {/* Recent Leads Table */}
-        <Card style={[styles.tableCard, { backgroundColor: theme.colors.surface }]}>
+        <Card
+          style={[styles.tableCard, { backgroundColor: theme.colors.surface }]}
+        >
           <Card.Content>
-            <Text style={[styles.chartTitle, { color: theme.colors.onSurface }]}>
+            <Text
+              style={[styles.chartTitle, { color: theme.colors.onSurface }]}
+            >
               Recent Leads
             </Text>
             <RecentLeadsTable leads={recentLeads} />
@@ -174,7 +192,9 @@ export const BrokerDashboardScreen: React.FC = () => {
       <FAB
         icon="plus"
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={() => {/* Navigate to create lead */}}
+        onPress={() => {
+          /* Navigate to create lead */
+        }}
       />
     </View>
   );
@@ -193,15 +213,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: spacing.xs,
   },
   subtitle: {
     fontSize: 16,
   },
   metricsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     paddingHorizontal: spacing.lg,
     marginBottom: spacing.lg,
   },
@@ -217,14 +237,14 @@ const styles = StyleSheet.create({
   },
   chartTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: spacing.md,
   },
   bottomSpacing: {
     height: 100,
   },
   fab: {
-    position: 'absolute',
+    position: "absolute",
     margin: 16,
     right: 0,
     bottom: 0,

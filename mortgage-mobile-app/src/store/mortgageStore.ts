@@ -62,7 +62,7 @@ export const useMortgageStore = create<MortgageState>()(
       calculateMortgage: () => {
         const { mortgageData } = get();
         const { loanAmount, interestRate, loanTerm } = mortgageData;
-        
+
         if (loanAmount <= 0 || interestRate <= 0 || loanTerm <= 0) {
           set({ calculations: null });
           return;
@@ -70,9 +70,10 @@ export const useMortgageStore = create<MortgageState>()(
 
         const monthlyRate = interestRate / 100 / 12;
         const numPayments = loanTerm * 12;
-        const monthlyPayment = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
+        const monthlyPayment =
+          (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) /
           (Math.pow(1 + monthlyRate, numPayments) - 1);
-        
+
         const totalPayment = monthlyPayment * numPayments;
         const totalInterest = totalPayment - loanAmount;
 

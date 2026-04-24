@@ -24,7 +24,7 @@ const colors = {
     yellow: '\x1b[33m',
     blue: '\x1b[34m',
     magenta: '\x1b[35m',
-    cyan: '\x1b[36m'
+    cyan: '\x1b[36m',
 };
 
 function log(message, color = 'reset') {
@@ -54,14 +54,14 @@ function logInfo(message) {
 // Check prerequisites
 function checkPrerequisites() {
     logStep(1, 'Checking Prerequisites');
-    
+
     const requiredEnvVars = [
         'SUPABASE_URL',
-        'SUPABASE_SERVICE_KEY'
+        'SUPABASE_SERVICE_KEY',
     ];
-    
+
     const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-    
+
     if (missingVars.length > 0) {
         logError(`Missing required environment variables: ${missingVars.join(', ')}`);
         logInfo('Please set the following environment variables:');
@@ -70,7 +70,7 @@ function checkPrerequisites() {
         });
         process.exit(1);
     }
-    
+
     // Check if Supabase CLI is installed
     try {
         execSync('supabase --version', { stdio: 'pipe' });
@@ -80,42 +80,42 @@ function checkPrerequisites() {
         logInfo('npm install -g supabase');
         process.exit(1);
     }
-    
+
     // Check if we're in a Supabase project
     if (!fs.existsSync('supabase/config.toml')) {
         logError('Not in a Supabase project directory. Please run this from your project root.');
         process.exit(1);
     }
-    
+
     logSuccess('All prerequisites met');
 }
 
 // Deploy database migrations
 function deployMigrations() {
     logStep(2, 'Deploying Database Migrations');
-    
+
     try {
         // Check if we're linked to a remote project
         try {
             execSync('supabase status', { stdio: 'pipe' });
             logInfo('Deploying to remote Supabase project...');
-            
+
             // Deploy migrations
             execSync('supabase db push', { stdio: 'inherit' });
             logSuccess('Database migrations deployed successfully');
-            
+
         } catch (error) {
             logWarning('Not linked to remote project. Deploying locally...');
-            
+
             // Start local Supabase
             execSync('supabase start', { stdio: 'inherit' });
             logSuccess('Local Supabase started');
-            
+
             // Apply migrations locally
             execSync('supabase db reset', { stdio: 'inherit' });
             logSuccess('Local database migrations applied');
         }
-        
+
     } catch (error) {
         logError('Failed to deploy migrations:');
         console.error(error.message);
@@ -126,7 +126,7 @@ function deployMigrations() {
 // Configure security settings
 function configureSecurity() {
     logStep(3, 'Configuring Security Settings');
-    
+
     try {
         // Set encryption key in database
         const { createClient } = require('@supabase/supabase-js');
@@ -134,11 +134,11 @@ function configureSecurity() {
             process.env.SUPABASE_URL,
             process.env.SUPABASE_SERVICE_KEY
         );
-        
+
         // This would typically be done through Supabase dashboard or environment variables
         logInfo('Security settings configured through environment variables');
         logSuccess('Security configuration completed');
-        
+
     } catch (error) {
         logError('Failed to configure security settings:');
         console.error(error.message);
@@ -149,14 +149,14 @@ function configureSecurity() {
 // Set up monitoring and alerting
 function setupMonitoring() {
     logStep(4, 'Setting Up Monitoring and Alerting');
-    
+
     try {
         const { createClient } = require('@supabase/supabase-js');
         const supabase = createClient(
             process.env.SUPABASE_URL,
             process.env.SUPABASE_SERVICE_KEY
         );
-        
+
         // Create default alert definitions
         const alertDefinitions = [
             {
@@ -165,7 +165,7 @@ function setupMonitoring() {
                 metric_name: 'cpu_usage_percent',
                 threshold_warning: 70.0,
                 threshold_critical: 80.0,
-                evaluation_interval_seconds: 60
+                evaluation_interval_seconds: 60,
             },
             {
                 alert_name: 'high_memory_usage',
@@ -173,7 +173,7 @@ function setupMonitoring() {
                 metric_name: 'memory_usage_percent',
                 threshold_warning: 75.0,
                 threshold_critical: 85.0,
-                evaluation_interval_seconds: 60
+                evaluation_interval_seconds: 60,
             },
             {
                 alert_name: 'slow_response_time',
@@ -181,7 +181,7 @@ function setupMonitoring() {
                 metric_name: 'response_time_ms',
                 threshold_warning: 500.0,
                 threshold_critical: 1000.0,
-                evaluation_interval_seconds: 30
+                evaluation_interval_seconds: 30,
             },
             {
                 alert_name: 'database_size_large',
@@ -189,44 +189,44 @@ function setupMonitoring() {
                 metric_name: 'database_size_bytes',
                 threshold_warning: 800000000000, // 800GB
                 threshold_critical: 1000000000000, // 1TB
-                evaluation_interval_seconds: 3600
-            }
+                evaluation_interval_seconds: 3600,
+            },
         ];
-        
+
         // Insert alert definitions
         for (const alert of alertDefinitions) {
             const { error } = await supabase
                 .from('alert_definitions')
                 .upsert(alert, { onConflict: 'alert_name' });
-            
+
             if (error) {
                 logWarning(`Failed to create alert definition: ${alert.alert_name}`);
             } else {
                 logSuccess(`Created alert definition: ${alert.alert_name}`);
             }
         }
-        
+
         // Create default notification channel
         const notificationChannel = {
             channel_name: 'default_email',
             channel_type: 'email',
             configuration: {
-                email: process.env.ADMIN_EMAIL || 'admin@yourdomain.com'
-            }
+                email: process.env.ADMIN_EMAIL || 'admin@yourdomain.com',
+            },
         };
-        
+
         const { error: channelError } = await supabase
             .from('notification_channels')
             .upsert(notificationChannel, { onConflict: 'channel_name' });
-        
+
         if (channelError) {
             logWarning('Failed to create default notification channel');
         } else {
             logSuccess('Created default notification channel');
         }
-        
+
         logSuccess('Monitoring and alerting setup completed');
-        
+
     } catch (error) {
         logError('Failed to setup monitoring:');
         console.error(error.message);
@@ -237,14 +237,14 @@ function setupMonitoring() {
 // Set up backup configuration
 function setupBackupConfiguration() {
     logStep(5, 'Setting Up Backup Configuration');
-    
+
     try {
         const { createClient } = require('@supabase/supabase-js');
         const supabase = createClient(
             process.env.SUPABASE_URL,
             process.env.SUPABASE_SERVICE_KEY
         );
-        
+
         // Create backup configurations
         const backupConfigs = [
             {
@@ -252,49 +252,49 @@ function setupBackupConfiguration() {
                 frequency: 'daily',
                 retention_days: 30,
                 compression_enabled: true,
-                encryption_enabled: true
+                encryption_enabled: true,
             },
             {
                 backup_type: 'incremental',
                 frequency: 'hourly',
                 retention_days: 7,
                 compression_enabled: true,
-                encryption_enabled: true
-            }
+                encryption_enabled: true,
+            },
         ];
-        
+
         for (const config of backupConfigs) {
             const { error } = await supabase
                 .from('backup_configurations')
                 .upsert(config, { onConflict: 'backup_type' });
-            
+
             if (error) {
                 logWarning(`Failed to create backup configuration: ${config.backup_type}`);
             } else {
                 logSuccess(`Created backup configuration: ${config.backup_type}`);
             }
         }
-        
+
         // Create disaster recovery plan
         const disasterRecoveryPlan = {
             plan_name: 'default_recovery_plan',
             description: 'Default disaster recovery plan for 99.99% uptime',
             rto_minutes: 15, // 15 minutes Recovery Time Objective
-            rpo_minutes: 5   // 5 minutes Recovery Point Objective
+            rpo_minutes: 5,   // 5 minutes Recovery Point Objective
         };
-        
+
         const { error: drError } = await supabase
             .from('disaster_recovery_plans')
             .upsert(disasterRecoveryPlan, { onConflict: 'plan_name' });
-        
+
         if (drError) {
             logWarning('Failed to create disaster recovery plan');
         } else {
             logSuccess('Created disaster recovery plan');
         }
-        
+
         logSuccess('Backup configuration setup completed');
-        
+
     } catch (error) {
         logError('Failed to setup backup configuration:');
         console.error(error.message);
@@ -305,11 +305,11 @@ function setupBackupConfiguration() {
 // Test the deployment
 function testDeployment() {
     logStep(6, 'Testing Deployment');
-    
+
     try {
         // Run the comprehensive test suite
         const testScript = path.join(__dirname, 'test-supabase-security-and-reliability.js');
-        
+
         if (fs.existsSync(testScript)) {
             logInfo('Running comprehensive test suite...');
             execSync(`node ${testScript}`, { stdio: 'inherit' });
@@ -317,7 +317,7 @@ function testDeployment() {
         } else {
             logWarning('Test script not found, skipping tests');
         }
-        
+
     } catch (error) {
         logError('Tests failed:');
         console.error(error.message);
@@ -328,12 +328,12 @@ function testDeployment() {
 // Generate deployment report
 function generateDeploymentReport() {
     logStep(7, 'Generating Deployment Report');
-    
+
     const report = {
         deployment: {
             timestamp: new Date().toISOString(),
             project_id: SUPABASE_PROJECT_ID,
-            version: '1.0.0'
+            version: '1.0.0',
         },
         features: {
             function_search_path_security: 'enabled',
@@ -341,34 +341,34 @@ function generateDeploymentReport() {
             data_persistence: 'configured',
             backup_strategy: 'configured',
             monitoring_alerting: 'configured',
-            disaster_recovery: 'configured'
+            disaster_recovery: 'configured',
         },
         security: {
             rls_policies: 'enabled',
             function_security: 'hardened',
             encryption: 'enabled',
-            audit_logging: 'enabled'
+            audit_logging: 'enabled',
         },
         monitoring: {
             system_metrics: 'enabled',
             alert_definitions: 'configured',
             notification_channels: 'configured',
-            uptime_monitoring: 'enabled'
+            uptime_monitoring: 'enabled',
         },
         backup: {
             full_backups: 'daily',
             incremental_backups: 'hourly',
             retention_period: '30_days',
             encryption: 'enabled',
-            compression: 'enabled'
-        }
+            compression: 'enabled',
+        },
     };
-    
+
     const reportPath = path.join(__dirname, '..', 'deployment-report.json');
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
-    
+
     logSuccess(`Deployment report saved to: ${reportPath}`);
-    
+
     // Display summary
     log('\n📋 Deployment Summary:', 'bright');
     log('✅ Function search path security hardened', 'green');
@@ -377,7 +377,7 @@ function generateDeploymentReport() {
     log('✅ Monitoring and alerting system deployed', 'green');
     log('✅ Disaster recovery plan configured', 'green');
     log('✅ Security audit and compliance features enabled', 'green');
-    
+
     log('\n🎯 Target Uptime: 99.99%', 'bright');
     log('🛡️  Security Level: Enterprise', 'bright');
     log('📊 Monitoring: Real-time', 'bright');
@@ -389,7 +389,7 @@ async function deploy() {
     try {
         log('🚀 Starting Secure Supabase Deployment', 'bright');
         log('=====================================', 'bright');
-        
+
         checkPrerequisites();
         await deployMigrations();
         configureSecurity();
@@ -397,10 +397,10 @@ async function deploy() {
         await setupBackupConfiguration();
         testDeployment();
         generateDeploymentReport();
-        
+
         log('\n🎉 Deployment completed successfully!', 'green');
         log('Your Supabase instance is now secure and optimized for 99.99% uptime.', 'green');
-        
+
     } catch (error) {
         logError('Deployment failed:');
         console.error(error);
@@ -421,5 +421,5 @@ module.exports = {
     setupMonitoring,
     setupBackupConfiguration,
     testDeployment,
-    generateDeploymentReport
+    generateDeploymentReport,
 };

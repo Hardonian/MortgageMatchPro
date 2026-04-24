@@ -11,7 +11,7 @@ export interface BillingSubscriptionCreatedEvent {
   pricing: {
     amount: number;
     currency: string;
-    interval: 'monthly' | 'yearly';
+    interval: "monthly" | "yearly";
     trialEndsAt?: string;
   };
   customer: {
@@ -31,9 +31,9 @@ export interface BillingSubscriptionUpdatedEvent {
     pricing?: {
       amount: number;
       currency: string;
-      interval: 'monthly' | 'yearly';
+      interval: "monthly" | "yearly";
     };
-    status?: 'active' | 'cancelled' | 'past_due' | 'unpaid';
+    status?: "active" | "cancelled" | "past_due" | "unpaid";
   };
   previousState: any;
   timestamp: string;
@@ -42,7 +42,7 @@ export interface BillingSubscriptionUpdatedEvent {
 export interface BillingSubscriptionCancelledEvent {
   subscriptionId: string;
   tenantId: string;
-  reason: 'user_request' | 'payment_failed' | 'admin_action' | 'trial_ended';
+  reason: "user_request" | "payment_failed" | "admin_action" | "trial_ended";
   cancellationDate: string;
   effectiveDate: string;
   refundAmount?: number;
@@ -107,7 +107,7 @@ export interface BillingInvoiceGeneratedEvent {
     total: number;
   }>;
   dueDate: string;
-  status: 'draft' | 'open' | 'paid' | 'void';
+  status: "draft" | "open" | "paid" | "void";
   timestamp: string;
 }
 
@@ -128,8 +128,8 @@ export interface BillingRefundProcessedEvent {
   tenantId: string;
   amount: number;
   currency: string;
-  reason: 'requested_by_customer' | 'duplicate' | 'fraudulent' | 'other';
-  status: 'succeeded' | 'pending' | 'failed';
+  reason: "requested_by_customer" | "duplicate" | "fraudulent" | "other";
+  status: "succeeded" | "pending" | "failed";
   timestamp: string;
 }
 
@@ -148,24 +148,25 @@ export interface BillingQuotaExceededEvent {
   metric: string;
   currentUsage: number;
   quota: number;
-  period: 'daily' | 'monthly';
-  action: 'throttle' | 'block' | 'notify';
+  period: "daily" | "monthly";
+  action: "throttle" | "block" | "notify";
   timestamp: string;
 }
 
 // Event type constants
 export const BILLING_EVENT_TYPES = {
-  SUBSCRIPTION_CREATED: 'billing.subscription.created',
-  SUBSCRIPTION_UPDATED: 'billing.subscription.updated',
-  SUBSCRIPTION_CANCELLED: 'billing.subscription.cancelled',
-  PAYMENT_SUCCEEDED: 'billing.payment.succeeded',
-  PAYMENT_FAILED: 'billing.payment.failed',
-  USAGE_RECORDED: 'billing.usage.recorded',
-  INVOICE_GENERATED: 'billing.invoice.generated',
-  INVOICE_PAID: 'billing.invoice.paid',
-  REFUND_PROCESSED: 'billing.refund.processed',
-  TRIAL_ENDING: 'billing.trial.ending',
-  QUOTA_EXCEEDED: 'billing.quota.exceeded',
+  SUBSCRIPTION_CREATED: "billing.subscription.created",
+  SUBSCRIPTION_UPDATED: "billing.subscription.updated",
+  SUBSCRIPTION_CANCELLED: "billing.subscription.cancelled",
+  PAYMENT_SUCCEEDED: "billing.payment.succeeded",
+  PAYMENT_FAILED: "billing.payment.failed",
+  USAGE_RECORDED: "billing.usage.recorded",
+  INVOICE_GENERATED: "billing.invoice.generated",
+  INVOICE_PAID: "billing.invoice.paid",
+  REFUND_PROCESSED: "billing.refund.processed",
+  TRIAL_ENDING: "billing.trial.ending",
+  QUOTA_EXCEEDED: "billing.quota.exceeded",
 } as const;
 
-export type BillingEventType = typeof BILLING_EVENT_TYPES[keyof typeof BILLING_EVENT_TYPES];
+export type BillingEventType =
+  (typeof BILLING_EVENT_TYPES)[keyof typeof BILLING_EVENT_TYPES];

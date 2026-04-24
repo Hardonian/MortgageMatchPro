@@ -18,7 +18,7 @@ export interface AIScoringRequestedEvent {
     location: string;
   };
   timestamp: string;
-  priority: 'low' | 'medium' | 'high';
+  priority: "low" | "medium" | "high";
 }
 
 export interface AIScoringCompletedEvent {
@@ -72,7 +72,7 @@ export interface AIModelUpdatedEvent {
     samples: number;
     lastUpdated: string;
   };
-  deploymentStatus: 'staging' | 'production';
+  deploymentStatus: "staging" | "production";
   timestamp: string;
 }
 
@@ -80,7 +80,7 @@ export interface AICostThresholdExceededEvent {
   tenantId: string;
   currentUsage: number;
   threshold: number;
-  period: 'daily' | 'monthly';
+  period: "daily" | "monthly";
   recommendations: string[];
   timestamp: string;
 }
@@ -90,7 +90,7 @@ export interface AIExplainabilityRequestedEvent {
   userId: string;
   tenantId: string;
   scoringId: string;
-  explanationType: 'detailed' | 'summary' | 'visual';
+  explanationType: "detailed" | "summary" | "visual";
   timestamp: string;
 }
 
@@ -100,7 +100,7 @@ export interface AIExplainabilityGeneratedEvent {
   tenantId: string;
   scoringId: string;
   explanation: {
-    type: 'detailed' | 'summary' | 'visual';
+    type: "detailed" | "summary" | "visual";
     content: any;
     confidence: number;
     factors: Array<{
@@ -115,13 +115,13 @@ export interface AIExplainabilityGeneratedEvent {
 
 // Event type constants
 export const AI_EVENT_TYPES = {
-  SCORING_REQUESTED: 'ai.scoring.requested',
-  SCORING_COMPLETED: 'ai.scoring.completed',
-  SCORING_FAILED: 'ai.scoring.failed',
-  MODEL_UPDATED: 'ai.model.updated',
-  COST_THRESHOLD_EXCEEDED: 'ai.cost.threshold_exceeded',
-  EXPLAINABILITY_REQUESTED: 'ai.explainability.requested',
-  EXPLAINABILITY_GENERATED: 'ai.explainability.generated',
+  SCORING_REQUESTED: "ai.scoring.requested",
+  SCORING_COMPLETED: "ai.scoring.completed",
+  SCORING_FAILED: "ai.scoring.failed",
+  MODEL_UPDATED: "ai.model.updated",
+  COST_THRESHOLD_EXCEEDED: "ai.cost.threshold_exceeded",
+  EXPLAINABILITY_REQUESTED: "ai.explainability.requested",
+  EXPLAINABILITY_GENERATED: "ai.explainability.generated",
 } as const;
 
-export type AIEventType = typeof AI_EVENT_TYPES[keyof typeof AI_EVENT_TYPES];
+export type AIEventType = (typeof AI_EVENT_TYPES)[keyof typeof AI_EVENT_TYPES];

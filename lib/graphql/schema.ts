@@ -1,4 +1,4 @@
-import { gql } from 'graphql-yoga';
+import { gql } from "graphql-yoga";
 
 export const typeDefs = gql`
   type Query {
@@ -12,9 +12,9 @@ export const typeDefs = gql`
 
 export const resolvers = {
   Query: {
-    hello: () => 'Hello from GraphQL!',
+    hello: () => "Hello from GraphQL!",
   },
   Mutation: {
-    test: () => 'Test mutation',
+    test: () => "Test mutation",
   },
 };

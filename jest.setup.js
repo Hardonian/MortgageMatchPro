@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom';
 
 // Mock Next.js router
 jest.mock('next/router', () => ({
@@ -19,9 +19,9 @@ jest.mock('next/router', () => ({
         off: jest.fn(),
         emit: jest.fn(),
       },
-    }
+    };
   },
-}))
+}));
 
 // Mock Next.js navigation
 jest.mock('next/navigation', () => ({
@@ -33,19 +33,19 @@ jest.mock('next/navigation', () => ({
       back: jest.fn(),
       forward: jest.fn(),
       refresh: jest.fn(),
-    }
+    };
   },
   useSearchParams() {
-    return new URLSearchParams()
+    return new URLSearchParams();
   },
   usePathname() {
-    return '/'
+    return '/';
   },
-}))
+}));
 
 // Mock environment variables
-process.env.NODE_ENV = 'test'
-process.env.NEXT_PUBLIC_APP_URL = 'http://localhost:3000'
+process.env.NODE_ENV = 'test';
+process.env.NEXT_PUBLIC_APP_URL = 'http://localhost:3000';
 
 // Mock Supabase
 jest.mock('@/lib/supabase', () => ({
@@ -66,7 +66,9 @@ jest.mock('@/lib/supabase', () => ({
       })),
     })),
     auth: {
-      getUser: jest.fn(() => Promise.resolve({ data: { user: null }, error: null })),
+      getUser: jest.fn(() =>
+        Promise.resolve({ data: { user: null }, error: null })
+      ),
     },
   },
   supabaseAdmin: {
@@ -86,7 +88,7 @@ jest.mock('@/lib/supabase', () => ({
       })),
     })),
   },
-}))
+}));
 
 // Mock OpenAI
 jest.mock('openai', () => {
@@ -95,34 +97,38 @@ jest.mock('openai', () => {
     default: jest.fn(() => ({
       chat: {
         completions: {
-          create: jest.fn(() => Promise.resolve({
-            choices: [{
-              message: {
-                content: JSON.stringify({
-                  maxAffordable: 500000,
-                  monthlyPayment: 2500,
-                  gdsRatio: 30,
-                  tdsRatio: 40,
-                  dtiRatio: 35,
-                  qualifyingRate: 5.5,
-                  qualificationResult: true,
-                  breakdown: {
-                    principal: 2000,
-                    interest: 500,
-                    taxes: 300,
-                    insurance: 200,
+          create: jest.fn(() =>
+            Promise.resolve({
+              choices: [
+                {
+                  message: {
+                    content: JSON.stringify({
+                      maxAffordable: 500000,
+                      monthlyPayment: 2500,
+                      gdsRatio: 30,
+                      tdsRatio: 40,
+                      dtiRatio: 35,
+                      qualifyingRate: 5.5,
+                      qualificationResult: true,
+                      breakdown: {
+                        principal: 2000,
+                        interest: 500,
+                        taxes: 300,
+                        insurance: 200,
+                      },
+                      recommendations: ['Consider a larger down payment'],
+                      disclaimers: ['This is an estimate only'],
+                    }),
                   },
-                  recommendations: ['Consider a larger down payment'],
-                  disclaimers: ['This is an estimate only'],
-                })
-              }
-            }]
-          }))
-        }
-      }
-    }))
-  }
-})
+                },
+              ],
+            })
+          ),
+        },
+      },
+    })),
+  };
+});
 
 // Mock Redis
 jest.mock('redis', () => ({
@@ -131,50 +137,56 @@ jest.mock('redis', () => ({
     get: jest.fn(() => Promise.resolve(null)),
     setEx: jest.fn(() => Promise.resolve('OK')),
     on: jest.fn(),
-  }))
-}))
+  })),
+}));
 
 // Mock Twilio
 jest.mock('twilio', () => {
   return jest.fn(() => ({
     messages: {
-      create: jest.fn(() => Promise.resolve({ sid: 'test-sid' }))
-    }
-  }))
-})
+      create: jest.fn(() => Promise.resolve({ sid: 'test-sid' })),
+    },
+  }));
+});
 
 // Mock Stripe
 jest.mock('stripe', () => {
   return jest.fn(() => ({
     paymentIntents: {
-      create: jest.fn(() => Promise.resolve({
-        id: 'pi_test',
-        client_secret: 'pi_test_secret'
-      }))
+      create: jest.fn(() =>
+        Promise.resolve({
+          id: 'pi_test',
+          client_secret: 'pi_test_secret',
+        })
+      ),
     },
     customers: {
-      create: jest.fn(() => Promise.resolve({
-        id: 'cus_test'
-      }))
+      create: jest.fn(() =>
+        Promise.resolve({
+          id: 'cus_test',
+        })
+      ),
     },
     subscriptions: {
-      create: jest.fn(() => Promise.resolve({
-        id: 'sub_test',
-        latest_invoice: {
-          payment_intent: {
-            client_secret: 'pi_test_secret'
-          }
-        }
-      }))
+      create: jest.fn(() =>
+        Promise.resolve({
+          id: 'sub_test',
+          latest_invoice: {
+            payment_intent: {
+              client_secret: 'pi_test_secret',
+            },
+          },
+        })
+      ),
     },
     webhooks: {
       constructEvent: jest.fn(() => ({
         type: 'payment_intent.succeeded',
-        data: { object: { id: 'pi_test' } }
-      }))
-    }
-  }))
-})
+        data: { object: { id: 'pi_test' } },
+      })),
+    },
+  }));
+});
 
 // Mock PostHog
 jest.mock('posthog-js', () => ({
@@ -182,9 +194,9 @@ jest.mock('posthog-js', () => ({
   capture: jest.fn(),
   identify: jest.fn(),
   people: {
-    set: jest.fn()
-  }
-}))
+    set: jest.fn(),
+  },
+}));
 
 // Mock Sentry
 jest.mock('@sentry/nextjs', () => ({
@@ -193,27 +205,27 @@ jest.mock('@sentry/nextjs', () => ({
   captureMessage: jest.fn(),
   addBreadcrumb: jest.fn(),
   startTransaction: jest.fn(() => ({
-    finish: jest.fn()
-  }))
-}))
+    finish: jest.fn(),
+  })),
+}));
 
 // Global test utilities
 global.ResizeObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
   unobserve: jest.fn(),
   disconnect: jest.fn(),
-}))
+}));
 
 global.IntersectionObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
   unobserve: jest.fn(),
   disconnect: jest.fn(),
-}))
+}));
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -223,4 +235,4 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: jest.fn(),
     dispatchEvent: jest.fn(),
   })),
-})
+});

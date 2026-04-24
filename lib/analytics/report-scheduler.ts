@@ -1,13 +1,13 @@
-import { AnalyticsService } from './analytics-service';
-import { EventBus } from '../events/event-bus';
+import { AnalyticsService } from "./analytics-service";
+import { EventBus } from "../events/event-bus";
 
 export interface ScheduledReport {
   id: string;
   name: string;
-  type: 'daily' | 'weekly' | 'monthly';
+  type: "daily" | "weekly" | "monthly";
   tenantId?: string;
   recipients: string[];
-  format: 'csv' | 'json' | 'pdf';
+  format: "csv" | "json" | "pdf";
   enabled: boolean;
   lastRun?: Date;
   nextRun: Date;
@@ -41,7 +41,7 @@ export class ReportScheduler {
 
   private async processScheduledReports(): Promise<void> {
     const now = new Date();
-    
+
     for (const [reportId, report] of this.scheduledReports) {
       if (report.enabled && report.nextRun <= now) {
         try {
@@ -49,7 +49,10 @@ export class ReportScheduler {
           this.updateReportLastRun(reportId);
           this.scheduleNextReport(reportId);
         } catch (error) {
-          console.error(`Error processing scheduled report ${reportId}:`, error);
+          console.error(
+            `Error processing scheduled report ${reportId}:`,
+            error
+          );
         }
       }
     }
@@ -69,20 +72,24 @@ export class ReportScheduler {
       let mimeType: string;
 
       switch (report.format) {
-        case 'csv':
-          content = await this.analyticsService.exportReportToCSV(analyticsReport.id);
+        case "csv":
+          content = await this.analyticsService.exportReportToCSV(
+            analyticsReport.id
+          );
           filename = `report-${analyticsReport.id}.csv`;
-          mimeType = 'text/csv';
+          mimeType = "text/csv";
           break;
-        case 'json':
-          content = await this.analyticsService.exportReportToJSON(analyticsReport.id);
+        case "json":
+          content = await this.analyticsService.exportReportToJSON(
+            analyticsReport.id
+          );
           filename = `report-${analyticsReport.id}.json`;
-          mimeType = 'application/json';
+          mimeType = "application/json";
           break;
-        case 'pdf':
+        case "pdf":
           content = await this.generatePDFReport(analyticsReport);
           filename = `report-${analyticsReport.id}.pdf`;
-          mimeType = 'application/pdf';
+          mimeType = "application/pdf";
           break;
         default:
           throw new Error(`Unsupported format: ${report.format}`);
@@ -92,15 +99,14 @@ export class ReportScheduler {
       await this.sendReportToRecipients(report, content, filename, mimeType);
 
       // Publish event
-      await this.eventBus.publish('analytics.report.generated', {
+      await this.eventBus.publish("analytics.report.generated", {
         reportId: report.id,
         analyticsReportId: analyticsReport.id,
         type: report.type,
         format: report.format,
         recipients: report.recipients,
-        generatedAt: new Date().toISOString()
+        generatedAt: new Date().toISOString(),
       });
-
     } catch (error) {
       console.error(`Error generating report for ${report.id}:`, error);
       throw error;
@@ -129,7 +135,9 @@ export class ReportScheduler {
           <div class="header">
             <h1>Analytics Report</h1>
             <p>Generated: ${analyticsReport.generatedAt}</p>
-            <p>Period: ${analyticsReport.period.start} to ${analyticsReport.period.end}</p>
+            <p>Period: ${analyticsReport.period.start} to ${
+      analyticsReport.period.end
+    }</p>
           </div>
           
           <h2>Revenue Metrics</h2>
@@ -147,7 +155,9 @@ export class ReportScheduler {
           </div>
           <div class="metric">
             <span class="metric-label">Churn Rate:</span>
-            <span class="metric-value">${(analyticsReport.metrics.revenue.churnRate * 100).toFixed(1)}%</span>
+            <span class="metric-value">${(
+              analyticsReport.metrics.revenue.churnRate * 100
+            ).toFixed(1)}%</span>
           </div>
           
           <h2>Usage Metrics</h2>
@@ -161,11 +171,15 @@ export class ReportScheduler {
           </div>
           <div class="metric">
             <span class="metric-label">Average Response Time:</span>
-            <span class="metric-value">${analyticsReport.metrics.usage.averageResponseTime}ms</span>
+            <span class="metric-value">${
+              analyticsReport.metrics.usage.averageResponseTime
+            }ms</span>
           </div>
           <div class="metric">
             <span class="metric-label">Uptime:</span>
-            <span class="metric-value">${(analyticsReport.metrics.usage.uptime * 100).toFixed(1)}%</span>
+            <span class="metric-value">${(
+              analyticsReport.metrics.usage.uptime * 100
+            ).toFixed(1)}%</span>
           </div>
           
           <h2>Tenant Metrics</h2>
@@ -180,7 +194,9 @@ export class ReportScheduler {
               </tr>
             </thead>
             <tbody>
-              ${analyticsReport.metrics.tenants.map((tenant: any) => `
+              ${analyticsReport.metrics.tenants
+                .map(
+                  (tenant: any) => `
                 <tr>
                   <td>${tenant.tenantId}</td>
                   <td>${tenant.totalUsers}</td>
@@ -188,7 +204,9 @@ export class ReportScheduler {
                   <td>$${tenant.totalRevenue.toLocaleString()}</td>
                   <td>$${tenant.monthlyRecurringRevenue.toLocaleString()}</td>
                 </tr>
-              `).join('')}
+              `
+                )
+                .join("")}
             </tbody>
           </table>
         </body>
@@ -208,20 +226,23 @@ export class ReportScheduler {
   ): Promise<void> {
     // In a real implementation, you would send emails with attachments
     // For now, we'll just log the report details
-    console.log(`Sending report ${report.id} to recipients:`, report.recipients);
+    console.log(
+      `Sending report ${report.id} to recipients:`,
+      report.recipients
+    );
     console.log(`Content length: ${content.length} bytes`);
     console.log(`Filename: ${filename}`);
     console.log(`MIME type: ${mimeType}`);
 
     // Publish event for email service to handle
-    await this.eventBus.publish('email.report.send', {
+    await this.eventBus.publish("email.report.send", {
       reportId: report.id,
       recipients: report.recipients,
       subject: `Analytics Report - ${report.name}`,
       content,
       filename,
       mimeType,
-      scheduledAt: new Date().toISOString()
+      scheduledAt: new Date().toISOString(),
     });
   }
 
@@ -235,19 +256,21 @@ export class ReportScheduler {
 
   private scheduleNextReport(reportId: string): void {
     const report = this.scheduledReports.get(reportId);
-    if (!report) return;
+    if (!report) {
+      return;
+    }
 
     const now = new Date();
     let nextRun: Date;
 
     switch (report.type) {
-      case 'daily':
+      case "daily":
         nextRun = new Date(now.getTime() + 24 * 60 * 60 * 1000);
         break;
-      case 'weekly':
+      case "weekly":
         nextRun = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
         break;
-      case 'monthly':
+      case "monthly":
         nextRun = new Date(now.getFullYear(), now.getMonth() + 1, 1);
         break;
     }
@@ -257,54 +280,63 @@ export class ReportScheduler {
   }
 
   // Public API methods
-  async createScheduledReport(report: Omit<ScheduledReport, 'id' | 'createdAt' | 'nextRun'>): Promise<string> {
+  async createScheduledReport(
+    report: Omit<ScheduledReport, "id" | "createdAt" | "nextRun">
+  ): Promise<string> {
     const reportId = `scheduled-${Date.now()}`;
     const now = new Date();
-    
+
     const scheduledReport: ScheduledReport = {
       ...report,
       id: reportId,
       createdAt: now,
-      nextRun: this.calculateNextRun(report.type, now)
+      nextRun: this.calculateNextRun(report.type, now),
     };
 
     this.scheduledReports.set(reportId, scheduledReport);
-    
+
     // Publish event
-    await this.eventBus.publish('analytics.report.scheduled', {
+    await this.eventBus.publish("analytics.report.scheduled", {
       reportId,
       name: report.name,
       type: report.type,
       tenantId: report.tenantId,
       recipients: report.recipients,
       format: report.format,
-      scheduledAt: now.toISOString()
+      scheduledAt: now.toISOString(),
     });
 
     return reportId;
   }
 
-  async updateScheduledReport(reportId: string, updates: Partial<ScheduledReport>): Promise<void> {
+  async updateScheduledReport(
+    reportId: string,
+    updates: Partial<ScheduledReport>
+  ): Promise<void> {
     const report = this.scheduledReports.get(reportId);
-    if (!report) throw new Error('Report not found');
+    if (!report) {
+      throw new Error("Report not found");
+    }
 
     const updatedReport = { ...report, ...updates };
     this.scheduledReports.set(reportId, updatedReport);
 
     // Publish event
-    await this.eventBus.publish('analytics.report.updated', {
+    await this.eventBus.publish("analytics.report.updated", {
       reportId,
       updates,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
   }
 
   async deleteScheduledReport(reportId: string): Promise<void> {
     const report = this.scheduledReports.get(reportId);
-    if (!report) throw new Error('Report not found');
+    if (!report) {
+      throw new Error("Report not found");
+    }
 
     this.scheduledReports.delete(reportId);
-    
+
     // Clear timer if exists
     const timer = this.timers.get(reportId);
     if (timer) {
@@ -313,9 +345,9 @@ export class ReportScheduler {
     }
 
     // Publish event
-    await this.eventBus.publish('analytics.report.deleted', {
+    await this.eventBus.publish("analytics.report.deleted", {
       reportId,
-      deletedAt: new Date().toISOString()
+      deletedAt: new Date().toISOString(),
     });
   }
 
@@ -329,19 +361,24 @@ export class ReportScheduler {
 
   async runReportNow(reportId: string): Promise<void> {
     const report = this.scheduledReports.get(reportId);
-    if (!report) throw new Error('Report not found');
+    if (!report) {
+      throw new Error("Report not found");
+    }
 
     await this.generateAndSendReport(report);
     this.updateReportLastRun(reportId);
   }
 
-  private calculateNextRun(type: 'daily' | 'weekly' | 'monthly', from: Date): Date {
+  private calculateNextRun(
+    type: "daily" | "weekly" | "monthly",
+    from: Date
+  ): Date {
     switch (type) {
-      case 'daily':
+      case "daily":
         return new Date(from.getTime() + 24 * 60 * 60 * 1000);
-      case 'weekly':
+      case "weekly":
         return new Date(from.getTime() + 7 * 24 * 60 * 60 * 1000);
-      case 'monthly':
+      case "monthly":
         return new Date(from.getFullYear(), from.getMonth() + 1, 1);
     }
   }

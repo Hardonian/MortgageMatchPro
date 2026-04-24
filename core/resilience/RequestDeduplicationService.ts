@@ -3,15 +3,15 @@
  * Prevents duplicate requests and implements request deduplication
  */
 
-import { z } from 'zod';
-import { createHash } from 'crypto';
+import { z } from "zod";
+import { createHash } from "crypto";
 
 // Request deduplication configuration schema
 export const DeduplicationConfigSchema = z.object({
   ttl: z.number().min(1000).default(300000), // 5 minutes
   maxCacheSize: z.number().min(100).default(1000),
   keyGenerator: z.function().optional(),
-  cleanupInterval: z.number().min(1000).default(60000) // 1 minute
+  cleanupInterval: z.number().min(1000).default(60000), // 1 minute
 });
 
 export type DeduplicationConfig = z.infer<typeof DeduplicationConfigSchema>;
@@ -22,7 +22,7 @@ export const RequestCacheItemSchema = z.object({
   promise: z.any(), // Promise<any>
   timestamp: z.date(),
   ttl: z.number(),
-  requestCount: z.number().default(1)
+  requestCount: z.number().default(1),
 });
 
 export type RequestCacheItem = z.infer<typeof RequestCacheItemSchema>;
@@ -32,7 +32,7 @@ export const DeduplicationResultSchema = z.object({
   isDuplicate: z.boolean(),
   result: z.any().optional(),
   fromCache: z.boolean().default(false),
-  requestCount: z.number().default(1)
+  requestCount: z.number().default(1),
 });
 
 export type DeduplicationResult<T> = {
@@ -62,7 +62,7 @@ export class RequestDeduplicationService {
   ): Promise<DeduplicationResult<T>> {
     const config = { ...this.config, ...customConfig };
     const cacheKey = this.generateCacheKey(key, config);
-    
+
     // Check if request is already in progress
     const existingItem = this.cache.get(cacheKey);
     if (existingItem && !this.isExpired(existingItem)) {
@@ -72,10 +72,10 @@ export class RequestDeduplicationService {
         isDuplicate: true,
         result,
         fromCache: true,
-        requestCount: existingItem.requestCount
+        requestCount: existingItem.requestCount,
       };
     }
-    
+
     // Create new request
     const promise = fn();
     const cacheItem: RequestCacheItem = {
@@ -83,23 +83,23 @@ export class RequestDeduplicationService {
       promise,
       timestamp: new Date(),
       ttl: config.ttl,
-      requestCount: 1
+      requestCount: 1,
     };
-    
+
     this.cache.set(cacheKey, cacheItem);
-    
+
     // Clean up cache if it's too large
     if (this.cache.size > config.maxCacheSize) {
       this.cleanupCache();
     }
-    
+
     try {
       const result = await promise;
       return {
         isDuplicate: false,
         result,
         fromCache: false,
-        requestCount: 1
+        requestCount: 1,
       };
     } catch (error) {
       // Remove failed request from cache
@@ -127,9 +127,9 @@ export class RequestDeduplicationService {
     if (config.keyGenerator) {
       return config.keyGenerator(key);
     }
-    
+
     // Default key generation using hash
-    return createHash('md5').update(key).digest('hex');
+    return createHash("md5").update(key).digest("hex");
   }
 
   /**
@@ -147,13 +147,13 @@ export class RequestDeduplicationService {
   private cleanupCache(): void {
     const now = new Date();
     const expiredKeys: string[] = [];
-    
+
     for (const [key, item] of this.cache.entries()) {
       if (this.isExpired(item)) {
         expiredKeys.push(key);
       }
     }
-    
+
     for (const key of expiredKeys) {
       this.cache.delete(key);
     }
@@ -166,7 +166,7 @@ export class RequestDeduplicationService {
     if (this.cleanupInterval) {
       clearInterval(this.cleanupInterval);
     }
-    
+
     this.cleanupInterval = setInterval(() => {
       this.cleanupCache();
     }, this.config.cleanupInterval);
@@ -206,18 +206,21 @@ export class RequestDeduplicationService {
     hitRate: number;
     averageRequestCount: number;
   } {
-    const totalRequests = Array.from(this.cache.values())
-      .reduce((sum, item) => sum + item.requestCount, 0);
-    
-    const averageRequestCount = this.cache.size > 0 
-      ? totalRequests / this.cache.size 
-      : 0;
-    
+    const totalRequests = Array.from(this.cache.values()).reduce(
+      (sum, item) => sum + item.requestCount,
+      0
+
+    const averageRequestCount =
+      this.cache.size > 0 ? totalRequests / this.cache.size : 0;
+
     return {
       size: this.cache.size,
       maxSize: this.config.maxCacheSize,
-      hitRate: totalRequests > 0 ? (totalRequests - this.cache.size) / totalRequests : 0,
-      averageRequestCount
+      hitRate:
+        totalRequests > 0
+          ? (totalRequests - this.cache.size) / totalRequests
+          : 0,
+      averageRequestCount,
     };
   }
 
@@ -282,29 +285,35 @@ export class RequestDeduplicationService {
 export const KeyGenerators = {
   // Generate key from function name and arguments
   functionAndArgs: (fn: Function, ...args: any[]): string => {
-    const argsString = args.map(arg => 
-      typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-    ).join('|');
+    const argsString = args
+      .map((arg) =>
+        typeof arg === "object" ? JSON.stringify(arg) : String(arg)
+      )
+      .join("|");
     return `${fn.name}:${argsString}`;
   },
-  
+
   // Generate key from arguments only
   argsOnly: (...args: any[]): string => {
-    return args.map(arg => 
-      typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-    ).join('|');
+    return args
+      .map((arg) =>
+        typeof arg === "object" ? JSON.stringify(arg) : String(arg)
+      )
+      .join("|");
   },
-  
+
   // Generate key from specific fields
-  fields: (fields: string[]) => (...args: any[]): string => {
-    const values = fields.map(field => {
-      const value = args.find(arg => 
-        typeof arg === 'object' && arg.hasOwnProperty(field)
-      );
-      return value ? value[field] : '';
-    });
-    return values.join('|');
-  }
+  fields:
+    (fields: string[]) =>
+    (...args: any[]): string => {
+      const values = fields.map((field) => {
+        const value = args.find(
+          (arg) => typeof arg === "object" && arg.hasOwnProperty(field)
+        );
+        return value ? value[field] : "";
+      });
+      return values.join("|");
+    },
 };
 
 // Singleton instance

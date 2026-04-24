@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { 
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
   Search,
   Filter,
   Eye,
@@ -14,60 +14,60 @@ import {
   Calendar,
   AlertCircle,
   CheckCircle,
-  XCircle
-} from 'lucide-react'
+  XCircle,
+} from "lucide-react";
 
 interface Lead {
-  id: string
-  name: string
-  email: string
-  phone: string
-  lead_score: number
-  status: 'pending' | 'contacted' | 'converted' | 'rejected'
-  created_at: string
-  updated_at: string
-  broker_id: string | null
-  lead_data: any
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  lead_score: number;
+  status: "pending" | "contacted" | "converted" | "rejected";
+  created_at: string;
+  updated_at: string;
+  broker_id: string | null;
+  lead_data: any;
 }
 
 interface LeadManagementProps {
-  leads: Lead[]
-  onLeadUpdate: (leadId: string, updates: Partial<Lead>) => void
-  onLeadContact: (leadId: string) => void
-  onLeadConvert: (leadId: string) => void
-  onLeadReject: (leadId: string) => void
-  onExportLeads: () => void
+  leads: Lead[];
+  onLeadUpdate: (leadId: string, updates: Partial<Lead>) => void;
+  onLeadContact: (leadId: string) => void;
+  onLeadConvert: (leadId: string) => void;
+  onLeadReject: (leadId: string) => void;
+  onExportLeads: () => void;
 }
 
-const getStatusIcon = (status: Lead['status']) => {
+const getStatusIcon = (status: Lead["status"]) => {
   switch (status) {
-    case 'pending':
-      return <AlertCircle className="h-4 w-4 text-yellow-500" />
-    case 'contacted':
-      return <CheckCircle className="h-4 w-4 text-blue-500" />
-    case 'converted':
-      return <CheckCircle className="h-4 w-4 text-green-500" />
-    case 'rejected':
-      return <XCircle className="h-4 w-4 text-red-500" />
+    case "pending":
+      return <AlertCircle className="h-4 w-4 text-yellow-500" />;
+    case "contacted":
+      return <CheckCircle className="h-4 w-4 text-blue-500" />;
+    case "converted":
+      return <CheckCircle className="h-4 w-4 text-green-500" />;
+    case "rejected":
+      return <XCircle className="h-4 w-4 text-red-500" />;
     default:
-      return <AlertCircle className="h-4 w-4 text-gray-500" />
+      return <AlertCircle className="h-4 w-4 text-gray-500" />;
   }
-}
+};
 
-const getStatusColor = (status: Lead['status']) => {
+const getStatusColor = (status: Lead["status"]) => {
   switch (status) {
-    case 'pending':
-      return 'bg-yellow-100 text-yellow-800'
-    case 'contacted':
-      return 'bg-blue-100 text-blue-800'
-    case 'converted':
-      return 'bg-green-100 text-green-800'
-    case 'rejected':
-      return 'bg-red-100 text-red-800'
+    case "pending":
+      return "bg-yellow-100 text-yellow-800";
+    case "contacted":
+      return "bg-blue-100 text-blue-800";
+    case "converted":
+      return "bg-green-100 text-green-800";
+    case "rejected":
+      return "bg-red-100 text-red-800";
     default:
-      return 'bg-gray-100 text-gray-800'
+      return "bg-gray-100 text-gray-800";
   }
-}
+};
 
 export const LeadManagement: React.FC<LeadManagementProps> = ({
   leads,
@@ -75,51 +75,57 @@ export const LeadManagement: React.FC<LeadManagementProps> = ({
   onLeadContact,
   onLeadConvert,
   onLeadReject,
-  onExportLeads
+  onExportLeads,
 }) => {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState<Lead['status'] | 'all'>('all')
-  const [sortBy, setSortBy] = useState<'created_at' | 'lead_score' | 'name'>('created_at')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<Lead["status"] | "all">(
+    "all"
+  );
+  const [sortBy, setSortBy] = useState<"created_at" | "lead_score" | "name">(
+    "created_at"
+  );
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   const filteredLeads = leads
-    .filter(lead => {
-      const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           lead.phone.includes(searchTerm)
-      const matchesStatus = statusFilter === 'all' || lead.status === statusFilter
-      return matchesSearch && matchesStatus
+    .filter((lead) => {
+      const matchesSearch =
+        lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        lead.phone.includes(searchTerm);
+      const matchesStatus =
+        statusFilter === "all" || lead.status === statusFilter;
+      return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
-      let aValue: any, bValue: any
-      
-      switch (sortBy) {
-        case 'created_at':
-          aValue = new Date(a.created_at).getTime()
-          bValue = new Date(b.created_at).getTime()
-          break
-        case 'lead_score':
-          aValue = a.lead_score
-          bValue = b.lead_score
-          break
-        case 'name':
-          aValue = a.name.toLowerCase()
-          bValue = b.name.toLowerCase()
-          break
-        default:
-          return 0
-      }
-      
-      if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1
-      } else {
-        return aValue < bValue ? 1 : -1
-      }
-    })
+      let aValue: any, bValue: any;
 
-  const handleStatusChange = (leadId: string, newStatus: Lead['status']) => {
-    onLeadUpdate(leadId, { status: newStatus })
-  }
+      switch (sortBy) {
+        case "created_at":
+          aValue = new Date(a.created_at).getTime();
+          bValue = new Date(b.created_at).getTime();
+          break;
+        case "lead_score":
+          aValue = a.lead_score;
+          bValue = b.lead_score;
+          break;
+        case "name":
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
+        default:
+          return 0;
+      }
+
+      if (sortOrder === "asc") {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+  const handleStatusChange = (leadId: string, newStatus: Lead["status"]) => {
+    onLeadUpdate(leadId, { status: newStatus });
+  };
 
   return (
     <Card>
@@ -151,7 +157,9 @@ export const LeadManagement: React.FC<LeadManagementProps> = ({
           <div className="flex gap-2">
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as Lead['status'] | 'all')}
+              onChange={(e) =>
+                setStatusFilter(e.target.value as Lead["status"] | "all")
+              }
               className="px-3 py-2 border border-gray-300 rounded-md text-sm"
             >
               <option value="all">All Status</option>
@@ -163,9 +171,9 @@ export const LeadManagement: React.FC<LeadManagementProps> = ({
             <select
               value={`${sortBy}-${sortOrder}`}
               onChange={(e) => {
-                const [field, order] = e.target.value.split('-')
-                setSortBy(field as typeof sortBy)
-                setSortOrder(order as typeof sortOrder)
+                const [field, order] = e.target.value.split("-");
+                setSortBy(field as typeof sortBy);
+                setSortOrder(order as typeof sortOrder);
               }}
               className="px-3 py-2 border border-gray-300 rounded-md text-sm"
             >
@@ -182,7 +190,10 @@ export const LeadManagement: React.FC<LeadManagementProps> = ({
         {/* Leads List */}
         <div className="space-y-4">
           {filteredLeads.map((lead) => (
-            <div key={lead.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+            <div
+              key={lead.id}
+              className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+            >
               <div className="flex items-center gap-4">
                 <div className="p-2 bg-primary/10 rounded-lg">
                   {getStatusIcon(lead.status)}
@@ -193,9 +204,7 @@ export const LeadManagement: React.FC<LeadManagementProps> = ({
                     <Badge className={getStatusColor(lead.status)}>
                       {lead.status}
                     </Badge>
-                    <Badge variant="outline">
-                      Score: {lead.lead_score}
-                    </Badge>
+                    <Badge variant="outline">Score: {lead.lead_score}</Badge>
                   </div>
                   <div className="flex items-center gap-4 text-sm text-gray-600">
                     <span className="flex items-center gap-1">
@@ -218,34 +227,36 @@ export const LeadManagement: React.FC<LeadManagementProps> = ({
                   variant="outline"
                   size="sm"
                   onClick={() => onLeadContact(lead.id)}
-                  disabled={lead.status === 'converted' || lead.status === 'rejected'}
+                  disabled={
+                    lead.status === "converted" || lead.status === "rejected"
+                  }
                 >
                   <Eye className="h-4 w-4 mr-1" />
                   View
                 </Button>
-                {lead.status === 'pending' && (
+                {lead.status === "pending" && (
                   <>
                     <Button
                       variant="default"
                       size="sm"
-                      onClick={() => handleStatusChange(lead.id, 'contacted')}
+                      onClick={() => handleStatusChange(lead.id, "contacted")}
                     >
                       Contact
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleStatusChange(lead.id, 'rejected')}
+                      onClick={() => handleStatusChange(lead.id, "rejected")}
                     >
                       Reject
                     </Button>
                   </>
                 )}
-                {lead.status === 'contacted' && (
+                {lead.status === "contacted" && (
                   <Button
                     variant="default"
                     size="sm"
-                    onClick={() => handleStatusChange(lead.id, 'converted')}
+                    onClick={() => handleStatusChange(lead.id, "converted")}
                   >
                     Convert
                   </Button>
@@ -262,5 +273,5 @@ export const LeadManagement: React.FC<LeadManagementProps> = ({
         )}
       </CardContent>
     </Card>
-  )
-}
+  );
+};

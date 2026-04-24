@@ -11,7 +11,15 @@ interface PIIPattern {
   name: string;
   pattern: RegExp;
   replacement: string;
-  category: 'email' | 'phone' | 'ssn' | 'credit_card' | 'address' | 'name' | 'ip' | 'custom';
+  category:
+    | 'email'
+    | 'phone'
+    | 'ssn'
+    | 'credit_card'
+    | 'address'
+    | 'name'
+    | 'ip'
+    | 'custom';
   severity: 'low' | 'medium' | 'high' | 'critical';
 }
 
@@ -58,15 +66,16 @@ class PrivacyGuard {
         pattern: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,
         replacement: '[EMAIL_REDACTED]',
         category: 'email',
-        severity: 'high'
+        severity: 'high',
       },
       // Phone numbers (US/Canada format)
       {
         name: 'phone_us_ca',
-        pattern: /(\+?1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})/g,
+        pattern:
+          /(\+?1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})/g,
         replacement: '[PHONE_REDACTED]',
         category: 'phone',
-        severity: 'high'
+        severity: 'high',
       },
       // SSN (US format)
       {
@@ -74,7 +83,7 @@ class PrivacyGuard {
         pattern: /\b\d{3}-?\d{2}-?\d{4}\b/g,
         replacement: '[SSN_REDACTED]',
         category: 'ssn',
-        severity: 'critical'
+        severity: 'critical',
       },
       // Credit card numbers
       {
@@ -82,7 +91,7 @@ class PrivacyGuard {
         pattern: /\b(?:\d{4}[-\s]?){3}\d{4}\b/g,
         replacement: '[CARD_REDACTED]',
         category: 'credit_card',
-        severity: 'critical'
+        severity: 'critical',
       },
       // IP addresses
       {
@@ -90,7 +99,7 @@ class PrivacyGuard {
         pattern: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g,
         replacement: '[IP_REDACTED]',
         category: 'ip',
-        severity: 'medium'
+        severity: 'medium',
       },
       // Names (common patterns)
       {
@@ -98,15 +107,16 @@ class PrivacyGuard {
         pattern: /\b[A-Z][a-z]+ [A-Z][a-z]+\b/g,
         replacement: '[NAME_REDACTED]',
         category: 'name',
-        severity: 'medium'
+        severity: 'medium',
       },
       // Address patterns
       {
         name: 'address',
-        pattern: /\b\d+\s+[A-Za-z0-9\s,.-]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Place|Pl)\b/gi,
+        pattern:
+          /\b\d+\s+[A-Za-z0-9\s,.-]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Place|Pl)\b/gi,
         replacement: '[ADDRESS_REDACTED]',
         category: 'address',
-        severity: 'high'
+        severity: 'high',
       },
       // Custom patterns for mortgage data
       {
@@ -114,7 +124,7 @@ class PrivacyGuard {
         pattern: /\b[A-Z]{2}\d{6,12}\b/g,
         replacement: '[ACCOUNT_REDACTED]',
         category: 'custom',
-        severity: 'high'
+        severity: 'high',
       },
       // Bank routing numbers
       {
@@ -122,8 +132,8 @@ class PrivacyGuard {
         pattern: /\b\d{9}\b/g,
         replacement: '[ROUTING_REDACTED]',
         category: 'custom',
-        severity: 'critical'
-      }
+        severity: 'critical',
+      },
     ];
   }
 
@@ -137,37 +147,44 @@ class PrivacyGuard {
         data_retention_days: 90,
         right_to_erasure: true,
         data_portability: true,
-        consent_required: true
+        consent_required: true,
       },
       ccpa: {
         enabled: true,
         opt_out_required: true,
         data_disclosure: true,
-        deletion_rights: true
+        deletion_rights: true,
       },
       pipeda: {
         enabled: true,
         consent_required: true,
         purpose_limitation: true,
-        data_minimization: true
-      }
+        data_minimization: true,
+      },
     };
   }
 
   /**
    * Main function to redact PII from text
    */
-  redactPII(text: string, options: { 
-    preserveFormatting?: boolean;
-    customPatterns?: PIIPattern[];
-    logViolations?: boolean;
-  } = {}): {
+  redactPII(
+    text: string,
+    options: {
+      preserveFormatting?: boolean;
+      customPatterns?: PIIPattern[];
+      logViolations?: boolean;
+    } = {}
+  ): {
     redactedText: string;
     violations: PrivacyViolation[];
     redactionCount: number;
   } {
-    const { preserveFormatting = true, customPatterns = [], logViolations = true } = options;
-    
+    const {
+      preserveFormatting = true,
+      customPatterns = [],
+      logViolations = true,
+    } = options;
+
     let redactedText = text;
     const violations: PrivacyViolation[] = [];
     let redactionCount = 0;
@@ -177,9 +194,12 @@ class PrivacyGuard {
 
     for (const pattern of allPatterns) {
       const matches = redactedText.match(pattern.pattern);
-      
+
       if (matches) {
-        redactedText = redactedText.replace(pattern.pattern, pattern.replacement);
+        redactedText = redactedText.replace(
+          pattern.pattern,
+          pattern.replacement
+        );
         redactionCount += matches.length;
 
         if (logViolations) {
@@ -187,7 +207,7 @@ class PrivacyGuard {
             type: pattern.name,
             severity: pattern.severity,
             description: `Found ${matches.length} ${pattern.category} pattern(s)`,
-            suggestion: `Use ${pattern.replacement} for redaction`
+            suggestion: `Use ${pattern.replacement} for redaction`,
           });
         }
       }
@@ -196,17 +216,20 @@ class PrivacyGuard {
     return {
       redactedText,
       violations,
-      redactionCount
+      redactionCount,
     };
   }
 
   /**
    * Redact PII from object/JSON data
    */
-  redactObjectPII(obj: any, options: { 
-    deep?: boolean;
-    preserveKeys?: boolean;
-  } = {}): any {
+  redactObjectPII(
+    obj: any,
+    options: {
+      deep?: boolean;
+      preserveKeys?: boolean;
+    } = {}
+  ): any {
     const { deep = true, preserveKeys = true } = options;
 
     if (typeof obj !== 'object' || obj === null) {
@@ -214,14 +237,14 @@ class PrivacyGuard {
     }
 
     if (Array.isArray(obj)) {
-      return obj.map(item => this.redactObjectPII(item, options));
+      return obj.map((item) => this.redactObjectPII(item, options));
     }
 
     const redacted: any = {};
-    
+
     for (const [key, value] of Object.entries(obj)) {
       const redactedKey = preserveKeys ? key : this.redactPII(key).redactedText;
-      
+
       if (typeof value === 'string') {
         redacted[redactedKey] = this.redactPII(value).redactedText;
       } else if (deep && typeof value === 'object') {
@@ -237,13 +260,19 @@ class PrivacyGuard {
   /**
    * Audit codebase for privacy violations
    */
-  async auditCodebase(options: { 
-    includeTests?: boolean;
-    includeDocs?: boolean;
-    strictMode?: boolean;
-  } = {}): Promise<PrivacyAuditResult> {
-    const { includeTests = false, includeDocs = true, strictMode = false } = options;
-    
+  async auditCodebase(
+    options: {
+      includeTests?: boolean;
+      includeDocs?: boolean;
+      strictMode?: boolean;
+    } = {}
+  ): Promise<PrivacyAuditResult> {
+    const {
+      includeTests = false,
+      includeDocs = true,
+      strictMode = false,
+    } = options;
+
     console.log('🔍 Starting privacy audit...');
 
     const violations: PrivacyViolation[] = [];
@@ -252,7 +281,7 @@ class PrivacyGuard {
     try {
       // Get all source files
       const sourceFiles = await this.getSourceFiles(includeTests, includeDocs);
-      
+
       for (const file of sourceFiles) {
         const fileViolations = await this.auditFile(file, strictMode);
         violations.push(...fileViolations);
@@ -272,7 +301,10 @@ class PrivacyGuard {
       violations.push(...consentViolations);
 
       // Calculate compliance score
-      const complianceScore = this.calculateComplianceScore(violations, totalChecks);
+      const complianceScore = this.calculateComplianceScore(
+        violations,
+        totalChecks
+      );
 
       // Generate recommendations
       const recommendations = this.generateRecommendations(violations);
@@ -282,13 +314,12 @@ class PrivacyGuard {
         violations,
         compliance_score: complianceScore,
         recommendations,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       console.log(`✅ Privacy audit completed. Score: ${complianceScore}/100`);
-      
-      return result;
 
+      return result;
     } catch (error) {
       console.error('❌ Privacy audit failed:', error);
       throw error;
@@ -298,7 +329,10 @@ class PrivacyGuard {
   /**
    * Audit individual file for privacy violations
    */
-  private async auditFile(filePath: string, strictMode: boolean): Promise<PrivacyViolation[]> {
+  private async auditFile(
+    filePath: string,
+    strictMode: boolean
+  ): Promise<PrivacyViolation[]> {
     const violations: PrivacyViolation[] = [];
 
     try {
@@ -318,7 +352,7 @@ class PrivacyGuard {
               description: `PII pattern '${pattern.name}' detected`,
               file: filePath,
               line: lineNumber,
-              suggestion: `Use redaction: ${pattern.replacement}`
+              suggestion: `Use redaction: ${pattern.replacement}`,
             });
           }
         }
@@ -331,7 +365,7 @@ class PrivacyGuard {
             description: 'Potential hardcoded secret detected',
             file: filePath,
             line: lineNumber,
-            suggestion: 'Move to environment variables or secure storage'
+            suggestion: 'Move to environment variables or secure storage',
           });
         }
 
@@ -343,7 +377,7 @@ class PrivacyGuard {
             description: 'Console log may contain sensitive data',
             file: filePath,
             line: lineNumber,
-            suggestion: 'Use redacted logging or remove sensitive data'
+            suggestion: 'Use redacted logging or remove sensitive data',
           });
         }
 
@@ -355,11 +389,11 @@ class PrivacyGuard {
             description: 'Data retention policy not implemented',
             file: filePath,
             line: lineNumber,
-            suggestion: 'Implement automatic data deletion after retention period'
+            suggestion:
+              'Implement automatic data deletion after retention period',
           });
         }
       }
-
     } catch (error) {
       console.warn(`⚠️ Could not audit file ${filePath}:`, error.message);
     }
@@ -373,18 +407,34 @@ class PrivacyGuard {
   private async auditSecrets(): Promise<PrivacyViolation[]> {
     const violations: PrivacyViolation[] = [];
     const secretPatterns = [
-      { name: 'api_key', pattern: /['"]([A-Za-z0-9]{32,})['"]/g, severity: 'critical' },
-      { name: 'password', pattern: /password\s*[:=]\s*['"][^'"]+['"]/gi, severity: 'critical' },
-      { name: 'token', pattern: /token\s*[:=]\s*['"][A-Za-z0-9._-]{20,}['"]/gi, severity: 'high' },
-      { name: 'secret', pattern: /secret\s*[:=]\s*['"][^'"]+['"]/gi, severity: 'critical' }
+      {
+        name: 'api_key',
+        pattern: /['"]([A-Za-z0-9]{32,})['"]/g,
+        severity: 'critical',
+      },
+      {
+        name: 'password',
+        pattern: /password\s*[:=]\s*['"][^'"]+['"]/gi,
+        severity: 'critical',
+      },
+      {
+        name: 'token',
+        pattern: /token\s*[:=]\s*['"][A-Za-z0-9._-]{20,}['"]/gi,
+        severity: 'high',
+      },
+      {
+        name: 'secret',
+        pattern: /secret\s*[:=]\s*['"][^'"]+['"]/gi,
+        severity: 'critical',
+      },
     ];
 
     const sourceFiles = await this.getSourceFiles(true, false);
-    
+
     for (const file of sourceFiles) {
       try {
         const content = await require('fs').promises.readFile(file, 'utf-8');
-        
+
         for (const secretPattern of secretPatterns) {
           if (secretPattern.pattern.test(content)) {
             violations.push({
@@ -392,7 +442,7 @@ class PrivacyGuard {
               severity: secretPattern.severity,
               description: `Hardcoded ${secretPattern.name} detected`,
               file,
-              suggestion: 'Move to environment variables or secure storage'
+              suggestion: 'Move to environment variables or secure storage',
             });
           }
         }
@@ -417,7 +467,7 @@ class PrivacyGuard {
         type: 'data_retention',
         severity: 'high',
         description: 'No data retention policy found',
-        suggestion: 'Implement automatic data deletion after retention period'
+        suggestion: 'Implement automatic data deletion after retention period',
       });
     }
 
@@ -437,7 +487,7 @@ class PrivacyGuard {
         type: 'consent_management',
         severity: 'high',
         description: 'No consent management system found',
-        suggestion: 'Implement user consent tracking and management'
+        suggestion: 'Implement user consent tracking and management',
       });
     }
 
@@ -447,22 +497,25 @@ class PrivacyGuard {
   /**
    * Get source files for auditing
    */
-  private async getSourceFiles(includeTests: boolean, includeDocs: boolean): Promise<string[]> {
+  private async getSourceFiles(
+    includeTests: boolean,
+    includeDocs: boolean
+  ): Promise<string[]> {
     const { glob } = require('glob');
     const patterns = ['**/*.{ts,tsx,js,jsx}'];
-    
+
     if (includeTests) {
       patterns.push('**/*.test.{ts,tsx,js,jsx}', '**/*.spec.{ts,tsx,js,jsx}');
     }
-    
+
     if (includeDocs) {
       patterns.push('**/*.md', '**/*.mdx');
     }
 
     const files: string[] = [];
     for (const pattern of patterns) {
-      const matches = await glob(pattern, { 
-        ignore: ['node_modules/**', '.git/**', 'dist/**', 'build/**'] 
+      const matches = await glob(pattern, {
+        ignore: ['node_modules/**', '.git/**', 'dist/**', 'build/**'],
       });
       files.push(...matches);
     }
@@ -478,22 +531,32 @@ class PrivacyGuard {
       /['"]([A-Za-z0-9]{32,})['"]/,
       /password\s*[:=]\s*['"][^'"]+['"]/i,
       /token\s*[:=]\s*['"][A-Za-z0-9._-]{20,}['"]/i,
-      /secret\s*[:=]\s*['"][^'"]+['"]/i
+      /secret\s*[:=]\s*['"][^'"]+['"]/i,
     ];
 
-    return secretPatterns.some(pattern => pattern.test(line));
+    return secretPatterns.some((pattern) => pattern.test(line));
   }
 
   /**
    * Check if line has sensitive console log
    */
   private hasSensitiveConsoleLog(line: string): boolean {
-    const sensitiveKeywords = ['password', 'token', 'secret', 'key', 'ssn', 'email', 'phone'];
+    const sensitiveKeywords = [
+      'password',
+      'token',
+      'secret',
+      'key',
+      'ssn',
+      'email',
+      'phone',
+    ];
     const consoleLogPattern = /console\.(log|warn|error|info)/i;
-    
-    if (!consoleLogPattern.test(line)) return false;
-    
-    return sensitiveKeywords.some(keyword => 
+
+    if (!consoleLogPattern.test(line)) {
+      return false;
+    }
+
+    return sensitiveKeywords.some((keyword) =>
       line.toLowerCase().includes(keyword.toLowerCase())
     );
   }
@@ -504,11 +567,12 @@ class PrivacyGuard {
   private hasDataRetentionViolation(line: string): boolean {
     const retentionKeywords = ['delete', 'remove', 'purge', 'retention'];
     const dataKeywords = ['user', 'data', 'record', 'log'];
-    
-    return retentionKeywords.some(retention => 
-      dataKeywords.some(data => 
-        line.toLowerCase().includes(retention) && 
-        line.toLowerCase().includes(data)
+
+    return retentionKeywords.some((retention) =>
+      dataKeywords.some(
+        (data) =>
+          line.toLowerCase().includes(retention) &&
+          line.toLowerCase().includes(data)
       )
     );
   }
@@ -519,8 +583,8 @@ class PrivacyGuard {
   private async checkRetentionPolicy(): Promise<boolean> {
     try {
       const { glob } = require('glob');
-      const files = await glob('**/*retention*', { 
-        ignore: ['node_modules/**', '.git/**'] 
+      const files = await glob('**/*retention*', {
+        ignore: ['node_modules/**', '.git/**'],
       });
       return files.length > 0;
     } catch {
@@ -534,8 +598,8 @@ class PrivacyGuard {
   private async checkConsentManagement(): Promise<boolean> {
     try {
       const { glob } = require('glob');
-      const files = await glob('**/*consent*', { 
-        ignore: ['node_modules/**', '.git/**'] 
+      const files = await glob('**/*consent*', {
+        ignore: ['node_modules/**', '.git/**'],
       });
       return files.length > 0;
     } catch {
@@ -546,18 +610,24 @@ class PrivacyGuard {
   /**
    * Calculate compliance score
    */
-  private calculateComplianceScore(violations: PrivacyViolation[], totalChecks: number): number {
-    if (totalChecks === 0) return 100;
+  private calculateComplianceScore(
+    violations: PrivacyViolation[],
+    totalChecks: number
+  ): number {
+    if (totalChecks === 0) {
+      return 100;
+    }
 
     const severityWeights = {
       low: 1,
       medium: 3,
       high: 7,
-      critical: 15
+      critical: 15,
     };
 
-    const totalWeight = violations.reduce((sum, violation) => 
-      sum + severityWeights[violation.severity], 0
+    const totalWeight = violations.reduce(
+      (sum, violation) => sum + severityWeights[violation.severity],
+      0
     );
 
     const maxPossibleWeight = totalChecks * severityWeights.critical;
@@ -571,15 +641,19 @@ class PrivacyGuard {
    */
   private generateRecommendations(violations: PrivacyViolation[]): string[] {
     const recommendations: string[] = [];
-    const violationTypes = new Set(violations.map(v => v.type));
+    const violationTypes = new Set(violations.map((v) => v.type));
 
     if (violationTypes.has('pii_detected')) {
-      recommendations.push('Implement PII redaction before logging or data export');
+      recommendations.push(
+        'Implement PII redaction before logging or data export'
+      );
       recommendations.push('Use privacy-preserving data analysis techniques');
     }
 
     if (violationTypes.has('hardcoded_secret')) {
-      recommendations.push('Move all secrets to environment variables or secure storage');
+      recommendations.push(
+        'Move all secrets to environment variables or secure storage'
+      );
       recommendations.push('Implement secret scanning in CI/CD pipeline');
     }
 
@@ -589,7 +663,9 @@ class PrivacyGuard {
     }
 
     if (violationTypes.has('data_retention')) {
-      recommendations.push('Implement automatic data deletion after retention period');
+      recommendations.push(
+        'Implement automatic data deletion after retention period'
+      );
       recommendations.push('Create data retention policies and procedures');
     }
 
@@ -606,7 +682,7 @@ class PrivacyGuard {
    */
   async generateComplianceReport(): Promise<string> {
     const auditResult = await this.auditCodebase();
-    
+
     const report = `
 # Privacy Compliance Report
 
@@ -615,24 +691,41 @@ class PrivacyGuard {
 **Total Checks:** ${auditResult.total_checks}
 
 ## Violations Summary
-- **Critical:** ${auditResult.violations.filter(v => v.severity === 'critical').length}
-- **High:** ${auditResult.violations.filter(v => v.severity === 'high').length}
-- **Medium:** ${auditResult.violations.filter(v => v.severity === 'medium').length}
-- **Low:** ${auditResult.violations.filter(v => v.severity === 'low').length}
+- **Critical:** ${
+      auditResult.violations.filter((v) => v.severity === 'critical').length
+    }
+- **High:** ${
+      auditResult.violations.filter((v) => v.severity === 'high').length
+    }
+- **Medium:** ${
+      auditResult.violations.filter((v) => v.severity === 'medium').length
+    }
+- **Low:** ${auditResult.violations.filter((v) => v.severity === 'low').length}
 
 ## Critical Issues
-${auditResult.violations
-  .filter(v => v.severity === 'critical')
-  .map(v => `- **${v.type}:** ${v.description}${v.file ? ` (${v.file}:${v.line})` : ''}`)
-  .join('\n') || 'None'}
+${
+  auditResult.violations
+    .filter((v) => v.severity === 'critical')
+    .map(
+      (v) =>
+        `- **${v.type}:** ${v.description}${
+          v.file ? ` (${v.file}:${v.line})` : ''
+        }`
+    )
+    .join('\n') || 'None'
+}
 
 ## Recommendations
-${auditResult.recommendations.map(rec => `- ${rec}`).join('\n')}
+${auditResult.recommendations.map((rec) => `- ${rec}`).join('\n')}
 
 ## Compliance Status
-${auditResult.compliance_score >= 90 ? '✅ Excellent' : 
-  auditResult.compliance_score >= 70 ? '⚠️ Needs Improvement' : 
-  '❌ Critical Issues Found'}
+${
+  auditResult.compliance_score >= 90
+    ? '✅ Excellent'
+    : auditResult.compliance_score >= 70
+    ? '⚠️ Needs Improvement'
+    : '❌ Critical Issues Found'
+}
 
 ---
 *This report was generated by the Privacy Guard system.*
@@ -648,22 +741,23 @@ export { PrivacyGuard, PIIPattern, PrivacyAuditResult, PrivacyViolation };
 // CLI usage
 if (require.main === module) {
   const guard = new PrivacyGuard();
-  
+
   const command = process.argv[2];
-  
+
   switch (command) {
     case 'audit':
-      guard.auditCodebase()
+      guard
+        .auditCodebase()
         .then(async (result) => {
           console.log(await guard.generateComplianceReport());
           process.exit(result.compliance_score >= 70 ? 0 : 1);
         })
-        .catch(error => {
+        .catch((error) => {
           console.error('Audit failed:', error);
           process.exit(1);
         });
       break;
-      
+
     case 'redact':
       const text = process.argv[3];
       if (!text) {
@@ -674,9 +768,10 @@ if (require.main === module) {
       console.log('Redacted text:', result.redactedText);
       console.log('Violations found:', result.violations.length);
       break;
-      
+
     default:
-      console.log(`
+      console.log(
+        `
 Usage: node privacy_guard.ts <command> [options]
 
 Commands:
@@ -687,7 +782,8 @@ Commands:
 Examples:
   node privacy_guard.ts audit
   node privacy_guard.ts redact "Contact john@example.com at 555-1234"
-      `.trim());
+      `.trim()
+      );
       process.exit(0);
   }
 }

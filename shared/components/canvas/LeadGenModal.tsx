@@ -1,57 +1,96 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { Star, Phone, Mail, Building, CheckCircle, AlertTriangle, Shield } from 'lucide-react'
-import { z } from 'zod'
+import React, { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Star,
+  Phone,
+  Mail,
+  Building,
+  CheckCircle,
+  AlertTriangle,
+  Shield,
+} from "lucide-react";
+import { z } from "zod";
 
 // Zod validation schema
 const leadFormSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email address'),
-  phone: z.string().min(10, 'Please enter a valid phone number'),
-  propertyValue: z.number().min(10000, 'Property value must be at least $10,000'),
-  downPayment: z.number().min(0, 'Down payment cannot be negative'),
-  income: z.number().min(0, 'Income cannot be negative'),
-  employmentType: z.enum(['salaried', 'self-employed', 'contract', 'unemployed']),
-  creditScore: z.number().min(300).max(850, 'Credit score must be between 300 and 850'),
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  phone: z.string().min(10, "Please enter a valid phone number"),
+  propertyValue: z
+    .number()
+    .min(10000, "Property value must be at least $10,000"),
+  downPayment: z.number().min(0, "Down payment cannot be negative"),
+  income: z.number().min(0, "Income cannot be negative"),
+  employmentType: z.enum([
+    "salaried",
+    "self-employed",
+    "contract",
+    "unemployed",
+  ]),
+  creditScore: z
+    .number()
+    .min(300)
+    .max(850, "Credit score must be between 300 and 850"),
   preferredLender: z.string().optional(),
   additionalInfo: z.string().optional(),
-  consentToShare: z.boolean().refine(val => val === true, 'You must consent to share your information with lenders'),
-  consentToContact: z.boolean().refine(val => val === true, 'You must consent to be contacted by lenders')
-})
+  consentToShare: z
+    .boolean()
+    .refine(
+      (val) => val === true,
+      "You must consent to share your information with lenders"
+    ),
+  consentToContact: z
+    .boolean()
+    .refine(
+      (val) => val === true,
+      "You must consent to be contacted by lenders"
+    ),
+});
 
-export type LeadFormData = z.infer<typeof leadFormSchema>
+export type LeadFormData = z.infer<typeof leadFormSchema>;
 
 interface BrokerRecommendation {
-  brokerId: string
-  name: string
-  company: string
-  commissionRate: number
-  matchReason: string
-  phone: string
-  email: string
+  brokerId: string;
+  name: string;
+  company: string;
+  commissionRate: number;
+  matchReason: string;
+  phone: string;
+  email: string;
 }
 
 interface LeadGenModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSubmit: (data: LeadFormData) => void
-  brokerRecommendations: BrokerRecommendation[]
-  leadScore: number
-  loading?: boolean
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: LeadFormData) => void;
+  brokerRecommendations: BrokerRecommendation[];
+  leadScore: number;
+  loading?: boolean;
   userProfile?: {
-    name?: string
-    email?: string
-    phone?: string
-  }
+    name?: string;
+    email?: string;
+    phone?: string;
+  };
 }
 
 export function LeadGenModal({
@@ -64,69 +103,83 @@ export function LeadGenModal({
   userProfile,
 }: LeadGenModalProps) {
   const [formData, setFormData] = useState<LeadFormData>({
-    name: userProfile?.name || '',
-    email: userProfile?.email || '',
-    phone: userProfile?.phone || '',
+    name: userProfile?.name || "",
+    email: userProfile?.email || "",
+    phone: userProfile?.phone || "",
     propertyValue: 0,
     downPayment: 0,
     income: 0,
-    employmentType: 'salaried',
+    employmentType: "salaried",
     creditScore: 700,
-    preferredLender: '',
-    additionalInfo: '',
+    preferredLender: "",
+    additionalInfo: "",
     consentToShare: false,
     consentToContact: false,
-  })
+  });
 
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     try {
-      const validatedData = leadFormSchema.parse(formData)
-      setErrors({})
-      onSubmit(validatedData)
+      const validatedData = leadFormSchema.parse(formData);
+      setErrors({});
+      onSubmit(validatedData);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const fieldErrors: Record<string, string> = {}
+        const fieldErrors: Record<string, string> = {};
         error.errors.forEach((err) => {
           if (err.path[0]) {
-            fieldErrors[err.path[0] as string] = err.message
+            fieldErrors[err.path[0] as string] = err.message;
           }
-        })
-        setErrors(fieldErrors)
+        });
+        setErrors(fieldErrors);
       }
     }
-  }
+  };
 
-  const handleInputChange = (field: keyof LeadFormData, value: string | number | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+  const handleInputChange = (
+    field: keyof LeadFormData,
+    value: string | number | boolean
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }))
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
-  }
+  };
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600 bg-green-100'
-    if (score >= 60) return 'text-yellow-600 bg-yellow-100'
-    return 'text-red-600 bg-red-100'
-  }
+    if (score >= 80) {
+      return "text-green-600 bg-green-100";
+    }
+    if (score >= 60) {
+      return "text-yellow-600 bg-yellow-100";
+    }
+    return "text-red-600 bg-red-100";
+  };
 
   const getScoreLabel = (score: number) => {
-    if (score >= 80) return 'High Quality Lead'
-    if (score >= 60) return 'Medium Quality Lead'
-    return 'Low Quality Lead'
-  }
+    if (score >= 80) {
+      return "High Quality Lead";
+    }
+    if (score >= 60) {
+      return "Medium Quality Lead";
+    }
+    return "Low Quality Lead";
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Connect with Mortgage Brokers</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">
+            Connect with Mortgage Brokers
+          </DialogTitle>
           <p className="text-muted-foreground">
-            Get matched with qualified brokers who can help you secure the best mortgage rates
+            Get matched with qualified brokers who can help you secure the best
+            mortgage rates
           </p>
         </DialogHeader>
 
@@ -141,7 +194,11 @@ export function LeadGenModal({
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-4">
-                <div className={`px-3 py-1 rounded-full text-sm font-medium ${getScoreColor(leadScore)}`}>
+                <div
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${getScoreColor(
+                    leadScore
+                  )}`}
+                >
                   {leadScore}/100 - {getScoreLabel(leadScore)}
                 </div>
                 <div className="flex-1 bg-gray-200 rounded-full h-2">
@@ -166,15 +223,22 @@ export function LeadGenModal({
               <CardContent>
                 <div className="space-y-4">
                   {brokerRecommendations.map((broker, index) => (
-                    <div key={broker.brokerId} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={broker.brokerId}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                           <Building className="h-6 w-6 text-primary" />
                         </div>
                         <div>
                           <h3 className="font-semibold">{broker.name}</h3>
-                          <p className="text-sm text-muted-foreground">{broker.company}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{broker.matchReason}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {broker.company}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {broker.matchReason}
+                          </p>
                         </div>
                       </div>
                       <div className="text-right">
@@ -204,25 +268,32 @@ export function LeadGenModal({
             <CardHeader>
               <CardTitle>Get Started</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Fill out your information to connect with qualified mortgage brokers
+                Fill out your information to connect with qualified mortgage
+                brokers
               </p>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Personal Information */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Personal Information</h3>
+                  <h3 className="text-lg font-semibold">
+                    Personal Information
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="name">Full Name *</Label>
                       <Input
                         id="name"
                         value={formData.name}
-                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("name", e.target.value)
+                        }
                         placeholder="Enter your full name"
-                        className={errors.name ? 'border-red-500' : ''}
+                        className={errors.name ? "border-red-500" : ""}
                       />
-                      {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+                      {errors.name && (
+                        <p className="text-sm text-red-500">{errors.name}</p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email">Email Address *</Label>
@@ -230,11 +301,15 @@ export function LeadGenModal({
                         id="email"
                         type="email"
                         value={formData.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("email", e.target.value)
+                        }
                         placeholder="Enter your email"
-                        className={errors.email ? 'border-red-500' : ''}
+                        className={errors.email ? "border-red-500" : ""}
                       />
-                      {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+                      {errors.email && (
+                        <p className="text-sm text-red-500">{errors.email}</p>
+                      )}
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -243,41 +318,65 @@ export function LeadGenModal({
                       id="phone"
                       type="tel"
                       value={formData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("phone", e.target.value)
+                      }
                       placeholder="Enter your phone number"
-                      className={errors.phone ? 'border-red-500' : ''}
+                      className={errors.phone ? "border-red-500" : ""}
                     />
-                    {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
+                    {errors.phone && (
+                      <p className="text-sm text-red-500">{errors.phone}</p>
+                    )}
                   </div>
                 </div>
 
                 {/* Financial Information */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Financial Information</h3>
+                  <h3 className="text-lg font-semibold">
+                    Financial Information
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="propertyValue">Property Value *</Label>
                       <Input
                         id="propertyValue"
                         type="number"
-                        value={formData.propertyValue || ''}
-                        onChange={(e) => handleInputChange('propertyValue', parseFloat(e.target.value) || 0)}
+                        value={formData.propertyValue || ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "propertyValue",
+                            parseFloat(e.target.value) || 0
+                          )
+                        }
                         placeholder="Enter property value"
-                        className={errors.propertyValue ? 'border-red-500' : ''}
+                        className={errors.propertyValue ? "border-red-500" : ""}
                       />
-                      {errors.propertyValue && <p className="text-sm text-red-500">{errors.propertyValue}</p>}
+                      {errors.propertyValue && (
+                        <p className="text-sm text-red-500">
+                          {errors.propertyValue}
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="downPayment">Down Payment *</Label>
                       <Input
                         id="downPayment"
                         type="number"
-                        value={formData.downPayment || ''}
-                        onChange={(e) => handleInputChange('downPayment', parseFloat(e.target.value) || 0)}
+                        value={formData.downPayment || ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "downPayment",
+                            parseFloat(e.target.value) || 0
+                          )
+                        }
                         placeholder="Enter down payment amount"
-                        className={errors.downPayment ? 'border-red-500' : ''}
+                        className={errors.downPayment ? "border-red-500" : ""}
                       />
-                      {errors.downPayment && <p className="text-sm text-red-500">{errors.downPayment}</p>}
+                      {errors.downPayment && (
+                        <p className="text-sm text-red-500">
+                          {errors.downPayment}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -286,12 +385,19 @@ export function LeadGenModal({
                       <Input
                         id="income"
                         type="number"
-                        value={formData.income || ''}
-                        onChange={(e) => handleInputChange('income', parseFloat(e.target.value) || 0)}
+                        value={formData.income || ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "income",
+                            parseFloat(e.target.value) || 0
+                          )
+                        }
                         placeholder="Enter annual income"
-                        className={errors.income ? 'border-red-500' : ''}
+                        className={errors.income ? "border-red-500" : ""}
                       />
-                      {errors.income && <p className="text-sm text-red-500">{errors.income}</p>}
+                      {errors.income && (
+                        <p className="text-sm text-red-500">{errors.income}</p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="creditScore">Credit Score *</Label>
@@ -300,31 +406,56 @@ export function LeadGenModal({
                         type="number"
                         min="300"
                         max="850"
-                        value={formData.creditScore || ''}
-                        onChange={(e) => handleInputChange('creditScore', parseFloat(e.target.value) || 0)}
+                        value={formData.creditScore || ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "creditScore",
+                            parseFloat(e.target.value) || 0
+                          )
+                        }
                         placeholder="Enter credit score (300-850)"
-                        className={errors.creditScore ? 'border-red-500' : ''}
+                        className={errors.creditScore ? "border-red-500" : ""}
                       />
-                      {errors.creditScore && <p className="text-sm text-red-500">{errors.creditScore}</p>}
+                      {errors.creditScore && (
+                        <p className="text-sm text-red-500">
+                          {errors.creditScore}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="employmentType">Employment Type *</Label>
                     <Select
                       value={formData.employmentType}
-                      onValueChange={(value) => handleInputChange('employmentType', value)}
+                      onValueChange={(value) =>
+                        handleInputChange("employmentType", value)
+                      }
                     >
-                      <SelectTrigger className={errors.employmentType ? 'border-red-500' : ''}>
+                      <SelectTrigger
+                        className={
+                          errors.employmentType ? "border-red-500" : ""
+                        }
+                      >
                         <SelectValue placeholder="Select employment type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="salaried">Salaried Employee</SelectItem>
-                        <SelectItem value="self-employed">Self-Employed</SelectItem>
-                        <SelectItem value="contract">Contract Worker</SelectItem>
+                        <SelectItem value="salaried">
+                          Salaried Employee
+                        </SelectItem>
+                        <SelectItem value="self-employed">
+                          Self-Employed
+                        </SelectItem>
+                        <SelectItem value="contract">
+                          Contract Worker
+                        </SelectItem>
                         <SelectItem value="unemployed">Unemployed</SelectItem>
                       </SelectContent>
                     </Select>
-                    {errors.employmentType && <p className="text-sm text-red-500">{errors.employmentType}</p>}
+                    {errors.employmentType && (
+                      <p className="text-sm text-red-500">
+                        {errors.employmentType}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -332,20 +463,28 @@ export function LeadGenModal({
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Preferences</h3>
                   <div className="space-y-2">
-                    <Label htmlFor="preferredLender">Preferred Lender/Broker (Optional)</Label>
+                    <Label htmlFor="preferredLender">
+                      Preferred Lender/Broker (Optional)
+                    </Label>
                     <Input
                       id="preferredLender"
                       value={formData.preferredLender}
-                      onChange={(e) => handleInputChange('preferredLender', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("preferredLender", e.target.value)
+                      }
                       placeholder="Enter preferred lender or broker name"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="additionalInfo">Additional Information (Optional)</Label>
+                    <Label htmlFor="additionalInfo">
+                      Additional Information (Optional)
+                    </Label>
                     <Textarea
                       id="additionalInfo"
                       value={formData.additionalInfo}
-                      onChange={(e) => handleInputChange('additionalInfo', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("additionalInfo", e.target.value)
+                      }
                       placeholder="Any additional information that might help brokers assist you"
                       rows={3}
                     />
@@ -361,17 +500,28 @@ export function LeadGenModal({
                         type="checkbox"
                         id="consentToShare"
                         checked={formData.consentToShare}
-                        onChange={(e) => handleInputChange('consentToShare', e.target.checked)}
+                        onChange={(e) =>
+                          handleInputChange("consentToShare", e.target.checked)
+                        }
                         className="mt-1"
                       />
                       <div className="space-y-1">
-                        <Label htmlFor="consentToShare" className="text-sm font-medium">
-                          I consent to share my information with qualified mortgage brokers and lenders *
+                        <Label
+                          htmlFor="consentToShare"
+                          className="text-sm font-medium"
+                        >
+                          I consent to share my information with qualified
+                          mortgage brokers and lenders *
                         </Label>
                         <p className="text-xs text-gray-600">
-                          This allows us to match you with the best mortgage professionals for your needs.
+                          This allows us to match you with the best mortgage
+                          professionals for your needs.
                         </p>
-                        {errors.consentToShare && <p className="text-sm text-red-500">{errors.consentToShare}</p>}
+                        {errors.consentToShare && (
+                          <p className="text-sm text-red-500">
+                            {errors.consentToShare}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-start space-x-3">
@@ -379,29 +529,46 @@ export function LeadGenModal({
                         type="checkbox"
                         id="consentToContact"
                         checked={formData.consentToContact}
-                        onChange={(e) => handleInputChange('consentToContact', e.target.checked)}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "consentToContact",
+                            e.target.checked
+                          )
+                        }
                         className="mt-1"
                       />
                       <div className="space-y-1">
-                        <Label htmlFor="consentToContact" className="text-sm font-medium">
-                          I consent to be contacted by mortgage brokers via phone, email, or SMS *
+                        <Label
+                          htmlFor="consentToContact"
+                          className="text-sm font-medium"
+                        >
+                          I consent to be contacted by mortgage brokers via
+                          phone, email, or SMS *
                         </Label>
                         <p className="text-xs text-gray-600">
-                          Brokers may contact you to discuss your mortgage options and provide personalized assistance.
+                          Brokers may contact you to discuss your mortgage
+                          options and provide personalized assistance.
                         </p>
-                        {errors.consentToContact && <p className="text-sm text-red-500">{errors.consentToContact}</p>}
+                        {errors.consentToContact && (
+                          <p className="text-sm text-red-500">
+                            {errors.consentToContact}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Privacy Notice */}
                   <div className="flex items-start space-x-2 p-3 bg-blue-50 rounded-lg">
                     <Shield className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                     <div className="text-sm text-blue-800">
                       <p className="font-medium mb-1">Privacy Notice</p>
                       <p>
-                        Your information is encrypted and stored securely. We only share data with verified, licensed mortgage professionals. 
-                        You can request data deletion at any time. Sharing information with lenders does not guarantee mortgage approval.
+                        Your information is encrypted and stored securely. We
+                        only share data with verified, licensed mortgage
+                        professionals. You can request data deletion at any
+                        time. Sharing information with lenders does not
+                        guarantee mortgage approval.
                       </p>
                     </div>
                   </div>
@@ -469,5 +636,5 @@ export function LeadGenModal({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

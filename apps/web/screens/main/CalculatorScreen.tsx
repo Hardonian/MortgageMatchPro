@@ -1,29 +1,28 @@
-import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-} from 'react-native';
-import { Text, Card, Button, useTheme } from 'react-native-paper';
-import { useAuth } from '../../contexts/AuthContext';
-import { useI18n } from '../../contexts/I18nContext';
-import { mortgageService } from '../../services/mortgageService';
-import { AffordabilityInput, AffordabilityResult } from '../../types';
-import { spacing } from '../../constants/theme';
-import { AffordabilityInputForm } from '../../components/calculator/AffordabilityInputForm';
-import { MortgageProductSelector } from '../../components/calculator/MortgageProductSelector';
-import { AffordabilityResultsCard } from '../../components/calculator/AffordabilityResultsCard';
-import { RecommendationsCard } from '../../components/calculator/RecommendationsCard';
-import { ResponsiveLayout } from '../../components/layout/ResponsiveLayout';
-import { ResponsiveText } from '../../components/ui/ResponsiveText';
-import { ResponsiveButton } from '../../components/ui/ResponsiveButton';
+import React, { useState } from "react";
+import { View, StyleSheet } from "react-native";
+import { Text, Card, Button, useTheme } from "react-native-paper";
+import { useAuth } from "../../contexts/AuthContext";
+import { useI18n } from "../../contexts/I18nContext";
+import { mortgageService } from "../../services/mortgageService";
+import { AffordabilityInput, AffordabilityResult } from "../../types";
+import { spacing } from "../../constants/theme";
+import { AffordabilityInputForm } from "../../components/calculator/AffordabilityInputForm";
+import { MortgageProductSelector } from "../../components/calculator/MortgageProductSelector";
+import { AffordabilityResultsCard } from "../../components/calculator/AffordabilityResultsCard";
+import { RecommendationsCard } from "../../components/calculator/RecommendationsCard";
+import { ResponsiveLayout } from "../../components/layout/ResponsiveLayout";
+import { ResponsiveText } from "../../components/ui/ResponsiveText";
+import { ResponsiveButton } from "../../components/ui/ResponsiveButton";
 
 export const CalculatorScreen: React.FC = () => {
   const { theme } = useTheme();
   const { t } = useI18n();
   const { user } = useAuth();
-  const [affordabilityResult, setAffordabilityResult] = useState<AffordabilityResult | null>(null);
+  const [affordabilityResult, setAffordabilityResult] =
+    useState<AffordabilityResult | null>(null);
   const [loading, setLoading] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<string>('conventional');
+  const [selectedProduct, setSelectedProduct] =
+    useState<string>("conventional");
 
   const handleCalculate = async (input: AffordabilityInput) => {
     try {
@@ -31,7 +30,7 @@ export const CalculatorScreen: React.FC = () => {
       const result = await mortgageService.calculateAffordability(input);
       setAffordabilityResult(result);
     } catch (error) {
-      console.error('Calculation error:', error);
+      console.error("Calculation error:", error);
     } finally {
       setLoading(false);
     }
@@ -51,14 +50,14 @@ export const CalculatorScreen: React.FC = () => {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <ResponsiveText 
-            variant="h1" 
+          <ResponsiveText
+            variant="h1"
             style={[styles.title, { color: theme.colors.onBackground }]}
           >
             Mortgage Calculator
           </ResponsiveText>
-          <ResponsiveText 
-            variant="body" 
+          <ResponsiveText
+            variant="body"
             style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}
           >
             Calculate your affordability and explore mortgage options
@@ -68,8 +67,8 @@ export const CalculatorScreen: React.FC = () => {
         {/* Mortgage Product Selection */}
         <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
-            <ResponsiveText 
-              variant="h3" 
+            <ResponsiveText
+              variant="h3"
               style={[styles.cardTitle, { color: theme.colors.onSurface }]}
             >
               Select Mortgage Product
@@ -84,8 +83,8 @@ export const CalculatorScreen: React.FC = () => {
         {/* Affordability Calculator */}
         <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
-            <ResponsiveText 
-              variant="h3" 
+            <ResponsiveText
+              variant="h3"
               style={[styles.cardTitle, { color: theme.colors.onSurface }]}
             >
               Affordability Calculator
@@ -111,13 +110,17 @@ export const CalculatorScreen: React.FC = () => {
           <View style={styles.actionButtons}>
             <ResponsiveButton
               title="View Current Rates"
-              onPress={() => {/* Navigate to rates */}}
+              onPress={() => {
+                /* Navigate to rates */
+              }}
               variant="primary"
               style={styles.actionButton}
             />
             <ResponsiveButton
               title="Compare Scenarios"
-              onPress={() => {/* Navigate to scenarios */}}
+              onPress={() => {
+                /* Navigate to scenarios */
+              }}
               variant="outline"
               style={styles.actionButton}
             />
@@ -143,7 +146,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: spacing.xs,
   },
   subtitle: {
@@ -155,7 +158,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: spacing.md,
   },
   actionButtons: {

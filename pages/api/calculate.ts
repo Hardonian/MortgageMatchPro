@@ -1,15 +1,15 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { AffordabilityAgent } from '@/lib/openai'
-import { supabaseAdmin } from '@/lib/supabase'
-import { 
-  withSecurity, 
-  withRateLimit, 
-  withValidation, 
+import { NextApiRequest, NextApiResponse } from "next";
+import { AffordabilityAgent } from "@/lib/openai";
+import { supabaseAdmin } from "@/lib/supabase";
+import {
+  withSecurity,
+  withRateLimit,
+  withValidation,
   AffordabilityInputSchema,
   logAuditEvent,
-  handleError
-} from '@/lib/security'
-import { analytics, errorTracking } from '@/lib/monitoring'
+  handleError,
+} from "@/lib/security";
+import { analytics, errorTracking } from "@/lib/monitoring";
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -26,20 +26,20 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       taxes = 0,
       insurance = 0,
       hoa = 0,
-    } = req.body
+    } = req.body;
 
     // Log the calculation request
     if (userId) {
-      await logAuditEvent('affordability_calculation', userId, {
+      await logAuditEvent("affordability_calculation", userId, {
         country,
         income: Math.floor(income / 10000) * 10000, // Round for privacy
         propertyPrice: Math.floor(propertyPrice / 50000) * 50000, // Round for privacy
         location,
-      })
+      });
     }
 
     // Calculate affordability using AI agent
-    const agent = new AffordabilityAgent()
+    const agent = new AffordabilityAgent();
     const result = await agent.calculateAffordability({
       country,
       income,
@@ -52,7 +52,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       taxes,
       insurance,
       hoa,
-    })
+    });
 
     // Track analytics
     analytics.trackAffordabilityCalculation({
@@ -60,12 +60,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       income,
       propertyPrice,
       qualificationResult: result.qualificationResult,
-    })
+    });
 
     // Save calculation to database if userId provided
     if (userId) {
       const { error } = await supabaseAdmin
-        .from('mortgage_calculations')
+        .from("mortgage_calculations")
         .insert({
           user_id: userId,
           country,
@@ -81,30 +81,30 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           max_affordable: result.maxAffordable,
           monthly_payment: result.monthlyPayment,
           qualifying_rate: result.qualifyingRate,
-        })
+        });
 
       if (error) {
-        errorTracking.captureException(new Error('Database save failed'), {
-          context: 'affordability_calculation',
+        errorTracking.captureException(new Error("Database save failed"), {
+          context: "affordability_calculation",
           userId,
           error: error.message,
-        })
+        });
         // Don't fail the request if database save fails
       }
     }
 
-    res.status(200).json(result)
+    res.status(200).json(result);
   } catch (error) {
     errorTracking.captureException(error as Error, {
-      context: 'affordability_calculation',
+      context: "affordability_calculation",
       userId: req.body.userId,
-    })
-    handleError(res, error as Error, 'affordability_calculation')
+    });
+    handleError(res, error as Error, "affordability_calculation");
   }
 }
 
 export default withSecurity(
-  withRateLimit('affordability')(
+  withRateLimit("affordability")(
     withValidation(AffordabilityInputSchema)(handler)
   )
-)
+);

@@ -36,9 +36,9 @@ export interface User extends BaseEntity {
 }
 
 export enum UserRole {
-  ADMIN = 'admin',
-  USER = 'user',
-  VIEWER = 'viewer'
+  ADMIN = "admin",
+  USER = "user",
+  VIEWER = "viewer",
 }
 
 // Tenant types
@@ -91,7 +91,7 @@ export interface BillingPlan {
   name: string;
   price: number;
   currency: string;
-  interval: 'monthly' | 'yearly';
+  interval: "monthly" | "yearly";
   features: string[];
   limits: {
     maxUsers: number;
@@ -110,10 +110,10 @@ export interface Subscription extends BaseEntity {
 }
 
 export enum SubscriptionStatus {
-  ACTIVE = 'active',
-  CANCELED = 'canceled',
-  PAST_DUE = 'past_due',
-  UNPAID = 'unpaid'
+  ACTIVE = "active",
+  CANCELED = "canceled",
+  PAST_DUE = "past_due",
+  UNPAID = "unpaid",
 }
 
 // Error types
@@ -124,11 +124,11 @@ export interface AppError extends Error {
 }
 
 export enum ErrorCode {
-  VALIDATION_ERROR = 'VALIDATION_ERROR',
-  AUTHENTICATION_ERROR = 'AUTHENTICATION_ERROR',
-  AUTHORIZATION_ERROR = 'AUTHORIZATION_ERROR',
-  NOT_FOUND = 'NOT_FOUND',
-  RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
-  INTERNAL_ERROR = 'INTERNAL_ERROR',
-  EXTERNAL_SERVICE_ERROR = 'EXTERNAL_SERVICE_ERROR'
+  VALIDATION_ERROR = "VALIDATION_ERROR",
+  AUTHENTICATION_ERROR = "AUTHENTICATION_ERROR",
+  AUTHORIZATION_ERROR = "AUTHORIZATION_ERROR",
+  NOT_FOUND = "NOT_FOUND",
+  RATE_LIMIT_EXCEEDED = "RATE_LIMIT_EXCEEDED",
+  INTERNAL_ERROR = "INTERNAL_ERROR",
+  EXTERNAL_SERVICE_ERROR = "EXTERNAL_SERVICE_ERROR",
 }

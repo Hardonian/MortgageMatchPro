@@ -1,57 +1,66 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { ForecastingAgent } from '@/lib/agents/forecasting-agent'
-import { supabaseAdmin } from '@/lib/supabase'
+import { NextApiRequest, NextApiResponse } from "next";
+import { ForecastingAgent } from "@/lib/agents/forecasting-agent";
+import { supabaseAdmin } from "@/lib/supabase";
 
-const forecastingAgent = new ForecastingAgent()
+const forecastingAgent = new ForecastingAgent();
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' })
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const { modelType, userId, region } = req.query
+    const { modelType, userId, region } = req.query;
 
     if (!modelType) {
-      return res.status(400).json({ error: 'Model type is required' })
+      return res.status(400).json({ error: "Model type is required" });
     }
 
-    let forecasts = []
+    let forecasts = [];
 
     switch (modelType) {
-      case 'rate_forecast':
+      case "rate_forecast":
         forecasts = await forecastingAgent.forecastMortgageRates(
-          region as string || 'CA',
+          (region as string) || "CA",
           12 // 12 months forecast
-        )
-        break
+        );
+        break;
 
-      case 'property_appreciation':
+      case "property_appreciation":
         if (!region) {
-          return res.status(400).json({ error: 'Region is required for property forecasts' })
+          return res
+            .status(400)
+            .json({ error: "Region is required for property forecasts" });
         }
         forecasts = await forecastingAgent.forecastPropertyAppreciation(
           region as string,
           12
-        )
-        break
+        );
+        break;
 
-      case 'refinance_probability':
+      case "refinance_probability":
         if (!userId) {
-          return res.status(400).json({ error: 'User ID is required for refinance probability' })
+          return res
+            .status(400)
+            .json({ error: "User ID is required for refinance probability" });
         }
-        
+
         // Get user's latest mortgage calculation
         const { data: calculation, error: calcError } = await supabaseAdmin
-          .from('mortgage_calculations')
-          .select('*')
-          .eq('user_id', userId)
-          .order('created_at', { ascending: false })
+          .from("mortgage_calculations")
+          .select("*")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false })
           .limit(1)
-          .single()
+          .single();
 
         if (calcError || !calculation) {
-          return res.status(404).json({ error: 'No mortgage data found for user' })
+          return res
+            .status(404)
+            .json({ error: "No mortgage data found for user" });
         }
 
         const forecast = await forecastingAgent.predictRefinanceProbability(
@@ -61,17 +70,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           calculation.property_price,
           undefined,
           calculation.income
-        )
-        forecasts = [forecast]
-        break
+        );
+        forecasts = [forecast];
+        break;
 
       default:
-        return res.status(400).json({ error: 'Invalid model type' })
+        return res.status(400).json({ error: "Invalid model type" });
     }
 
-    res.status(200).json({ forecasts })
+    res.status(200).json({ forecasts });
   } catch (error) {
-    console.error('Error fetching forecasts:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    console.error("Error fetching forecasts:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 }

@@ -2,9 +2,9 @@ import axios from 'axios';
 import { Platform } from 'react-native';
 import Config from 'react-native-config';
 
-const API_BASE_URL = __DEV__ 
-  ? Platform.OS === 'ios' 
-    ? 'http://localhost:3000/api' 
+const API_BASE_URL = __DEV__
+  ? Platform.OS === 'ios'
+    ? 'http://localhost:3000/api'
     : 'http://10.0.2.2:3000/api'
   : Config.API_BASE_URL || 'https://your-api-domain.com/api';
 

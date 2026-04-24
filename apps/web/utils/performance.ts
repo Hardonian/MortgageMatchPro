@@ -1,4 +1,4 @@
-import { Dimensions, Platform } from 'react-native';
+import { Dimensions, Platform } from "react-native";
 
 // Performance monitoring utilities
 export class PerformanceMonitor {
@@ -29,7 +29,7 @@ export class PerformanceMonitor {
     const duration = Date.now() - startTime;
     this.metrics.set(key, duration);
     this.startTimes.delete(key);
-    
+
     // Log slow operations
     if (duration > 1000) {
       console.warn(`Slow operation detected: ${key} took ${duration}ms`);
@@ -56,23 +56,23 @@ export class PerformanceMonitor {
 
   // Log performance summary
   logSummary(): void {
-    console.log('Performance Metrics Summary:', this.getAllMetrics());
+    console.log("Performance Metrics Summary:", this.getAllMetrics());
   }
 }
 
 // Bundle size monitoring
 export const getBundleSizeInfo = () => {
-  const { width, height } = Dimensions.get('window');
-  const pixelRatio = Platform.OS === 'ios' ? 2 : 3;
-  
+  const { width, height } = Dimensions.get("window");
+  const pixelRatio = Platform.OS === "ios" ? 2 : 3;
+
   return {
     screenWidth: width,
     screenHeight: height,
     pixelRatio,
     platform: Platform.OS,
     // Estimated bundle size (this would be replaced with actual bundle analysis)
-    estimatedBundleSize: '2.1MB', // Current size from retrospective
-    targetBundleSize: '1.5MB',
+    estimatedBundleSize: "2.1MB", // Current size from retrospective
+    targetBundleSize: "1.5MB",
     isOverTarget: true,
   };
 };
@@ -90,7 +90,7 @@ export const getMemoryInfo = () => {
       };
     }
   }
-  
+
   return {
     usedJSHeapSize: 0,
     totalJSHeapSize: 0,
@@ -105,19 +105,19 @@ export const PERFORMANCE_BUDGETS = {
     max: 1.5 * 1024 * 1024, // 1.5MB in bytes
     warning: 1.2 * 1024 * 1024, // 1.2MB warning threshold
   },
-  
+
   // Render time limits
   renderTime: {
     max: 16, // 16ms for 60fps
     warning: 12, // 12ms warning threshold
   },
-  
+
   // API response time limits
   apiResponse: {
     max: 2000, // 2 seconds
     warning: 1000, // 1 second warning
   },
-  
+
   // Navigation time limits
   navigation: {
     max: 300, // 300ms
@@ -172,7 +172,7 @@ export const optimizeForPerformance = {
 // Performance monitoring hooks
 export const usePerformanceMonitor = () => {
   const monitor = PerformanceMonitor.getInstance();
-  
+
   return {
     startTiming: monitor.startTiming.bind(monitor),
     endTiming: monitor.endTiming.bind(monitor),
@@ -187,10 +187,12 @@ export const usePerformanceMonitor = () => {
 export const analyzeBundleSize = () => {
   if (__DEV__) {
     const bundleInfo = getBundleSizeInfo();
-    console.log('Bundle Size Analysis:', bundleInfo);
-    
+    console.log("Bundle Size Analysis:", bundleInfo);
+
     if (bundleInfo.isOverTarget) {
-      console.warn('Bundle size exceeds target! Consider code splitting or removing unused dependencies.');
+      console.warn(
+        "Bundle size exceeds target! Consider code splitting or removing unused dependencies."
+      );
     }
   }
 };

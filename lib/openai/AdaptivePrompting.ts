@@ -3,10 +3,10 @@
  * v1.2.0 - Context-aware prompting with feedback loops and explanation transparency
  */
 
-import { z } from 'zod'
-import { openai } from '../openai'
-import { profileContextService } from '../context/ProfileContext'
-import { personalizationEngine } from '../experimentation/personalization-engine'
+import { z } from "zod";
+import { openai } from "../openai";
+import { profileContextService } from "../context/ProfileContext";
+import { personalizationEngine } from "../experimentation/personalization-engine";
 
 // Prompt template schema
 export const PromptTemplateSchema = z.object({
@@ -19,10 +19,10 @@ export const PromptTemplateSchema = z.object({
   version: z.string(),
   effectiveness: z.number().min(0).max(1).default(0.5),
   usageCount: z.number().default(0),
-  lastUpdated: z.string()
-})
+  lastUpdated: z.string(),
+});
 
-export type PromptTemplate = z.infer<typeof PromptTemplateSchema>
+export type PromptTemplate = z.infer<typeof PromptTemplateSchema>;
 
 // Prompt chain step
 export const PromptChainStepSchema = z.object({
@@ -31,10 +31,10 @@ export const PromptChainStepSchema = z.object({
   condition: z.string().optional(),
   fallbackTemplateId: z.string().optional(),
   maxRetries: z.number().default(3),
-  timeout: z.number().default(30000)
-})
+  timeout: z.number().default(30000),
+});
 
-export type PromptChainStep = z.infer<typeof PromptChainStepSchema>
+export type PromptChainStep = z.infer<typeof PromptChainStepSchema>;
 
 // AI response with explanation
 export const AIResponseSchema = z.object({
@@ -48,11 +48,11 @@ export const AIResponseSchema = z.object({
     tokens: z.number(),
     latency: z.number(),
     templateId: z.string(),
-    chainStep: z.string().optional()
-  })
-})
+    chainStep: z.string().optional(),
+  }),
+});
 
-export type AIResponse = z.infer<typeof AIResponseSchema>
+export type AIResponse = z.infer<typeof AIResponseSchema>;
 
 // Feedback for prompt optimization
 export const PromptFeedbackSchema = z.object({
@@ -62,26 +62,26 @@ export const PromptFeedbackSchema = z.object({
   rating: z.number().min(1).max(5),
   feedback: z.string().optional(),
   factors: z.array(z.string()).optional(),
-  timestamp: z.string()
-})
+  timestamp: z.string(),
+});
 
-export type PromptFeedback = z.infer<typeof PromptFeedbackSchema>
+export type PromptFeedback = z.infer<typeof PromptFeedbackSchema>;
 
 export class AdaptivePromptingService {
-  private static instance: AdaptivePromptingService
-  private templates: Map<string, PromptTemplate> = new Map()
-  private promptChains: Map<string, PromptChainStep[]> = new Map()
-  private feedbackHistory: PromptFeedback[] = []
+  private static instance: AdaptivePromptingService;
+  private templates: Map<string, PromptTemplate> = new Map();
+  private promptChains: Map<string, PromptChainStep[]> = new Map();
+  private feedbackHistory: PromptFeedback[] = [];
 
   private constructor() {
-    this.initializeDefaultTemplates()
+    this.initializeDefaultTemplates();
   }
 
   static getInstance(): AdaptivePromptingService {
     if (!AdaptivePromptingService.instance) {
-      AdaptivePromptingService.instance = new AdaptivePromptingService()
+      AdaptivePromptingService.instance = new AdaptivePromptingService();
     }
-    return AdaptivePromptingService.instance
+    return AdaptivePromptingService.instance;
   }
 
   /**
@@ -92,30 +92,34 @@ export class AdaptivePromptingService {
     promptType: string,
     context: Record<string, any> = {},
     options: {
-      useChain?: boolean
-      includeExplanation?: boolean
-      maxRetries?: number
+      useChain?: boolean;
+      includeExplanation?: boolean;
+      maxRetries?: number;
     } = {}
   ): Promise<AIResponse> {
-    const startTime = Date.now()
-    
+    const startTime = Date.now();
+
     try {
       // Get user profile context
-      const profileContext = await profileContextService.getProfileContext(userId)
-      
+      const profileContext = await profileContextService.getProfileContext(
+        userId
+
       // Select appropriate template
-      const template = await this.selectTemplate(promptType, profileContext, context)
-      
+      const template = await this.selectTemplate(
+        promptType,
+        profileContext,
+        context
+
       // Build personalized prompt
       const personalizedPrompt = await this.buildPersonalizedPrompt(
         template,
         profileContext,
         context
-      )
+      );
 
       // Generate response
-      let response: AIResponse
-      
+      let response: AIResponse;
+
       if (options.useChain) {
         response = await this.executePromptChain(
           userId,
@@ -123,46 +127,47 @@ export class AdaptivePromptingService {
           personalizedPrompt,
           context,
           options.maxRetries || 3
-        )
+        );
       } else {
         response = await this.executeSinglePrompt(
           template,
           personalizedPrompt,
           context,
           options.includeExplanation !== false
-        )
+        );
       }
 
       // Add metadata
       response.metadata = {
         ...response.metadata,
         latency: Date.now() - startTime,
-        templateId: template.id
+        templateId: template.id,
       }
 
       // Update template usage
-      await this.updateTemplateUsage(template.id)
+      await this.updateTemplateUsage(template.id);
 
       // Track for learning
-      await this.trackResponse(userId, template.id, response, context)
+      await this.trackResponse(userId, template.id, response, context);
 
-      return response
+      return response;
 
     } catch (error) {
-      console.error('Error generating adaptive response:', error)
-      
+      console.error("Error generating adaptive response:", error);
+
       // Return fallback response
       return {
-        content: 'I apologize, but I encountered an error processing your request. Please try again.',
+        content:
+          "I apologize, but I encountered an error processing your request. Please try again.",
         confidence: 0.1,
-        reasoning: 'Error occurred during response generation',
-        factors: ['system_error'],
+        reasoning: "Error occurred during response generation",
+        factors: ["system_error"],
         metadata: {
-          model: 'gpt-4o-mini',
+          model: "gpt-4o-mini",
           tokens: 0,
           latency: Date.now() - startTime,
-          templateId: 'error_fallback'
-        }
+          templateId: "error_fallback",
+        },
       }
     }
   }
@@ -186,21 +191,20 @@ export class AdaptivePromptingService {
         rating,
         feedback,
         factors,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }
 
-      this.feedbackHistory.push(promptFeedback)
+      this.feedbackHistory.push(promptFeedback);
 
       // Update template effectiveness
-      await this.updateTemplateEffectiveness(templateId, rating)
+      await this.updateTemplateEffectiveness(templateId, rating);
 
       // If rating is low, trigger prompt optimization
       if (rating <= 2) {
-        await this.optimizePrompt(templateId, promptFeedback)
+        await this.optimizePrompt(templateId, promptFeedback);
       }
-
     } catch (error) {
-      console.error('Error adding feedback:', error)
+      console.error("Error adding feedback:", error);
     }
   }
 
@@ -211,31 +215,32 @@ export class AdaptivePromptingService {
     responseId: string,
     userId: string
   ): Promise<{
-    reasoning: string
-    factors: string[]
-    confidence: number
-    alternativeApproaches: string[]
+    reasoning: string;
+    factors: string[];
+    confidence: number;
+    alternativeApproaches: string[];
   }> {
     try {
       // In a real implementation, this would fetch from a database
       // For now, return a mock explanation
       return {
-        reasoning: 'This response was generated based on your profile preferences and the specific context of your request.',
-        factors: ['user_preferences', 'context_analysis', 'risk_assessment'],
+        reasoning:
+          "This response was generated based on your profile preferences and the specific context of your request.",
+        factors: ["user_preferences", "context_analysis", "risk_assessment"],
         confidence: 0.85,
         alternativeApproaches: [
-          'More conservative approach with lower risk',
-          'More aggressive approach with higher potential returns',
-          'Alternative loan structure consideration'
-        ]
+          "More conservative approach with lower risk",
+          "More aggressive approach with higher potential returns",
+          "Alternative loan structure consideration",
+        ],
       }
     } catch (error) {
-      console.error('Error getting response explanation:', error)
+      console.error("Error getting response explanation:", error);
       return {
-        reasoning: 'Unable to retrieve explanation',
+        reasoning: "Unable to retrieve explanation",
         factors: [],
         confidence: 0,
-        alternativeApproaches: []
+        alternativeApproaches: [],
       }
     }
   }
@@ -243,23 +248,28 @@ export class AdaptivePromptingService {
   /**
    * Create new prompt template
    */
-  async createTemplate(template: Omit<PromptTemplate, 'id' | 'lastUpdated' | 'usageCount' | 'effectiveness'>): Promise<string> {
+  async createTemplate(
+    template: Omit<
+      PromptTemplate,
+      "id" | "lastUpdated" | "usageCount" | "effectiveness"
+    >
+  ): Promise<string> {
     try {
-      const id = this.generateId()
+      const id = this.generateId();
       const newTemplate: PromptTemplate = {
         ...template,
         id,
         lastUpdated: new Date().toISOString(),
         usageCount: 0,
-        effectiveness: 0.5
+        effectiveness: 0.5,
       }
 
-      this.templates.set(id, newTemplate)
-      return id
+      this.templates.set(id, newTemplate);
+      return id;
 
     } catch (error) {
-      console.error('Error creating template:', error)
-      throw error
+      console.error("Error creating template:", error);
+      throw error;
     }
   }
 
@@ -268,29 +278,32 @@ export class AdaptivePromptingService {
    */
   async createPromptChain(
     chainId: string,
-    steps: Omit<PromptChainStep, 'stepId'>[]
+    steps: Omit<PromptChainStep, "stepId">[]
   ): Promise<void> {
     try {
       const chainSteps: PromptChainStep[] = steps.map((step, index) => ({
         ...step,
-        stepId: `${chainId}_step_${index}`
-      }))
+        stepId: `${chainId}_step_${index}`,
+      }));
 
-      this.promptChains.set(chainId, chainSteps)
+      this.promptChains.set(chainId, chainSteps);
 
     } catch (error) {
-      console.error('Error creating prompt chain:', error)
-      throw error
+      console.error("Error creating prompt chain:", error);
+      throw error;
     }
   }
 
   // Private helper methods
 
   private async initializeDefaultTemplates(): Promise<void> {
-    const defaultTemplates: Omit<PromptTemplate, 'id' | 'lastUpdated' | 'usageCount' | 'effectiveness'>[] = [
+    const defaultTemplates: Omit<
+      PromptTemplate,
+      "id" | "lastUpdated" | "usageCount" | "effectiveness"
+    >[] = [
       {
-        name: 'mortgage_recommendation',
-        description: 'Generate mortgage recommendations based on user profile',
+        name: "mortgage_recommendation",
+        description: "Generate mortgage recommendations based on user profile",
         basePrompt: `You are a mortgage expert. Analyze the user's financial situation and provide personalized mortgage recommendations.
 
 User Context:
@@ -308,13 +321,20 @@ Provide recommendations that consider:
 4. Long-term financial impact
 
 Include specific lender suggestions and reasoning.`,
-        variables: ['income', 'downPayment', 'propertyPrice', 'creditScore', 'riskTolerance', 'loanType'],
-        contextRequirements: ['financial_data', 'user_preferences'],
-        version: '1.2.0'
+        variables: [
+          "income",
+          "downPayment",
+          "propertyPrice",
+          "creditScore",
+          "riskTolerance",
+          "loanType",
+        ],
+        contextRequirements: ["financial_data", "user_preferences"],
+        version: "1.2.0",
       },
       {
-        name: 'rate_explanation',
-        description: 'Explain mortgage rates and market conditions',
+        name: "rate_explanation",
+        description: "Explain mortgage rates and market conditions",
         basePrompt: `Explain current mortgage rates and market conditions in a {tone} tone.
 
 Current Context:
@@ -327,13 +347,19 @@ Provide explanation at {explanationLevel} level, covering:
 2. Factors affecting rate changes
 3. What this means for the user
 4. Future outlook and recommendations`,
-        variables: ['tone', 'currentRates', 'targetRate', 'marketTrend', 'explanationLevel'],
-        contextRequirements: ['market_data', 'user_preferences'],
-        version: '1.2.0'
+        variables: [
+          "tone",
+          "currentRates",
+          "targetRate",
+          "marketTrend",
+          "explanationLevel",
+        ],
+        contextRequirements: ["market_data", "user_preferences"],
+        version: "1.2.0",
       },
       {
-        name: 'scenario_comparison',
-        description: 'Compare different mortgage scenarios',
+        name: "scenario_comparison",
+        description: "Compare different mortgage scenarios",
         basePrompt: `Compare mortgage scenarios and provide detailed analysis.
 
 Scenarios to Compare:
@@ -349,14 +375,14 @@ Provide:
 2. Pros and cons of each option
 3. Recommendation with reasoning
 4. Alternative considerations`,
-        variables: ['scenarios', 'riskTolerance', 'timeline', 'goals'],
-        contextRequirements: ['scenario_data', 'user_preferences'],
-        version: '1.2.0'
-      }
+        variables: ["scenarios", "riskTolerance", "timeline", "goals"],
+        contextRequirements: ["scenario_data", "user_preferences"],
+        version: "1.2.0",
+      },
     ]
 
     for (const template of defaultTemplates) {
-      await this.createTemplate(template)
+      await this.createTemplate(template);
     }
   }
 
@@ -366,21 +392,30 @@ Provide:
     context: Record<string, any>
   ): Promise<PromptTemplate> {
     // Find templates that match the prompt type
-    const matchingTemplates = Array.from(this.templates.values())
-      .filter(template => template.name.includes(promptType))
+    const matchingTemplates = Array.from(this.templates.values()).filter(
+      (template) => template.name.includes(promptType)
+    );
 
     if (matchingTemplates.length === 0) {
-      throw new Error(`No template found for prompt type: ${promptType}`)
+      throw new Error(`No template found for prompt type: ${promptType}`);
     }
 
     // Select template based on effectiveness and context match
     const bestTemplate = matchingTemplates.reduce((best, current) => {
-      const currentScore = this.calculateTemplateScore(current, profileContext, context)
-      const bestScore = this.calculateTemplateScore(best, profileContext, context)
-      return currentScore > bestScore ? current : best
-    })
+      const currentScore = this.calculateTemplateScore(
+        current,
+        profileContext,
+        context
+      );
+      const bestScore = this.calculateTemplateScore(
+        best,
+        profileContext,
+        context
+      );
+      return currentScore > bestScore ? current : best;
+    });
 
-    return bestTemplate
+    return bestTemplate;
   }
 
   private calculateTemplateScore(
@@ -388,24 +423,32 @@ Provide:
     profileContext: any,
     context: Record<string, any>
   ): number {
-    let score = template.effectiveness
+    let score = template.effectiveness;
 
     // Boost score for templates that match user preferences
-    if (profileContext.aiPromptStyle === 'conversational' && template.name.includes('conversational')) {
-      score += 0.2
+    if (
+      profileContext.aiPromptStyle === "conversational" &&
+      template.name.includes("conversational")
+    ) {
+      score += 0.2;
     }
 
-    if (profileContext.explanationLevel === 'detailed' && template.name.includes('detailed')) {
-      score += 0.2
+    if (
+      profileContext.explanationLevel === "detailed" &&
+      template.name.includes("detailed")
+    ) {
+      score += 0.2;
     }
 
     // Boost score for templates with required context available
-    const availableContext = Object.keys(context)
-    const requiredContext = template.contextRequirements
-    const contextMatch = requiredContext.filter(req => availableContext.includes(req)).length / requiredContext.length
-    score += contextMatch * 0.3
+    const availableContext = Object.keys(context);
+    const requiredContext = template.contextRequirements;
+    const contextMatch =
+      requiredContext.filter((req) => availableContext.includes(req)).length /
+      requiredContext.length;
+    score += contextMatch * 0.3;
 
-    return Math.min(score, 1.0)
+    return Math.min(score, 1.0);
   }
 
   private async buildPersonalizedPrompt(
@@ -413,55 +456,63 @@ Provide:
     profileContext: any,
     context: Record<string, any>
   ): Promise<string> {
-    let personalizedPrompt = template.basePrompt
+    let personalizedPrompt = template.basePrompt;
 
     // Replace template variables with actual values
     for (const variable of template.variables) {
-      const value = this.getVariableValue(variable, profileContext, context)
-      const placeholder = `{${variable}}`
-      personalizedPrompt = personalizedPrompt.replace(new RegExp(placeholder, 'g'), value)
+      const value = this.getVariableValue(variable, profileContext, context);
+      const placeholder = `{${variable}}`;
+      personalizedPrompt = personalizedPrompt.replace(
+        new RegExp(placeholder, "g"),
+        value
+      );
     }
 
     // Add personalization context
-    const personalizationContext = await profileContextService.getPersonalizedPrompt(
-      profileContext.userId,
-      personalizedPrompt,
-      context
-    )
+    const personalizationContext =
+      await profileContextService.getPersonalizedPrompt(
+        profileContext.userId,
+        personalizedPrompt,
+        context
+      );
 
-    return personalizationContext
+    return personalizationContext;
   }
 
-  private getVariableValue(variable: string, profileContext: any, context: Record<string, any>): string {
+  private getVariableValue(
+    variable: string,
+    profileContext: any,
+    context: Record<string, any>
+  ): string {
     // Check context first
     if (context[variable] !== undefined) {
-      return String(context[variable])
+      return String(context[variable]);
     }
 
     // Check profile context
     if (profileContext[variable] !== undefined) {
-      return String(profileContext[variable])
+      return String(profileContext[variable]);
     }
 
     // Return default values
     const defaults: Record<string, string> = {
-      tone: profileContext.copyTone || 'professional',
-      explanationLevel: profileContext.explanationLevel || 'standard',
-      riskTolerance: profileContext.riskComfort || 'moderate',
-      loanType: profileContext.loanTypeFocus || 'fixed',
-      income: 'Not specified',
-      downPayment: 'Not specified',
-      propertyPrice: 'Not specified',
-      creditScore: 'Not specified',
-      currentRates: 'Current market rates',
-      targetRate: 'User target rate',
-      marketTrend: 'Stable',
-      scenarios: 'Multiple scenarios to compare',
-      timeline: 'Not specified',
-      goals: 'Not specified'
-    }
+      tone: profileContext.copyTone || "professional",
+      explanationLevel: profileContext.explanationLevel || "standard",
+      riskTolerance: profileContext.riskComfort || "moderate",
+      loanType: profileContext.loanTypeFocus || "fixed",
+      income: "Not specified",
+      downPayment: "Not specified",
+      propertyPrice: "Not specified",
+      creditScore: "Not specified",
+      currentRates: "Current market rates",
+      targetRate: "User target rate",
+      marketTrend: "Stable",
+      scenarios: "Multiple scenarios to compare",
+      timeline: "Not specified",
+      goals: "Not specified",
+    };
 
-    return defaults[variable] || 'Not specified'
+    return defaults[variable] || "Not specified";
   }
 
   private async executeSinglePrompt(
@@ -472,30 +523,30 @@ Provide:
   ): Promise<AIResponse> {
     try {
       const completion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: "gpt-4o-mini",
         messages: [
           {
-            role: 'system',
-            content: includeExplanation 
-              ? 'Provide detailed explanations for your recommendations, including reasoning and key factors considered.'
-              : 'Provide clear, concise recommendations.'
+            role: "system",
+            content: includeExplanation
+              ? "Provide detailed explanations for your recommendations, including reasoning and key factors considered."
+              : "Provide clear, concise recommendations.",
           },
           {
-            role: 'user',
-            content: prompt
+            role: "user",
+            content: prompt,
           }
         ],
         temperature: 0.7,
-        max_tokens: 1500
-      })
+        max_tokens: 1500,
+      });
 
-      const content = completion.choices[0].message.content || ''
-      const tokens = completion.usage?.total_tokens || 0
+      const content = completion.choices[0].message.content || "";
+      const tokens = completion.usage?.total_tokens || 0;
 
       // Extract reasoning and factors (simplified)
-      const reasoning = this.extractReasoning(content)
-      const factors = this.extractFactors(content)
-      const confidence = this.calculateConfidence(content, context)
+      const reasoning = this.extractReasoning(content);
+      const factors = this.extractFactors(content);
+      const confidence = this.calculateConfidence(content, context);
 
       return {
         content,
@@ -504,16 +555,16 @@ Provide:
         factors,
         suggestions: this.extractSuggestions(content),
         metadata: {
-          model: 'gpt-4o-mini',
+          model: "gpt-4o-mini",
           tokens,
           latency: 0, // Will be set by caller
-          templateId: template.id
+          templateId: template.id,
         }
-      }
+      };
 
     } catch (error) {
-      console.error('Error executing prompt:', error)
-      throw error
+      console.error("Error executing prompt:", error);
+      throw error;
     }
   }
 
@@ -526,86 +577,109 @@ Provide:
   ): Promise<AIResponse> {
     // Simplified chain execution - in production, this would be more sophisticated
     return this.executeSinglePrompt(
-      this.templates.get('mortgage_recommendation')!,
+      this.templates.get("mortgage_recommendation")!,
       initialPrompt,
       context,
       true
-    )
+    );
   }
 
   private extractReasoning(content: string): string {
     // Extract reasoning from AI response (simplified)
-    const reasoningMatch = content.match(/reasoning[:\s]+(.*?)(?:\n\n|\n$|$)/i)
-    return reasoningMatch ? reasoningMatch[1].trim() : 'Analysis based on provided context and user profile.'
+    const reasoningMatch = content.match(/reasoning[:\s]+(.*?)(?:\n\n|\n$|$)/i);
+    return reasoningMatch
+      ? reasoningMatch[1].trim()
+      : "Analysis based on provided context and user profile.";
   }
 
   private extractFactors(content: string): string[] {
     // Extract key factors from AI response (simplified)
-    const factors: string[] = []
-    
-    if (content.includes('income') || content.includes('affordability')) factors.push('income_analysis')
-    if (content.includes('credit') || content.includes('score')) factors.push('credit_assessment')
-    if (content.includes('risk') || content.includes('tolerance')) factors.push('risk_evaluation')
-    if (content.includes('rate') || content.includes('interest')) factors.push('rate_consideration')
-    if (content.includes('market') || content.includes('trend')) factors.push('market_conditions')
+    const factors: string[] = [];
 
-    return factors.length > 0 ? factors : ['general_analysis']
+    if (content.includes("income") || content.includes("affordability"))
+      factors.push("income_analysis");
+    if (content.includes("credit") || content.includes("score"))
+      factors.push("credit_assessment");
+    if (content.includes("risk") || content.includes("tolerance"))
+      factors.push("risk_evaluation");
+    if (content.includes("rate") || content.includes("interest"))
+      factors.push("rate_consideration");
+    if (content.includes("market") || content.includes("trend"))
+      factors.push("market_conditions");
+
+    return factors.length > 0 ? factors : ["general_analysis"];
   }
 
-  private calculateConfidence(content: string, context: Record<string, any>): number {
+  private calculateConfidence(
+    content: string,
+    context: Record<string, any>
+  ): number {
     // Calculate confidence based on content quality and context completeness
-    let confidence = 0.5
+    let confidence = 0.5;
 
     // Boost confidence for longer, more detailed responses
-    if (content.length > 500) confidence += 0.2
-    if (content.length > 1000) confidence += 0.1
+    if (content.length > 500) {confidence += 0.2}
+    if (content.length > 1000) {confidence += 0.1}
 
     // Boost confidence for complete context
-    const requiredFields = ['income', 'downPayment', 'propertyPrice']
-    const availableFields = requiredFields.filter(field => context[field] !== undefined)
-    confidence += (availableFields.length / requiredFields.length) * 0.3
+    const requiredFields = ["income", "downPayment", "propertyPrice"];
+    const availableFields = requiredFields.filter(
+      (field) => context[field] !== undefined
+    );
+    confidence += (availableFields.length / requiredFields.length) * 0.3;
 
-    return Math.min(confidence, 1.0)
+    return Math.min(confidence, 1.0);
   }
 
   private extractSuggestions(content: string): string[] {
     // Extract suggestions from AI response (simplified)
-    const suggestions: string[] = []
-    const lines = content.split('\n')
-    
+    const suggestions: string[] = [];
+    const lines = content.split("\n");
+
     for (const line of lines) {
-      if (line.includes('recommend') || line.includes('suggest') || line.includes('consider')) {
-        suggestions.push(line.trim())
+      if (
+        line.includes("recommend") ||
+        line.includes("suggest") ||
+        line.includes("consider")
+      ) {
+        suggestions.push(line.trim());
       }
     }
 
-    return suggestions.slice(0, 3) // Limit to 3 suggestions
+    return suggestions.slice(0, 3); // Limit to 3 suggestions
   }
 
   private async updateTemplateUsage(templateId: string): Promise<void> {
-    const template = this.templates.get(templateId)
+    const template = this.templates.get(templateId);
     if (template) {
-      template.usageCount++
-      template.lastUpdated = new Date().toISOString()
-      this.templates.set(templateId, template)
+      template.usageCount++;
+      template.lastUpdated = new Date().toISOString();
+      this.templates.set(templateId, template);
     }
   }
 
-  private async updateTemplateEffectiveness(templateId: string, rating: number): Promise<void> {
-    const template = this.templates.get(templateId)
+  private async updateTemplateEffectiveness(
+    templateId: string,
+    rating: number
+  ): Promise<void> {
+    const template = this.templates.get(templateId);
     if (template) {
       // Update effectiveness using exponential moving average
-      const alpha = 0.1
-      const normalizedRating = (rating - 1) / 4 // Convert 1-5 to 0-1
-      template.effectiveness = alpha * normalizedRating + (1 - alpha) * template.effectiveness
-      template.lastUpdated = new Date().toISOString()
-      this.templates.set(templateId, template)
+      const alpha = 0.1;
+      const normalizedRating = (rating - 1) / 4; // Convert 1-5 to 0-1
+      template.effectiveness =
+        alpha * normalizedRating + (1 - alpha) * template.effectiveness;
+      template.lastUpdated = new Date().toISOString();
+      this.templates.set(templateId, template);
     }
   }
 
-  private async optimizePrompt(templateId: string, feedback: PromptFeedback): Promise<void> {
+  private async optimizePrompt(
+    templateId: string,
+    feedback: PromptFeedback
+  ): Promise<void> {
     // In production, this would use more sophisticated optimization
-    console.log(`Optimizing prompt ${templateId} based on feedback:`, feedback)
+    console.log(`Optimizing prompt ${templateId} based on feedback:`, feedback);
   }
 
   private async trackResponse(
@@ -615,16 +689,16 @@ Provide:
     context: Record<string, any>
   ): Promise<void> {
     // Track response for learning and optimization
-    console.log(`Tracked response for user ${userId}, template ${templateId}`)
+    console.log(`Tracked response for user ${userId}, template ${templateId}`);
   }
 
   private generateId(): string {
-    return Math.random().toString(36).substr(2, 9)
+    return Math.random().toString(36).substr(2, 9);
   }
 }
 
 // Export singleton instance
-export const adaptivePromptingService = AdaptivePromptingService.getInstance()
+export const adaptivePromptingService = AdaptivePromptingService.getInstance();
 
 // Convenience functions
 export const generateResponse = (
@@ -632,7 +706,13 @@ export const generateResponse = (
   promptType: string,
   context?: Record<string, any>,
   options?: any
-) => adaptivePromptingService.generateResponse(userId, promptType, context, options)
+) =>
+  adaptivePromptingService.generateResponse(
+    userId,
+    promptType,
+    context,
+    options
+  );
 
 export const addFeedback = (
   userId: string,
@@ -641,7 +721,15 @@ export const addFeedback = (
   rating: number,
   feedback?: string,
   factors?: string[]
-) => adaptivePromptingService.addFeedback(userId, templateId, responseId, rating, feedback, factors)
+) =>
+  adaptivePromptingService.addFeedback(
+    userId,
+    templateId,
+    responseId,
+    rating,
+    feedback,
+    factors
+  );
 
 export const getResponseExplanation = (responseId: string, userId: string) =>
   adaptivePromptingService.getResponseExplanation(responseId, userId)

@@ -1,12 +1,15 @@
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User, RegisterData } from '../types';
-import { API_BASE_URL } from '../constants/api';
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { User, RegisterData } from "../types";
+import { API_BASE_URL } from "../constants/api";
 
 class AuthService {
   private baseURL = `${API_BASE_URL}/auth`;
 
-  async login(email: string, password: string): Promise<{ user: User; token: string }> {
+  async login(
+    email: string,
+    password: string
+  ): Promise<{ user: User; token: string }> {
     try {
       const response = await axios.post(`${this.baseURL}/login`, {
         email,
@@ -20,7 +23,9 @@ class AuthService {
     }
   }
 
-  async register(userData: RegisterData): Promise<{ user: User; token: string }> {
+  async register(
+    userData: RegisterData
+  ): Promise<{ user: User; token: string }> {
     try {
       const response = await axios.post(`${this.baseURL}/register`, userData);
       const { user, token } = response.data;
@@ -32,26 +37,30 @@ class AuthService {
 
   async logout(): Promise<void> {
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem("authToken");
       if (token) {
-        await axios.post(`${this.baseURL}/logout`, {}, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await axios.post(
+          `${this.baseURL}/logout`,
+          {},
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
       }
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     }
   }
 
   async getCurrentUser(): Promise<User> {
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem("authToken");
       if (!token) {
-        throw new Error('No authentication token found');
+        throw new Error("No authentication token found");
       }
 
       const response = await axios.get(`${this.baseURL}/me`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       return response.data.user;
@@ -62,13 +71,13 @@ class AuthService {
 
   async updateUser(userData: Partial<User>): Promise<User> {
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem("authToken");
       if (!token) {
-        throw new Error('No authentication token found');
+        throw new Error("No authentication token found");
       }
 
       const response = await axios.put(`${this.baseURL}/me`, userData, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       return response.data.user;
@@ -111,12 +120,15 @@ class AuthService {
 
   private handleError(error: any): Error {
     if (error.response) {
-      const message = error.response.data?.message || error.response.data?.error || 'An error occurred';
+      const message =
+        error.response.data?.message ||
+        error.response.data?.error ||
+        "An error occurred";
       return new Error(message);
     } else if (error.request) {
-      return new Error('Network error. Please check your connection.');
+      return new Error("Network error. Please check your connection.");
     } else {
-      return new Error('An unexpected error occurred');
+      return new Error("An unexpected error occurred");
     }
   }
 }

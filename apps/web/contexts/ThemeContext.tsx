@@ -1,13 +1,19 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useColorScheme } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { theme, Theme } from '../constants/theme';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { useColorScheme } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { theme, Theme } from "../constants/theme";
 
 interface ThemeContextType {
   theme: Theme;
   isDark: boolean;
   toggleTheme: () => void;
-  setTheme: (theme: 'light' | 'dark' | 'auto') => void;
+  setTheme: (theme: "light" | "dark" | "auto") => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -18,7 +24,7 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const systemColorScheme = useColorScheme();
-  const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'auto'>('auto');
+  const [themeMode, setThemeMode] = useState<"light" | "dark" | "auto">("auto");
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
@@ -26,35 +32,35 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (themeMode === 'auto') {
-      setIsDark(systemColorScheme === 'dark');
+    if (themeMode === "auto") {
+      setIsDark(systemColorScheme === "dark");
     } else {
-      setIsDark(themeMode === 'dark');
+      setIsDark(themeMode === "dark");
     }
   }, [themeMode, systemColorScheme]);
 
   const loadThemePreference = async () => {
     try {
-      const savedTheme = await AsyncStorage.getItem('themePreference');
+      const savedTheme = await AsyncStorage.getItem("themePreference");
       if (savedTheme) {
-        setThemeMode(savedTheme as 'light' | 'dark' | 'auto');
+        setThemeMode(savedTheme as "light" | "dark" | "auto");
       }
     } catch (error) {
-      console.error('Error loading theme preference:', error);
+      console.error("Error loading theme preference:", error);
     }
   };
 
   const toggleTheme = () => {
-    const newTheme = isDark ? 'light' : 'dark';
+    const newTheme = isDark ? "light" : "dark";
     setTheme(newTheme);
   };
 
-  const setTheme = async (newTheme: 'light' | 'dark' | 'auto') => {
+  const setTheme = async (newTheme: "light" | "dark" | "auto") => {
     try {
       setThemeMode(newTheme);
-      await AsyncStorage.setItem('themePreference', newTheme);
+      await AsyncStorage.setItem("themePreference", newTheme);
     } catch (error) {
-      console.error('Error saving theme preference:', error);
+      console.error("Error saving theme preference:", error);
     }
   };
 
@@ -64,10 +70,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       ...theme.colors,
       // Override colors for dark mode if needed
       ...(isDark && {
-        background: '#000000',
-        surface: '#1a1a1a',
-        onBackground: '#ffffff',
-        onSurface: '#ffffff',
+        background: "#000000",
+        surface: "#1a1a1a",
+        onBackground: "#ffffff",
+        onSurface: "#ffffff",
       }),
     },
   };
@@ -80,16 +86,14 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   };
 
   return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
 };
 
 export const useTheme = (): ThemeContextType => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    throw new Error("useTheme must be used within a ThemeProvider");
   }
   return context;
 };

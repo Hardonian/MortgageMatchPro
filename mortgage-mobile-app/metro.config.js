@@ -9,7 +9,20 @@ const config = {
     // Enable tree shaking for better bundle size
     unstable_enablePackageExports: true,
     // Mobile-optimized asset extensions
-    assetExts: ['bin', 'txt', 'jpg', 'png', 'json', 'svg', 'ttf', 'otf', 'woff', 'woff2', 'mp4', 'mov'],
+    assetExts: [
+      'bin',
+      'txt',
+      'jpg',
+      'png',
+      'json',
+      'svg',
+      'ttf',
+      'otf',
+      'woff',
+      'woff2',
+      'mp4',
+      'mov',
+    ],
     sourceExts: ['js', 'jsx', 'ts', 'tsx', 'json'],
     // Platform-specific resolution
     platforms: ['ios', 'android', 'native', 'web'],
@@ -36,19 +49,22 @@ const config = {
   },
   serializer: {
     // Optimize bundle for mobile
-    createModuleIdFactory: function () {
+    createModuleIdFactory() {
       return function (path) {
         // Shorter module IDs for mobile bundle size
-        const relativePath = path.replace(__dirname, '');
-        return relativePath.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 20);
+        const relativePath = path.replace(__dirname, "");
+        return relativePath.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 20);
       };
     },
     // Custom serializer for mobile optimization
-    customSerializer: require('metro/src/DeltaBundler/Serializers/baseJSBundle').default,
+    customSerializer: require('metro/src/DeltaBundler/Serializers/baseJSBundle')
+      .default,
     // Enable code splitting for mobile
     processModuleFilter: (module) => {
       // Filter out unnecessary modules for mobile
-      return !module.path.includes('node_modules/react-native/Libraries/NewAppScreen');
+      return !module.path.includes(
+        'node_modules/react-native/Libraries/NewAppScreen'
+      );
     },
   },
   // Mobile-specific performance optimizations

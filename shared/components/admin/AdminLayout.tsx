@@ -1,81 +1,94 @@
-import React, { useState } from 'react'
-import { useTenantContext } from '@/lib/tenancy/context'
-import { PermissionChecker } from '@/lib/tenancy/rbac'
-import { 
-  Users, 
-  Palette, 
-  Key, 
-  CreditCard, 
-  Webhook, 
+import React, { useState } from "react";
+import { useTenantContext } from "@/lib/tenancy/context";
+import { PermissionChecker } from "@/lib/tenancy/rbac";
+import {
+  Users,
+  Palette,
+  Key,
+  CreditCard,
+  Webhook,
   Settings,
   Menu,
   X,
-  LogOut
-} from 'lucide-react'
+  LogOut,
+} from "lucide-react";
 
 interface AdminLayoutProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
-  const { organization, user, role } = useTenantContext()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { organization, user, role } = useTenantContext();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (!organization || !user || !role) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
-          <p className="text-gray-600">You don't have permission to access the admin console.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            Access Denied
+          </h2>
+          <p className="text-gray-600">
+            You don't have permission to access the admin console.
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   const navigation = [
     {
-      name: 'Members',
-      href: '/admin/members',
+      name: "Members",
+      href: "/admin/members",
       icon: Users,
-      permission: 'manage_users'
+      permission: "manage_users",
     },
     {
-      name: 'Branding',
-      href: '/admin/branding',
+      name: "Branding",
+      href: "/admin/branding",
       icon: Palette,
-      permission: 'manage_branding'
+      permission: "manage_branding",
     },
     {
-      name: 'API Keys',
-      href: '/admin/api-keys',
+      name: "API Keys",
+      href: "/admin/api-keys",
       icon: Key,
-      permission: 'manage_api_keys'
+      permission: "manage_api_keys",
     },
     {
-      name: 'Billing',
-      href: '/admin/billing',
+      name: "Billing",
+      href: "/admin/billing",
       icon: CreditCard,
-      permission: 'view_billing'
+      permission: "view_billing",
     },
     {
-      name: 'Webhooks',
-      href: '/admin/webhooks',
+      name: "Webhooks",
+      href: "/admin/webhooks",
       icon: Webhook,
-      permission: 'manage_webhooks'
+      permission: "manage_webhooks",
     },
     {
-      name: 'Settings',
-      href: '/admin/settings',
+      name: "Settings",
+      href: "/admin/settings",
       icon: Settings,
-      permission: 'manage_settings'
-    }
-  ].filter(item => PermissionChecker.can(role, 'read', item.permission as any, organization.id))
+      permission: "manage_settings",
+    },
+  ].filter((item) =>
+    PermissionChecker.can(role, "read", item.permission as any, organization.id)
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Mobile sidebar */}
-      <div className={`fixed inset-0 z-40 lg:hidden ${sidebarOpen ? 'block' : 'hidden'}`}>
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
+      <div
+        className={`fixed inset-0 z-40 lg:hidden ${
+          sidebarOpen ? "block" : "hidden"
+        }`}
+      >
+        <div
+          className="fixed inset-0 bg-gray-600 bg-opacity-75"
+          onClick={() => setSidebarOpen(false)}
+        />
         <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white">
           <div className="absolute top-0 right-0 -mr-12 pt-2">
             <button
@@ -92,7 +105,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             </div>
             <nav className="mt-5 px-2 space-y-1">
               {navigation.map((item) => {
-                const Icon = item.icon
+                const Icon = item.icon;
                 return (
                   <a
                     key={item.name}
@@ -102,7 +115,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     <Icon className="mr-4 h-6 w-6" />
                     {item.name}
                   </a>
-                )
+                );
               })}
             </nav>
           </div>
@@ -118,7 +131,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             </div>
             <nav className="mt-5 flex-1 px-2 space-y-1">
               {navigation.map((item) => {
-                const Icon = item.icon
+                const Icon = item.icon;
                 return (
                   <a
                     key={item.name}
@@ -128,7 +141,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     <Icon className="mr-3 h-5 w-5" />
                     {item.name}
                   </a>
-                )
+                );
               })}
             </nav>
           </div>
@@ -169,7 +182,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </main>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AdminLayout
+export default AdminLayout;

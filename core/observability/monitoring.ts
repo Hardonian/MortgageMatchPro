@@ -1,11 +1,11 @@
 /**
  * Observability and Monitoring System - MortgageMatchPro v1.4.0
- * 
+ *
  * Comprehensive monitoring, metrics, and alerting system
  * Supports performance monitoring, error tracking, and business metrics
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from "events";
 
 // Metric types
 export interface Metric {
@@ -13,11 +13,11 @@ export interface Metric {
   value: number;
   timestamp: Date;
   tags: Record<string, string>;
-  type: 'counter' | 'gauge' | 'histogram' | 'summary';
+  type: "counter" | "gauge" | "histogram" | "summary";
 }
 
 export interface PerformanceMetric extends Metric {
-  type: 'histogram';
+  type: "histogram";
   duration: number;
   percentile50: number;
   percentile95: number;
@@ -25,14 +25,14 @@ export interface PerformanceMetric extends Metric {
 }
 
 export interface BusinessMetric extends Metric {
-  type: 'gauge' | 'counter';
-  category: 'conversion' | 'retention' | 'engagement' | 'revenue';
+  type: "gauge" | "counter";
+  category: "conversion" | "retention" | "engagement" | "revenue";
 }
 
 export interface ErrorMetric extends Metric {
-  type: 'counter';
+  type: "counter";
   errorType: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: "low" | "medium" | "high" | "critical";
   stackTrace?: string;
 }
 
@@ -42,10 +42,10 @@ export interface AlertConfig {
   name: string;
   description: string;
   metric: string;
-  condition: 'gt' | 'lt' | 'eq' | 'gte' | 'lte';
+  condition: "gt" | "lt" | "eq" | "gte" | "lte";
   threshold: number;
   duration: number; // seconds
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: "low" | "medium" | "high" | "critical";
   enabled: boolean;
   channels: string[];
   cooldown: number; // seconds
@@ -55,7 +55,10 @@ export interface AlertConfig {
 export class MonitoringService extends EventEmitter {
   private metrics: Map<string, Metric[]> = new Map();
   private alerts: Map<string, AlertConfig> = new Map();
-  private alertStates: Map<string, { triggered: boolean; lastTriggered: Date }> = new Map();
+  private alertStates: Map<
+    string,
+    { triggered: boolean; lastTriggered: Date }
+  > = new Map();
   private performanceData: Map<string, number[]> = new Map();
 
   constructor() {
@@ -72,9 +75,9 @@ export class MonitoringService extends EventEmitter {
     if (!this.metrics.has(key)) {
       this.metrics.set(key, []);
     }
-    
+
     this.metrics.get(key)!.push(metric);
-    
+
     // Keep only last 1000 metrics per key
     const metrics = this.metrics.get(key)!;
     if (metrics.length > 1000) {
@@ -83,25 +86,29 @@ export class MonitoringService extends EventEmitter {
 
     // Check alerts
     this.checkAlerts(metric);
-    
+
     // Emit metric event
-    this.emit('metric', metric);
+    this.emit("metric", metric);
   }
 
   /**
    * Record performance metric
    */
-  recordPerformance(operation: string, duration: number, tags: Record<string, string> = {}): void {
+  recordPerformance(
+    operation: string,
+    duration: number,
+    tags: Record<string, string> = {}
+  ): void {
     const key = `performance.${operation}`;
-    
+
     // Store raw duration data
     if (!this.performanceData.has(key)) {
       this.performanceData.set(key, []);
     }
-    
+
     const durations = this.performanceData.get(key)!;
     durations.push(duration);
-    
+
     // Keep only last 1000 measurements
     if (durations.length > 1000) {
       durations.splice(0, durations.length - 1000);
@@ -118,11 +125,11 @@ export class MonitoringService extends EventEmitter {
       value: duration,
       timestamp: new Date(),
       tags,
-      type: 'histogram',
+      type: "histogram",
       duration,
       percentile50,
       percentile95,
-      percentile99
+      percentile99,
     };
 
     this.recordMetric(metric);
@@ -131,14 +138,19 @@ export class MonitoringService extends EventEmitter {
   /**
    * Record business metric
    */
-  recordBusiness(category: BusinessMetric['category'], name: string, value: number, tags: Record<string, string> = {}): void {
+  recordBusiness(
+    category: BusinessMetric["category"],
+    name: string,
+    value: number,
+    tags: Record<string, string> = {}
+  ): void {
     const metric: BusinessMetric = {
       name: `business.${category}.${name}`,
       value,
       timestamp: new Date(),
       tags,
-      type: 'gauge',
-      category
+      type: "gauge",
+      category,
     };
 
     this.recordMetric(metric);
@@ -147,33 +159,49 @@ export class MonitoringService extends EventEmitter {
   /**
    * Record error metric
    */
-  recordError(errorType: string, severity: ErrorMetric['severity'], message: string, stackTrace?: string, tags: Record<string, string> = {}): void {
+  recordError(
+    errorType: string,
+    severity: ErrorMetric["severity"],
+    message: string,
+    stackTrace?: string,
+    tags: Record<string, string> = {}
+  ): void {
     const metric: ErrorMetric = {
       name: `error.${errorType}`,
       value: 1,
       timestamp: new Date(),
       tags: { ...tags, message },
-      type: 'counter',
+      type: "counter",
       errorType,
       severity,
-      stackTrace
+      stackTrace,
     };
 
     this.recordMetric(metric);
-    this.emit('error', metric);
+    this.emit("error", metric);
   }
 
   /**
    * Record API call metrics
    */
-  recordAPICall(endpoint: string, method: string, statusCode: number, duration: number, tags: Record<string, string> = {}): void {
+  recordAPICall(
+    endpoint: string,
+    method: string,
+    statusCode: number,
+    duration: number,
+    tags: Record<string, string> = {}
+  ): void {
     // Record performance
-    this.recordPerformance(`api.${method.toLowerCase()}.${endpoint}`, duration, {
-      ...tags,
-      endpoint,
-      method,
-      status_code: statusCode.toString()
-    });
+    this.recordPerformance(
+      `api.${method.toLowerCase()}.${endpoint}`,
+      duration,
+      {
+        ...tags,
+        endpoint,
+        method,
+        status_code: statusCode.toString(),
+      }
+    );
 
     // Record status code
     this.recordMetric({
@@ -181,25 +209,36 @@ export class MonitoringService extends EventEmitter {
       value: 1,
       timestamp: new Date(),
       tags: { ...tags, endpoint, method },
-      type: 'counter'
+      type: "counter",
     });
 
     // Record error if status code indicates error
     if (statusCode >= 400) {
-      this.recordError('api_error', this.getSeverityFromStatusCode(statusCode), 
-        `API call failed: ${method} ${endpoint}`, undefined, {
+      this.recordError(
+        "api_error",
+        this.getSeverityFromStatusCode(statusCode),
+        `API call failed: ${method} ${endpoint}`,
+        undefined,
+        {
           ...tags,
           endpoint,
           method,
-          status_code: statusCode.toString()
-        });
+          status_code: statusCode.toString(),
+        }
+      );
     }
   }
 
   /**
    * Record AI operation metrics
    */
-  recordAIOperation(operation: string, duration: number, tokensUsed: number, cost: number, tags: Record<string, string> = {}): void {
+  recordAIOperation(
+    operation: string,
+    duration: number,
+    tokensUsed: number,
+    cost: number,
+    tags: Record<string, string> = {}
+  ): void {
     // Record performance
     this.recordPerformance(`ai.${operation}`, duration, tags);
 
@@ -209,7 +248,7 @@ export class MonitoringService extends EventEmitter {
       value: tokensUsed,
       timestamp: new Date(),
       tags,
-      type: 'counter'
+      type: "counter",
     });
 
     // Record cost
@@ -218,7 +257,7 @@ export class MonitoringService extends EventEmitter {
       value: cost,
       timestamp: new Date(),
       tags,
-      type: 'counter'
+      type: "counter",
     });
   }
 
@@ -226,41 +265,57 @@ export class MonitoringService extends EventEmitter {
    * Get metrics for a specific time range
    */
   getMetrics(name: string, startTime?: Date, endTime?: Date): Metric[] {
-    const key = name.includes('.') ? name : `*.${name}`;
+    const key = name.includes(".") ? name : `*.${name}`;
     const allMetrics: Metric[] = [];
-    
+
     for (const [metricKey, metrics] of this.metrics.entries()) {
       if (this.matchesPattern(metricKey, key)) {
-        const filteredMetrics = metrics.filter(metric => {
-          if (startTime && metric.timestamp < startTime) return false;
-          if (endTime && metric.timestamp > endTime) return false;
+        const filteredMetrics = metrics.filter((metric) => {
+          if (startTime && metric.timestamp < startTime) {
+            return false;
+          }
+          if (endTime && metric.timestamp > endTime) {
+            return false;
+          }
           return true;
         });
         allMetrics.push(...filteredMetrics);
       }
     }
-    
-    return allMetrics.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+
+    return allMetrics.sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime()
+    );
   }
 
   /**
    * Get aggregated metrics
    */
-  getAggregatedMetrics(name: string, aggregation: 'sum' | 'avg' | 'min' | 'max' | 'count', startTime?: Date, endTime?: Date): number {
+  getAggregatedMetrics(
+    name: string,
+    aggregation: "sum" | "avg" | "min" | "max" | "count",
+    startTime?: Date,
+    endTime?: Date
+  ): number {
     const metrics = this.getMetrics(name, startTime, endTime);
-    
-    if (metrics.length === 0) return 0;
-    
+
+    if (metrics.length === 0) {
+      return 0;
+    }
+
     switch (aggregation) {
-      case 'sum':
+      case "sum":
         return metrics.reduce((sum, metric) => sum + metric.value, 0);
-      case 'avg':
-        return metrics.reduce((sum, metric) => sum + metric.value, 0) / metrics.length;
-      case 'min':
-        return Math.min(...metrics.map(metric => metric.value));
-      case 'max':
-        return Math.max(...metrics.map(metric => metric.value));
-      case 'count':
+      case "avg":
+        return (
+          metrics.reduce((sum, metric) => sum + metric.value, 0) /
+          metrics.length
+        );
+      case "min":
+        return Math.min(...metrics.map((metric) => metric.value));
+      case "max":
+        return Math.max(...metrics.map((metric) => metric.value));
+      case "count":
         return metrics.length;
       default:
         return 0;
@@ -270,7 +325,10 @@ export class MonitoringService extends EventEmitter {
   /**
    * Get performance summary
    */
-  getPerformanceSummary(operation: string, timeWindow: number = 3600): {
+  getPerformanceSummary(
+    operation: string,
+    timeWindow = 3600
+  ): {
     count: number;
     avgDuration: number;
     minDuration: number;
@@ -281,9 +339,13 @@ export class MonitoringService extends EventEmitter {
   } {
     const endTime = new Date();
     const startTime = new Date(endTime.getTime() - timeWindow * 1000);
-    
-    const metrics = this.getMetrics(`performance.${operation}`, startTime, endTime) as PerformanceMetric[];
-    
+
+    const metrics = this.getMetrics(
+      `performance.${operation}`,
+      startTime,
+      endTime
+    ) as PerformanceMetric[];
+
     if (metrics.length === 0) {
       return {
         count: 0,
@@ -292,11 +354,11 @@ export class MonitoringService extends EventEmitter {
         maxDuration: 0,
         percentile50: 0,
         percentile95: 0,
-        percentile99: 0
+        percentile99: 0,
       };
     }
 
-    const durations = metrics.map(m => m.duration);
+    const durations = metrics.map((m) => m.duration);
     const sortedDurations = [...durations].sort((a, b) => a - b);
 
     return {
@@ -306,7 +368,7 @@ export class MonitoringService extends EventEmitter {
       maxDuration: Math.max(...durations),
       percentile50: this.calculatePercentile(sortedDurations, 0.5),
       percentile95: this.calculatePercentile(sortedDurations, 0.95),
-      percentile99: this.calculatePercentile(sortedDurations, 0.99)
+      percentile99: this.calculatePercentile(sortedDurations, 0.99),
     };
   }
 
@@ -315,13 +377,18 @@ export class MonitoringService extends EventEmitter {
    */
   configureAlert(config: AlertConfig): void {
     this.alerts.set(config.id, config);
-    this.alertStates.set(config.id, { triggered: false, lastTriggered: new Date(0) });
+    this.alertStates.set(config.id, {
+      triggered: false,
+      lastTriggered: new Date(0),
+    });
   }
 
   /**
    * Get alert status
    */
-  getAlertStatus(alertId: string): { triggered: boolean; lastTriggered: Date } | null {
+  getAlertStatus(
+    alertId: string
+  ): { triggered: boolean; lastTriggered: Date } | null {
     return this.alertStates.get(alertId) || null;
   }
 
@@ -336,7 +403,7 @@ export class MonitoringService extends EventEmitter {
    * Get system health summary
    */
   getSystemHealth(): {
-    status: 'healthy' | 'degraded' | 'critical';
+    status: "healthy" | "degraded" | "critical";
     uptime: number;
     errorRate: number;
     responseTime: number;
@@ -350,27 +417,37 @@ export class MonitoringService extends EventEmitter {
   } {
     const now = new Date();
     const oneHourAgo = new Date(now.getTime() - 3600 * 1000);
-    
-    const errorMetrics = this.getMetrics('error', oneHourAgo, now);
-    const performanceMetrics = this.getMetrics('performance', oneHourAgo, now);
-    const businessMetrics = this.getMetrics('business', oneHourAgo, now);
-    
+
+    const errorMetrics = this.getMetrics("error", oneHourAgo, now);
+    const performanceMetrics = this.getMetrics("performance", oneHourAgo, now);
+    const businessMetrics = this.getMetrics("business", oneHourAgo, now);
+
     const totalMetrics = this.metrics.size;
     const errorCount = errorMetrics.length;
     const performanceCount = performanceMetrics.length;
     const businessCount = businessMetrics.length;
-    
+
     const errorRate = errorCount / Math.max(totalMetrics, 1);
-    const avgResponseTime = performanceMetrics.length > 0 
-      ? performanceMetrics.reduce((sum, m) => sum + (m as PerformanceMetric).duration, 0) / performanceMetrics.length
-      : 0;
-    
-    const activeAlerts = Array.from(this.alertStates.values()).filter(state => state.triggered).length;
-    
-    let status: 'healthy' | 'degraded' | 'critical' = 'healthy';
-    if (errorRate > 0.1 || activeAlerts > 0) status = 'degraded';
-    if (errorRate > 0.2 || activeAlerts > 3) status = 'critical';
-    
+    const avgResponseTime =
+      performanceMetrics.length > 0
+        ? performanceMetrics.reduce(
+            (sum, m) => sum + (m as PerformanceMetric).duration,
+            0
+          ) / performanceMetrics.length
+        : 0;
+
+    const activeAlerts = Array.from(this.alertStates.values()).filter(
+      (state) => state.triggered
+    ).length;
+
+    let status: "healthy" | "degraded" | "critical" = "healthy";
+    if (errorRate > 0.1 || activeAlerts > 0) {
+      status = "degraded";
+    }
+    if (errorRate > 0.2 || activeAlerts > 3) {
+      status = "critical";
+    }
+
     return {
       status,
       uptime: this.getUptime(),
@@ -381,16 +458,16 @@ export class MonitoringService extends EventEmitter {
         totalMetrics,
         errorCount,
         performanceCount,
-        businessCount
-      }
+        businessCount,
+      },
     };
   }
 
   /**
    * Export metrics for external monitoring systems
    */
-  exportMetrics(format: 'prometheus' | 'json'): string {
-    if (format === 'prometheus') {
+  exportMetrics(format: "prometheus" | "json"): string {
+    if (format === "prometheus") {
       return this.exportPrometheusMetrics();
     } else {
       return JSON.stringify(Array.from(this.metrics.entries()), null, 2);
@@ -401,89 +478,111 @@ export class MonitoringService extends EventEmitter {
     const tagString = Object.entries(metric.tags)
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([key, value]) => `${key}=${value}`)
-      .join(',');
-    
+      .join(",");
+
     return tagString ? `${metric.name}{${tagString}}` : metric.name;
   }
 
   private matchesPattern(key: string, pattern: string): boolean {
-    if (pattern === '*') return true;
-    if (pattern.includes('*')) {
-      const regex = new RegExp(pattern.replace(/\*/g, '.*'));
+    if (pattern === "*") {
+      return true;
+    }
+    if (pattern.includes("*")) {
+      const regex = new RegExp(pattern.replace(/\*/g, ".*"));
       return regex.test(key);
     }
     return key === pattern;
   }
 
-  private calculatePercentile(sortedData: number[], percentile: number): number {
-    if (sortedData.length === 0) return 0;
-    
+  private calculatePercentile(
+    sortedData: number[],
+    percentile: number
+  ): number {
+    if (sortedData.length === 0) {
+      return 0;
+    }
+
     const index = Math.ceil(sortedData.length * percentile) - 1;
     return sortedData[Math.max(0, index)];
   }
 
   private checkAlerts(metric: Metric): void {
     for (const [alertId, alert] of this.alerts.entries()) {
-      if (!alert.enabled) continue;
-      
-      const alertState = this.alertStates.get(alertId)!;
-      const now = new Date();
-      
-      // Check cooldown
-      if (now.getTime() - alertState.lastTriggered.getTime() < alert.cooldown * 1000) {
+      if (!alert.enabled) {
         continue;
       }
-      
+
+      const alertState = this.alertStates.get(alertId)!;
+      const now = new Date();
+
+      // Check cooldown
+      if (
+        now.getTime() - alertState.lastTriggered.getTime() <
+        alert.cooldown * 1000
+      ) {
+        continue;
+      }
+
       // Check if metric matches alert
-      if (!this.matchesPattern(metric.name, alert.metric)) continue;
-      
+      if (!this.matchesPattern(metric.name, alert.metric)) {
+        continue;
+      }
+
       // Check condition
       let shouldTrigger = false;
       switch (alert.condition) {
-        case 'gt':
+        case "gt":
           shouldTrigger = metric.value > alert.threshold;
           break;
-        case 'lt':
+        case "lt":
           shouldTrigger = metric.value < alert.threshold;
           break;
-        case 'eq':
+        case "eq":
           shouldTrigger = metric.value === alert.threshold;
           break;
-        case 'gte':
+        case "gte":
           shouldTrigger = metric.value >= alert.threshold;
           break;
-        case 'lte':
+        case "lte":
           shouldTrigger = metric.value <= alert.threshold;
           break;
       }
-      
+
       if (shouldTrigger && !alertState.triggered) {
         alertState.triggered = true;
         alertState.lastTriggered = now;
-        
-        this.emit('alert', {
+
+        this.emit("alert", {
           alertId,
           alert,
           metric,
-          timestamp: now
+          timestamp: now,
         });
       } else if (!shouldTrigger && alertState.triggered) {
         alertState.triggered = false;
-        this.emit('alertResolved', {
+        this.emit("alertResolved", {
           alertId,
           alert,
           metric,
-          timestamp: now
+          timestamp: now,
         });
       }
     }
   }
 
-  private getSeverityFromStatusCode(statusCode: number): ErrorMetric['severity'] {
-    if (statusCode >= 500) return 'critical';
-    if (statusCode >= 400) return 'high';
-    if (statusCode >= 300) return 'medium';
-    return 'low';
+  private getSeverityFromStatusCode(
+    statusCode: number
+  ): ErrorMetric["severity"] {
+    if (statusCode >= 500) {
+      return "critical";
+    }
+    if (statusCode >= 400) {
+      return "high";
+    }
+    if (statusCode >= 300) {
+      return "medium";
+    }
+    return "low";
   }
 
   private getUptime(): number {
@@ -494,47 +593,47 @@ export class MonitoringService extends EventEmitter {
   private setupDefaultAlerts(): void {
     // High error rate alert
     this.configureAlert({
-      id: 'high_error_rate',
-      name: 'High Error Rate',
-      description: 'Error rate exceeds 10%',
-      metric: 'error.*',
-      condition: 'gt',
+      id: "high_error_rate",
+      name: "High Error Rate",
+      description: "Error rate exceeds 10%",
+      metric: "error.*",
+      condition: "gt",
       threshold: 0.1,
       duration: 300, // 5 minutes
-      severity: 'high',
+      severity: "high",
       enabled: true,
-      channels: ['slack', 'email'],
-      cooldown: 300
+      channels: ["slack", "email"],
+      cooldown: 300,
     });
 
     // High response time alert
     this.configureAlert({
-      id: 'high_response_time',
-      name: 'High Response Time',
-      description: 'API response time exceeds 2 seconds',
-      metric: 'performance.api.*',
-      condition: 'gt',
+      id: "high_response_time",
+      name: "High Response Time",
+      description: "API response time exceeds 2 seconds",
+      metric: "performance.api.*",
+      condition: "gt",
       threshold: 2000,
       duration: 60, // 1 minute
-      severity: 'medium',
+      severity: "medium",
       enabled: true,
-      channels: ['slack'],
-      cooldown: 300
+      channels: ["slack"],
+      cooldown: 300,
     });
 
     // Low conversion rate alert
     this.configureAlert({
-      id: 'low_conversion_rate',
-      name: 'Low Conversion Rate',
-      description: 'Conversion rate below 5%',
-      metric: 'business.conversion.*',
-      condition: 'lt',
+      id: "low_conversion_rate",
+      name: "Low Conversion Rate",
+      description: "Conversion rate below 5%",
+      metric: "business.conversion.*",
+      condition: "lt",
       threshold: 0.05,
       duration: 1800, // 30 minutes
-      severity: 'medium',
+      severity: "medium",
       enabled: true,
-      channels: ['slack', 'email'],
-      cooldown: 1800
+      channels: ["slack", "email"],
+      cooldown: 1800,
     });
   }
 
@@ -548,67 +647,69 @@ export class MonitoringService extends EventEmitter {
   private collectSystemMetrics(): void {
     const memUsage = process.memoryUsage();
     const cpuUsage = process.cpuUsage();
-    
+
     // Memory usage
     this.recordMetric({
-      name: 'system.memory.heap_used',
+      name: "system.memory.heap_used",
       value: memUsage.heapUsed,
       timestamp: new Date(),
       tags: {},
-      type: 'gauge'
+      type: "gauge",
     });
-    
+
     this.recordMetric({
-      name: 'system.memory.heap_total',
+      name: "system.memory.heap_total",
       value: memUsage.heapTotal,
       timestamp: new Date(),
       tags: {},
-      type: 'gauge'
+      type: "gauge",
     });
-    
+
     this.recordMetric({
-      name: 'system.memory.rss',
+      name: "system.memory.rss",
       value: memUsage.rss,
       timestamp: new Date(),
       tags: {},
-      type: 'gauge'
+      type: "gauge",
     });
-    
+
     // CPU usage
     this.recordMetric({
-      name: 'system.cpu.user',
+      name: "system.cpu.user",
       value: cpuUsage.user,
       timestamp: new Date(),
       tags: {},
-      type: 'gauge'
+      type: "gauge",
     });
-    
+
     this.recordMetric({
-      name: 'system.cpu.system',
+      name: "system.cpu.system",
       value: cpuUsage.system,
       timestamp: new Date(),
       tags: {},
-      type: 'gauge'
+      type: "gauge",
     });
   }
 
   private exportPrometheusMetrics(): string {
-    let output = '';
-    
+    let output = "";
+
     for (const [key, metrics] of this.metrics.entries()) {
       const latestMetric = metrics[metrics.length - 1];
-      if (!latestMetric) continue;
-      
+      if (!latestMetric) {
+        continue;
+      }
+
       const tags = Object.entries(latestMetric.tags)
         .map(([k, v]) => `${k}="${v}"`)
-        .join(',');
-      
-      const tagString = tags ? `{${tags}}` : '';
+        .join(",");
+
+      const tagString = tags ? `{${tags}}` : "";
       output += `# HELP ${latestMetric.name} ${latestMetric.name}\n`;
       output += `# TYPE ${latestMetric.name} ${latestMetric.type}\n`;
       output += `${latestMetric.name}${tagString} ${latestMetric.value}\n`;
     }
-    
+
     return output;
   }
 }
@@ -617,17 +718,48 @@ export class MonitoringService extends EventEmitter {
 export const monitoringService = new MonitoringService();
 
 // Export convenience functions
-export const recordPerformance = (operation: string, duration: number, tags?: Record<string, string>) =>
-  monitoringService.recordPerformance(operation, duration, tags);
+export const recordPerformance = (
+  operation: string,
+  duration: number,
+  tags?: Record<string, string>
+) => monitoringService.recordPerformance(operation, duration, tags);
 
-export const recordBusiness = (category: BusinessMetric['category'], name: string, value: number, tags?: Record<string, string>) =>
-  monitoringService.recordBusiness(category, name, value, tags);
+export const recordBusiness = (
+  category: BusinessMetric["category"],
+  name: string,
+  value: number,
+  tags?: Record<string, string>
+) => monitoringService.recordBusiness(category, name, value, tags);
 
-export const recordError = (errorType: string, severity: ErrorMetric['severity'], message: string, stackTrace?: string, tags?: Record<string, string>) =>
+export const recordError = (
+  errorType: string,
+  severity: ErrorMetric["severity"],
+  message: string,
+  stackTrace?: string,
+  tags?: Record<string, string>
+) =>
   monitoringService.recordError(errorType, severity, message, stackTrace, tags);
 
-export const recordAPICall = (endpoint: string, method: string, statusCode: number, duration: number, tags?: Record<string, string>) =>
+export const recordAPICall = (
+  endpoint: string,
+  method: string,
+  statusCode: number,
+  duration: number,
+  tags?: Record<string, string>
+) =>
   monitoringService.recordAPICall(endpoint, method, statusCode, duration, tags);
 
-export const recordAIOperation = (operation: string, duration: number, tokensUsed: number, cost: number, tags?: Record<string, string>) =>
-  monitoringService.recordAIOperation(operation, duration, tokensUsed, cost, tags);
+export const recordAIOperation = (
+  operation: string,
+  duration: number,
+  tokensUsed: number,
+  cost: number,
+  tags?: Record<string, string>
+) =>
+  monitoringService.recordAIOperation(
+    operation,
+    duration,
+    tokensUsed,
+    cost,
+    tags
+  );

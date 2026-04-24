@@ -1,63 +1,63 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import { useRouter } from 'next/router'
-import { useAuth } from '@/lib/auth'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { AlertCircle, Mail, Lock, ArrowLeft } from 'lucide-react'
+import React, { useState } from "react";
+import { useRouter } from "next/router";
+import { useAuth } from "@/lib/auth";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { AlertCircle, Mail, Lock, ArrowLeft } from "lucide-react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [isSignUp, setIsSignUp] = useState(false)
-  
-  const { signIn, signUp, signInWithGoogle } = useAuth()
-  const router = useRouter()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [isSignUp, setIsSignUp] = useState(false);
+
+  const { signIn, signUp, signInWithGoogle } = useAuth();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
     try {
-      const { error } = isSignUp 
+      const { error } = isSignUp
         ? await signUp(email, password)
-        : await signIn(email, password)
+        : await signIn(email, password);
 
       if (error) {
-        setError(error.message)
+        setError(error.message);
       } else if (isSignUp) {
-        setError('Check your email for a confirmation link!')
+        setError("Check your email for a confirmation link!");
       } else {
-        router.push('/')
+        router.push("/");
       }
     } catch (err) {
-      setError('An unexpected error occurred')
+      setError("An unexpected error occurred");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleGoogleSignIn = async () => {
-    setLoading(true)
-    setError('')
+    setLoading(true);
+    setError("");
 
     try {
-      const { error } = await signInWithGoogle()
+      const { error } = await signInWithGoogle();
       if (error) {
-        setError(error.message)
+        setError(error.message);
       }
     } catch (err) {
-      setError('An unexpected error occurred')
+      setError("An unexpected error occurred");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -65,27 +65,26 @@ export default function LoginPage() {
         <div className="mb-8 text-center">
           <Button
             variant="ghost"
-            onClick={() => router.push('/')}
+            onClick={() => router.push("/")}
             className="mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to App
           </Button>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {isSignUp ? 'Create Account' : 'Welcome Back'}
+            {isSignUp ? "Create Account" : "Welcome Back"}
           </h1>
           <p className="text-gray-600">
-            {isSignUp 
-              ? 'Sign up to save your mortgage scenarios' 
-              : 'Sign in to access your saved scenarios'
-            }
+            {isSignUp
+              ? "Sign up to save your mortgage scenarios"
+              : "Sign in to access your saved scenarios"}
           </p>
         </div>
 
         <Card>
           <CardHeader>
             <CardTitle className="text-center">
-              {isSignUp ? 'Create Account' : 'Sign In'}
+              {isSignUp ? "Create Account" : "Sign In"}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -136,10 +135,12 @@ export default function LoginPage() {
                 {loading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                    {isSignUp ? 'Creating Account...' : 'Signing In...'}
+                    {isSignUp ? "Creating Account..." : "Signing In..."}
                   </>
+                ) : isSignUp ? (
+                  "Create Account"
                 ) : (
-                  isSignUp ? 'Create Account' : 'Sign In'
+                  "Sign In"
                 )}
               </Button>
             </form>
@@ -149,7 +150,9 @@ export default function LoginPage() {
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-muted-foreground">Or continue with</span>
+                <span className="bg-white px-2 text-muted-foreground">
+                  Or continue with
+                </span>
               </div>
             </div>
 
@@ -187,15 +190,14 @@ export default function LoginPage() {
                 onClick={() => setIsSignUp(!isSignUp)}
                 className="text-sm text-blue-600 hover:text-blue-800"
               >
-                {isSignUp 
-                  ? 'Already have an account? Sign in' 
-                  : "Don't have an account? Sign up"
-                }
+                {isSignUp
+                  ? "Already have an account? Sign in"
+                  : "Don't have an account? Sign up"}
               </button>
             </div>
           </CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }

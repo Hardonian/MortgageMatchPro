@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -6,13 +6,13 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
-} from 'react-native';
-import { Text, Button } from 'react-native-paper';
-import { useTheme } from '../contexts/ThemeContext';
-import { useI18n } from '../contexts/I18nContext';
-import { useAuth } from '../contexts/AuthContext';
+} from "react-native";
+import { Text, Button } from "react-native-paper";
+import { useTheme } from "../contexts/ThemeContext";
+import { useI18n } from "../contexts/I18nContext";
+import { useAuth } from "../contexts/AuthContext";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 
 interface OnboardingSlide {
   id: number;
@@ -25,31 +25,35 @@ interface OnboardingSlide {
 const onboardingSlides: OnboardingSlide[] = [
   {
     id: 1,
-    title: 'Welcome to MortgageMatch Pro',
-    description: 'Your AI-powered mortgage intelligence platform for smarter home financing decisions.',
-    image: '🏠',
-    color: '#1e40af',
+    title: "Welcome to MortgageMatch Pro",
+    description:
+      "Your AI-powered mortgage intelligence platform for smarter home financing decisions.",
+    image: "🏠",
+    color: "#1e40af",
   },
   {
     id: 2,
-    title: 'Advanced Analytics',
-    description: 'Get comprehensive insights and analytics to optimize your mortgage strategy.',
-    image: '📊',
-    color: '#059669',
+    title: "Advanced Analytics",
+    description:
+      "Get comprehensive insights and analytics to optimize your mortgage strategy.",
+    image: "📊",
+    color: "#059669",
   },
   {
     id: 3,
-    title: 'Multi-Lender Integration',
-    description: 'Compare rates from multiple lenders and find the best deals for your needs.',
-    image: '🏦',
-    color: '#7c3aed',
+    title: "Multi-Lender Integration",
+    description:
+      "Compare rates from multiple lenders and find the best deals for your needs.",
+    image: "🏦",
+    color: "#7c3aed",
   },
   {
     id: 4,
-    title: 'Document Management',
-    description: 'Securely manage and process all your mortgage documents in one place.',
-    image: '📄',
-    color: '#dc2626',
+    title: "Document Management",
+    description:
+      "Securely manage and process all your mortgage documents in one place.",
+    image: "📄",
+    color: "#dc2626",
   },
 ];
 
@@ -70,12 +74,12 @@ export const OnboardingScreen: React.FC = () => {
       });
     } else {
       // Navigate to login
-      login('demo@mortgagematchpro.com', 'demo123');
+      login("demo@mortgagematchpro.com", "demo123");
     }
   };
 
   const handleSkip = () => {
-    login('demo@mortgagematchpro.com', 'demo123');
+    login("demo@mortgagematchpro.com", "demo123");
   };
 
   const handleScroll = (event: any) => {
@@ -84,7 +88,9 @@ export const OnboardingScreen: React.FC = () => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <ScrollView
         ref={scrollViewRef}
         horizontal
@@ -96,14 +102,23 @@ export const OnboardingScreen: React.FC = () => {
       >
         {onboardingSlides.map((slide) => (
           <View key={slide.id} style={[styles.slide, { width }]}>
-            <View style={[styles.imageContainer, { backgroundColor: slide.color }]}>
+            <View
+              style={[styles.imageContainer, { backgroundColor: slide.color }]}
+            >
               <Text style={styles.emoji}>{slide.image}</Text>
             </View>
             <View style={styles.content}>
-              <Text style={[styles.title, { color: theme.colors.onBackground }]}>
+              <Text
+                style={[styles.title, { color: theme.colors.onBackground }]}
+              >
                 {slide.title}
               </Text>
-              <Text style={[styles.description, { color: theme.colors.onSurfaceVariant }]}>
+              <Text
+                style={[
+                  styles.description,
+                  { color: theme.colors.onSurfaceVariant },
+                ]}
+              >
                 {slide.description}
               </Text>
             </View>
@@ -119,9 +134,10 @@ export const OnboardingScreen: React.FC = () => {
               style={[
                 styles.paginationDot,
                 {
-                  backgroundColor: index === currentSlide 
-                    ? theme.colors.primary 
-                    : theme.colors.outline,
+                  backgroundColor:
+                    index === currentSlide
+                      ? theme.colors.primary
+                      : theme.colors.outline,
                 },
               ]}
             />
@@ -130,7 +146,12 @@ export const OnboardingScreen: React.FC = () => {
 
         <View style={styles.buttons}>
           <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
-            <Text style={[styles.skipText, { color: theme.colors.onSurfaceVariant }]}>
+            <Text
+              style={[
+                styles.skipText,
+                { color: theme.colors.onSurfaceVariant },
+              ]}
+            >
               Skip
             </Text>
           </TouchableOpacity>
@@ -141,7 +162,9 @@ export const OnboardingScreen: React.FC = () => {
             style={styles.nextButton}
             contentStyle={styles.buttonContent}
           >
-            {currentSlide === onboardingSlides.length - 1 ? 'Get Started' : 'Next'}
+            {currentSlide === onboardingSlides.length - 1
+              ? "Get Started"
+              : "Next"}
           </Button>
         </View>
       </View>
@@ -158,34 +181,34 @@ const styles = StyleSheet.create({
   },
   slide: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 20,
   },
   imageContainer: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 40,
   },
   emoji: {
     fontSize: 60,
   },
   content: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: 20,
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: 16,
   },
   description: {
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 24,
   },
   footer: {
@@ -193,8 +216,8 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   pagination: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginBottom: 30,
   },
   paginationDot: {
@@ -204,9 +227,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   buttons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   skipButton: {
     paddingVertical: 12,
@@ -214,7 +237,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   nextButton: {
     flex: 1,

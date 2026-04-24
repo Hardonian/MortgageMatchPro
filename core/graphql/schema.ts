@@ -1,6 +1,12 @@
-import { buildSchema } from 'graphql'
-import { AffordabilityAgent, RateIntelligenceAgent, ScenarioAnalysisAgent, LeadRoutingAgent, MonetizationAgent } from '../openai'
-import { supabaseAdmin } from '../supabase'
+import { buildSchema } from "graphql";
+import {
+  AffordabilityAgent,
+  RateIntelligenceAgent,
+  ScenarioAnalysisAgent,
+  LeadRoutingAgent,
+  MonetizationAgent,
+} from "../openai";
+import { supabaseAdmin } from "../supabase";
 
 export const schema = buildSchema(`
   type Query {
@@ -269,97 +275,107 @@ export const schema = buildSchema(`
     rates: String!
     expiresAt: String!
   }
-`)
+`);
 
 export const resolvers = {
   Query: {
-    health: () => 'MortgageMatch Pro API is running',
-    
+    health: () => "MortgageMatch Pro API is running",
+
     user: async (_: any, { id }: { id: string }) => {
       const { data, error } = await supabaseAdmin
-        .from('users')
-        .select('*')
-        .eq('id', id)
-        .single()
-      
-      if (error) throw new Error(error.message)
-      return data
+        .from("users")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
     },
 
     mortgageCalculations: async (_: any, { userId }: { userId: string }) => {
       const { data, error } = await supabaseAdmin
-        .from('mortgage_calculations')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-      
-      if (error) throw new Error(error.message)
-      return data
+        .from("mortgage_calculations")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
     },
 
     rateChecks: async (_: any, { userId }: { userId: string }) => {
       const { data, error } = await supabaseAdmin
-        .from('rate_checks')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-      
-      if (error) throw new Error(error.message)
-      return data
+        .from("rate_checks")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
     },
 
     leads: async (_: any, { userId }: { userId: string }) => {
       const { data, error } = await supabaseAdmin
-        .from('leads')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-      
-      if (error) throw new Error(error.message)
-      return data
+        .from("leads")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
     },
 
     brokers: async () => {
       const { data, error } = await supabaseAdmin
-        .from('brokers')
-        .select('*')
-        .eq('is_active', true)
-        .order('commission_rate', { ascending: false })
-      
-      if (error) throw new Error(error.message)
-      return data
+        .from("brokers")
+        .select("*")
+        .eq("is_active", true)
+        .order("commission_rate", { ascending: false });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
     },
   },
 
   Mutation: {
     calculateAffordability: async (_: any, { input }: { input: any }) => {
-      const agent = new AffordabilityAgent()
-      return await agent.calculateAffordability(input)
+      const agent = new AffordabilityAgent();
+      return await agent.calculateAffordability(input);
     },
 
     fetchRates: async (_: any, { input }: { input: any }) => {
-      const agent = new RateIntelligenceAgent()
-      return await agent.fetchRates(input)
+      const agent = new RateIntelligenceAgent();
+      return await agent.fetchRates(input);
     },
 
     compareScenarios: async (_: any, { input }: { input: any }) => {
-      const agent = new ScenarioAnalysisAgent()
-      return await agent.compareScenarios(input)
+      const agent = new ScenarioAnalysisAgent();
+      return await agent.compareScenarios(input);
     },
 
     processLead: async (_: any, { input }: { input: any }) => {
-      const agent = new LeadRoutingAgent()
-      return await agent.processLead(input)
+      const agent = new LeadRoutingAgent();
+      return await agent.processLead(input);
     },
 
     createPaymentIntent: async (_: any, { input }: { input: any }) => {
-      const agent = new MonetizationAgent()
-      return await agent.processPayment(input)
+      const agent = new MonetizationAgent();
+      return await agent.processPayment(input);
     },
 
     saveCalculation: async (_: any, { input }: { input: any }) => {
       const { data, error } = await supabaseAdmin
-        .from('mortgage_calculations')
+        .from("mortgage_calculations")
         .insert({
           user_id: input.userId,
           country: input.country,
@@ -377,15 +393,17 @@ export const resolvers = {
           qualifying_rate: input.qualifyingRate,
         })
         .select()
-        .single()
-      
-      if (error) throw new Error(error.message)
-      return data
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
     },
 
     saveRateCheck: async (_: any, { input }: { input: any }) => {
       const { data, error } = await supabaseAdmin
-        .from('rate_checks')
+        .from("rate_checks")
         .insert({
           user_id: input.userId,
           country: input.country,
@@ -395,10 +413,12 @@ export const resolvers = {
           expires_at: input.expiresAt,
         })
         .select()
-        .single()
-      
-      if (error) throw new Error(error.message)
-      return data
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
     },
   },
-}
+};

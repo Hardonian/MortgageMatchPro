@@ -3,16 +3,18 @@
  * Tests for UI component consistency and regression detection
  */
 
-import React from 'react';
-import { render } from '@testing-library/react';
-import { describe, it, expect } from '@jest/globals';
+import React from "react";
+import { render } from "@testing-library/react";
+import { describe, it, expect } from "@jest/globals";
 
 // Mock components for testing
-const MockButton = ({ children, variant = 'primary', size = 'medium', ...props }: any) => (
-  <button
-    className={`btn btn-${variant} btn-${size}`}
-    {...props}
-  >
+const MockButton = ({
+  children,
+  variant = "primary",
+  size = "medium",
+  ...props
+}: any) => (
+  <button className={`btn btn-${variant} btn-${size}`} {...props}>
     {children}
   </button>
 );
@@ -20,10 +22,7 @@ const MockButton = ({ children, variant = 'primary', size = 'medium', ...props }
 const MockInput = ({ label, error, ...props }: any) => (
   <div className="input-group">
     <label className="input-label">{label}</label>
-    <input
-      className={`input ${error ? 'input-error' : ''}`}
-      {...props}
-    />
+    <input className={`input ${error ? "input-error" : ""}`} {...props} />
     {error && <span className="input-error-message">{error}</span>}
   </div>
 );
@@ -35,20 +34,21 @@ const MockCard = ({ title, children, ...props }: any) => (
   </div>
 );
 
-const MockModal = ({ isOpen, onClose, children, ...props }: any) => (
+const MockModal = ({ isOpen, onClose, children, ...props }: any) =>
   isOpen ? (
     <div className="modal-overlay" {...props}>
       <div className="modal">
-        <button className="modal-close" onClick={onClose}>×</button>
+        <button className="modal-close" onClick={onClose}>
+          ×
+        </button>
         <div className="modal-content">{children}</div>
       </div>
     </div>
-  ) : null
-);
+  ) : null;
 
-describe('Component Snapshots', () => {
-  describe('Button Component', () => {
-    it('should match snapshot for primary button', () => {
+describe("Component Snapshots", () => {
+  describe("Button Component", () => {
+    it("should match snapshot for primary button", () => {
       const { container } = render(
         <MockButton variant="primary" size="medium">
           Click me
@@ -57,7 +57,7 @@ describe('Component Snapshots', () => {
       expect(container.firstChild).toMatchSnapshot();
     });
 
-    it('should match snapshot for secondary button', () => {
+    it("should match snapshot for secondary button", () => {
       const { container } = render(
         <MockButton variant="secondary" size="large">
           Secondary Button
@@ -66,7 +66,7 @@ describe('Component Snapshots', () => {
       expect(container.firstChild).toMatchSnapshot();
     });
 
-    it('should match snapshot for small button', () => {
+    it("should match snapshot for small button", () => {
       const { container } = render(
         <MockButton variant="primary" size="small">
           Small
@@ -75,7 +75,7 @@ describe('Component Snapshots', () => {
       expect(container.firstChild).toMatchSnapshot();
     });
 
-    it('should match snapshot for disabled button', () => {
+    it("should match snapshot for disabled button", () => {
       const { container } = render(
         <MockButton variant="primary" disabled>
           Disabled
@@ -84,7 +84,7 @@ describe('Component Snapshots', () => {
       expect(container.firstChild).toMatchSnapshot();
     });
 
-    it('should match snapshot for button with custom props', () => {
+    it("should match snapshot for button with custom props", () => {
       const { container } = render(
         <MockButton
           variant="primary"
@@ -99,19 +99,15 @@ describe('Component Snapshots', () => {
     });
   });
 
-  describe('Input Component', () => {
-    it('should match snapshot for basic input', () => {
+  describe("Input Component", () => {
+    it("should match snapshot for basic input", () => {
       const { container } = render(
-        <MockInput
-          label="Email"
-          type="email"
-          placeholder="Enter your email"
-        />
+        <MockInput label="Email" type="email" placeholder="Enter your email" />
       );
       expect(container.firstChild).toMatchSnapshot();
     });
 
-    it('should match snapshot for input with error', () => {
+    it("should match snapshot for input with error", () => {
       const { container } = render(
         <MockInput
           label="Password"
@@ -122,7 +118,7 @@ describe('Component Snapshots', () => {
       expect(container.firstChild).toMatchSnapshot();
     });
 
-    it('should match snapshot for required input', () => {
+    it("should match snapshot for required input", () => {
       const { container } = render(
         <MockInput
           label="Name"
@@ -134,21 +130,16 @@ describe('Component Snapshots', () => {
       expect(container.firstChild).toMatchSnapshot();
     });
 
-    it('should match snapshot for disabled input', () => {
+    it("should match snapshot for disabled input", () => {
       const { container } = render(
-        <MockInput
-          label="Read Only"
-          type="text"
-          disabled
-          value="Cannot edit"
-        />
+        <MockInput label="Read Only" type="text" disabled value="Cannot edit" />
       );
       expect(container.firstChild).toMatchSnapshot();
     });
   });
 
-  describe('Card Component', () => {
-    it('should match snapshot for basic card', () => {
+  describe("Card Component", () => {
+    it("should match snapshot for basic card", () => {
       const { container } = render(
         <MockCard title="Card Title">
           <p>Card content goes here</p>
@@ -157,7 +148,7 @@ describe('Component Snapshots', () => {
       expect(container.firstChild).toMatchSnapshot();
     });
 
-    it('should match snapshot for card without title', () => {
+    it("should match snapshot for card without title", () => {
       const { container } = render(
         <MockCard>
           <p>Card content without title</p>
@@ -166,7 +157,7 @@ describe('Component Snapshots', () => {
       expect(container.firstChild).toMatchSnapshot();
     });
 
-    it('should match snapshot for card with complex content', () => {
+    it("should match snapshot for card with complex content", () => {
       const { container } = render(
         <MockCard title="Complex Card">
           <div>
@@ -183,7 +174,7 @@ describe('Component Snapshots', () => {
       expect(container.firstChild).toMatchSnapshot();
     });
 
-    it('should match snapshot for card with custom props', () => {
+    it("should match snapshot for card with custom props", () => {
       const { container } = render(
         <MockCard
           title="Custom Card"
@@ -197,8 +188,8 @@ describe('Component Snapshots', () => {
     });
   });
 
-  describe('Modal Component', () => {
-    it('should match snapshot for open modal', () => {
+  describe("Modal Component", () => {
+    it("should match snapshot for open modal", () => {
       const { container } = render(
         <MockModal isOpen={true} onClose={() => {}}>
           <h2>Modal Title</h2>
@@ -208,7 +199,7 @@ describe('Component Snapshots', () => {
       expect(container.firstChild).toMatchSnapshot();
     });
 
-    it('should match snapshot for closed modal', () => {
+    it("should match snapshot for closed modal", () => {
       const { container } = render(
         <MockModal isOpen={false} onClose={() => {}}>
           <h2>Modal Title</h2>
@@ -218,7 +209,7 @@ describe('Component Snapshots', () => {
       expect(container.firstChild).toMatchSnapshot();
     });
 
-    it('should match snapshot for modal with form', () => {
+    it("should match snapshot for modal with form", () => {
       const { container } = render(
         <MockModal isOpen={true} onClose={() => {}}>
           <form>
@@ -233,8 +224,8 @@ describe('Component Snapshots', () => {
     });
   });
 
-  describe('Complex Component Combinations', () => {
-    it('should match snapshot for form with multiple inputs', () => {
+  describe("Complex Component Combinations", () => {
+    it("should match snapshot for form with multiple inputs", () => {
       const { container } = render(
         <form>
           <MockInput label="First Name" type="text" required />
@@ -254,7 +245,7 @@ describe('Component Snapshots', () => {
       expect(container.firstChild).toMatchSnapshot();
     });
 
-    it('should match snapshot for dashboard layout', () => {
+    it("should match snapshot for dashboard layout", () => {
       const { container } = render(
         <div className="dashboard">
           <header className="dashboard-header">
@@ -277,7 +268,7 @@ describe('Component Snapshots', () => {
       expect(container.firstChild).toMatchSnapshot();
     });
 
-    it('should match snapshot for error state', () => {
+    it("should match snapshot for error state", () => {
       const { container } = render(
         <div className="error-state">
           <MockCard title="Error">
@@ -291,7 +282,7 @@ describe('Component Snapshots', () => {
       expect(container.firstChild).toMatchSnapshot();
     });
 
-    it('should match snapshot for loading state', () => {
+    it("should match snapshot for loading state", () => {
       const { container } = render(
         <div className="loading-state">
           <MockCard title="Loading">
@@ -303,8 +294,8 @@ describe('Component Snapshots', () => {
     });
   });
 
-  describe('Accessibility Attributes', () => {
-    it('should match snapshot for accessible button', () => {
+  describe("Accessibility Attributes", () => {
+    it("should match snapshot for accessible button", () => {
       const { container } = render(
         <MockButton
           variant="primary"
@@ -318,7 +309,7 @@ describe('Component Snapshots', () => {
       expect(container.firstChild).toMatchSnapshot();
     });
 
-    it('should match snapshot for accessible input', () => {
+    it("should match snapshot for accessible input", () => {
       const { container } = render(
         <MockInput
           label="Password"
@@ -330,7 +321,7 @@ describe('Component Snapshots', () => {
       expect(container.firstChild).toMatchSnapshot();
     });
 
-    it('should match snapshot for accessible modal', () => {
+    it("should match snapshot for accessible modal", () => {
       const { container } = render(
         <MockModal
           isOpen={true}
@@ -347,8 +338,8 @@ describe('Component Snapshots', () => {
     });
   });
 
-  describe('Internationalization', () => {
-    it('should match snapshot for RTL layout', () => {
+  describe("Internationalization", () => {
+    it("should match snapshot for RTL layout", () => {
       const { container } = render(
         <div dir="rtl" lang="ar">
           <MockCard title="بطاقة">
@@ -360,7 +351,7 @@ describe('Component Snapshots', () => {
       expect(container.firstChild).toMatchSnapshot();
     });
 
-    it('should match snapshot for long text content', () => {
+    it("should match snapshot for long text content", () => {
       const { container } = render(
         <MockCard title="Very Long Title That Might Wrap to Multiple Lines">
           <p>
