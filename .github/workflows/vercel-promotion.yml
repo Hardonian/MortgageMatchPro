@@ -52,7 +52,7 @@ jobs:
         SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
 
     - name: Deploy to Vercel Preview
-      uses: amondnet/vercel-action@v25
+      uses: amondnet/vercel-action@v42
       with:
         vercel-token: ${{ secrets.VERCEL_TOKEN }}
         vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
@@ -146,7 +146,7 @@ jobs:
         echo "✅ SLOs within budget"
 
     - name: Deploy to Vercel Production
-      uses: amondnet/vercel-action@v25
+      uses: amondnet/vercel-action@v42
       with:
         vercel-token: ${{ secrets.VERCEL_TOKEN }}
         vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
