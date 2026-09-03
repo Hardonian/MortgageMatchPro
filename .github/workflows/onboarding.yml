@@ -14,7 +14,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -103,7 +103,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       - name: Generate onboarding issues
         run: node scripts/generate-onboarding-tasks.js
@@ -117,7 +117,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       - name: Assign mentor
         run: node scripts/assign-mentor.js
@@ -131,7 +131,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       - name: Update progress
         run: node scripts/update-onboarding-progress.js

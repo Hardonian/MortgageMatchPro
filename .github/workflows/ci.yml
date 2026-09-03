@@ -11,7 +11,7 @@ jobs:
   security:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         fetch-depth: 0  # Full history for secrets scan
 
@@ -42,7 +42,7 @@ jobs:
   bundle-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Setup Node.js
       uses: actions/setup-node@v7
@@ -77,7 +77,7 @@ jobs:
   database-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Setup Node.js
       uses: actions/setup-node@v7
@@ -144,7 +144,7 @@ jobs:
           - 6379:6379
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Setup Node.js
       uses: actions/setup-node@v7
@@ -198,7 +198,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Setup Node.js
       uses: actions/setup-node@v7
@@ -247,7 +247,7 @@ jobs:
     if: contains(github.event.pull_request.labels.*.name, 'perf-check')
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Setup Node.js
       uses: actions/setup-node@v7
@@ -302,7 +302,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Setup Node.js
       uses: actions/setup-node@v7
@@ -333,7 +333,7 @@ jobs:
     needs: [test, database-check, bundle-check]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Setup Node.js
       uses: actions/setup-node@v7
@@ -366,7 +366,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Deploy to Vercel
       uses: amondnet/vercel-action@v25
