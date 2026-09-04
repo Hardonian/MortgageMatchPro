@@ -1,5 +1,9 @@
 # MortgageMatch Pro v1.2.0
 
+<!-- BEGIN: REPO HERO -->
+![MortgageMatchPro — hero generated locally on the GPU stack](assets/repo-hero.png)
+<!-- END: REPO HERO -->
+
 AI-Powered Mortgage Intelligence Platform with Personalization, Fine-Tuning & Partner Integrations
 
 ## 🚀 Features
