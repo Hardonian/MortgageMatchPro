@@ -4,24 +4,6 @@
       "maxDuration": 30
     }
   },
-  "env": {
-    "OPENAI_API_KEY": "",
-    "SUPABASE_URL": "",
-    "SUPABASE_ANON_KEY": "",
-    "SUPABASE_SERVICE_KEY": "",
-    "STRIPE_PUBLISHABLE_KEY": "",
-    "STRIPE_SECRET_KEY": "",
-    "STRIPE_WEBHOOK_SECRET": "",
-    "TWILIO_ACCOUNT_SID": "",
-    "TWILIO_AUTH_TOKEN": "",
-    "TWILIO_PHONE_NUMBER": "",
-    "RATEHUB_API_KEY": "",
-    "FREDDIE_MAC_API_KEY": "",
-    "REDIS_URL": "",
-    "SENTRY_DSN": "",
-    "POSTHOG_KEY": "",
-    "DEFAULT_BROKER_PHONE": ""
-  },
   "headers": [
     {
       "source": "/api/(.*)",
