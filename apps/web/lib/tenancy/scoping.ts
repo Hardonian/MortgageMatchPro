@@ -1,2 +1,3 @@
+export class TenantScoping { static withScope() { return {} } }
 export function withTenantScope() { return {} }
-export default { withTenantScope }
+export default TenantScoping

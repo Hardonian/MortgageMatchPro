@@ -1,2 +1,2 @@
-export class APIKeyService { async validate() { return true } }
-export default APIKeyService
+export class ApiKeyService { async validate() { return true } }
+export default ApiKeyService

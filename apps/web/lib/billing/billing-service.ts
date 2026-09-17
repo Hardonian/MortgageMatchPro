@@ -1,2 +1,2 @@
-export class BillingService { async getSubscription() { return null } }
-export default BillingService
+export function getBillingAdapter() { return { getSubscription: async () => null } }
+export default { getBillingAdapter }

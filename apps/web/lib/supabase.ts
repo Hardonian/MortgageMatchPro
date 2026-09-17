@@ -1,3 +1,5 @@
-export function getSupabase() { return null }
+export const supabase = null
+export const supabaseAdmin = null
 export function createClient() { return null }
-export default { getSupabase, createClient }
+export function getSupabase() { return null }
+export default supabase

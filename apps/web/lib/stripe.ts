@@ -1,2 +1,3 @@
 export function getStripe() { return null }
-export default { getStripe }
+export function verifyWebhookSignature() { return true }
+export default { getStripe, verifyWebhookSignature }
