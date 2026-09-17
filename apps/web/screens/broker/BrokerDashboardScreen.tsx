@@ -23,7 +23,7 @@ const { width } = Dimensions.get('window');
 const chartWidth = width - (spacing.lg * 2);
 
 export const BrokerDashboardScreen: React.FC = () => {
-  const { theme } = useTheme();
+  const theme = useTheme();
   const { t } = useI18n();
   const { user } = useAuth();
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);

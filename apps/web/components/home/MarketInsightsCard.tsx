@@ -40,7 +40,7 @@ const marketInsights: MarketInsight[] = [
 ];
 
 export const MarketInsightsCard: React.FC = () => {
-  const { theme } = useTheme();
+  const theme = useTheme();
 
   const getChangeIcon = (changeType: string) => {
     switch (changeType) {

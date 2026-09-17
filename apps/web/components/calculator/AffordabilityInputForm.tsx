@@ -15,7 +15,7 @@ export const AffordabilityInputForm: React.FC<AffordabilityInputFormProps> = ({
   loading,
   selectedProduct,
 }) => {
-  const { theme } = useTheme();
+  const theme = useTheme();
   const [formData, setFormData] = useState<AffordabilityInput>({
     country: 'CA',
     income: 75000,

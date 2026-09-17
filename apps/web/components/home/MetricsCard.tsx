@@ -18,7 +18,7 @@ export const MetricsCard: React.FC<MetricsCardProps> = ({
   changeType,
   icon,
 }) => {
-  const { theme } = useTheme();
+  const theme = useTheme();
 
   const getChangeColor = () => {
     switch (changeType) {

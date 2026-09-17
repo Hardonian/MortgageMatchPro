@@ -46,7 +46,7 @@ interface ToastMessageProps {
 }
 
 const ToastMessage: React.FC<ToastMessageProps> = ({ type, title, message, icon }) => {
-  const { theme } = useTheme();
+  const theme = useTheme();
 
   const getBackgroundColor = () => {
     switch (type) {

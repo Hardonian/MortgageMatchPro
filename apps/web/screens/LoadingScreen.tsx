@@ -4,7 +4,7 @@ import { ActivityIndicator, Text } from 'react-native-paper';
 import { useTheme } from '../contexts/ThemeContext';
 
 export const LoadingScreen: React.FC = () => {
-  const { theme } = useTheme();
+  const theme = useTheme();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>

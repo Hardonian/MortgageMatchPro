@@ -9,7 +9,7 @@ interface RecentActivityCardProps {
 }
 
 export const RecentActivityCard: React.FC<RecentActivityCardProps> = ({ leads }) => {
-  const { theme } = useTheme();
+  const theme = useTheme();
 
   const getStatusColor = (status: string) => {
     switch (status) {

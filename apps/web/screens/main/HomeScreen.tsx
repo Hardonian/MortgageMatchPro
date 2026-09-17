@@ -23,7 +23,7 @@ import { scale, layout } from '../../utils/responsive';
 const chartWidth = layout.screenWidth - (spacing.lg * 2);
 
 export const HomeScreen: React.FC = () => {
-  const { theme } = useTheme();
+  const theme = useTheme();
   const { t } = useI18n();
   const { user } = useAuth();
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);

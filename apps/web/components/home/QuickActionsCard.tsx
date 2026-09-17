@@ -44,7 +44,7 @@ const quickActions: QuickAction[] = [
 ];
 
 export const QuickActionsCard: React.FC = () => {
-  const { theme } = useTheme();
+  const theme = useTheme();
   const { t } = useI18n();
 
   return (

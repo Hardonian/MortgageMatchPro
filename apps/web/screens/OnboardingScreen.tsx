@@ -54,7 +54,7 @@ const onboardingSlides: OnboardingSlide[] = [
 ];
 
 export const OnboardingScreen: React.FC = () => {
-  const { theme } = useTheme();
+  const theme = useTheme();
   const { t } = useI18n();
   const { login } = useAuth();
   const [currentSlide, setCurrentSlide] = useState(0);

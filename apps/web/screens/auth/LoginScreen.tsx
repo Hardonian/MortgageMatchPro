@@ -14,7 +14,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { spacing } from '../../constants/theme';
 
 export const LoginScreen: React.FC = () => {
-  const { theme } = useTheme();
+  const theme = useTheme();
   const { t } = useI18n();
   const { login, isLoading } = useAuth();
   const [email, setEmail] = useState('');

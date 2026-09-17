@@ -18,7 +18,7 @@ import { ResponsiveText } from '../../components/ui/ResponsiveText';
 import { ResponsiveButton } from '../../components/ui/ResponsiveButton';
 
 export const CalculatorScreen: React.FC = () => {
-  const { theme } = useTheme();
+  const theme = useTheme();
   const { t } = useI18n();
   const { user } = useAuth();
   const [affordabilityResult, setAffordabilityResult] = useState<AffordabilityResult | null>(null);

@@ -116,7 +116,7 @@ export const MortgageProductSelector: React.FC<MortgageProductSelectorProps> = (
   selectedProduct,
   onProductSelect,
 }) => {
-  const { theme } = useTheme();
+  const theme = useTheme();
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
