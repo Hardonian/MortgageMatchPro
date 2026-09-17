@@ -28,7 +28,6 @@
     "performance:audit": "node scripts/performance-audit.js",
     "audit:all": "npm run security:audit && npm run performance:audit && npm run security:check",
     "precommit": "npm run lint && npm run type-check && npm run test:coverage",
-    "prebuild": "npm run audit:all",
     "training:prepare": "npx ts-node training/prepareDataset.ts",
     "training:run": "node training/runFineTune.mjs",
     "training:list-datasets": "node training/runFineTune.mjs list-datasets",
