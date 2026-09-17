@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-export const toastConfig = {
+export const toastConfig: Record<string, any> = {
   success: ({ text1, text2 }: { text1?: string; text2?: string }) => (
     <ToastMessage
       type="success"
