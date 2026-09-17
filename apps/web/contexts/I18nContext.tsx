@@ -5,6 +5,7 @@ import { getLocales } from 'react-native-localize';
 import { Language } from '../types';
 
 interface I18nContextType {
+  t: (...args: any[]) => string;
   currentLanguage: string;
   availableLanguages: Language[];
   changeLanguage: (languageCode: string) => Promise<void>;
@@ -33,7 +34,7 @@ const availableLanguages: Language[] = [
 ];
 
 export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [currentLanguage, setCurrentLanguage] = useState('en');
   const [isRTL, setIsRTL] = useState(false);
 
@@ -83,6 +84,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
   };
 
   const value: I18nContextType = {
+    t: t as any,
     currentLanguage,
     availableLanguages,
     changeLanguage,
