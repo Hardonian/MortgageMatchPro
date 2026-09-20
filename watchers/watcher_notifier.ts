@@ -95,7 +95,7 @@ class WatcherNotifier {
       
       return summary;
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Watcher notification failed:', error);
       throw error;
     }
@@ -292,7 +292,7 @@ class WatcherNotifier {
       } else {
         console.log('📊 Watcher summary stored in database');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error storing watcher summary:', error);
     }
   }
@@ -314,7 +314,7 @@ class WatcherNotifier {
       });
 
       console.log('📝 Created system health issue in GitHub');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating system health issue:', error);
     }
   }
@@ -391,7 +391,7 @@ ${summary.next_actions.map(action => `- ${action}`).join('\n')}
       }
 
       console.log('📢 Notifications sent successfully');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending notifications:', error);
     }
   }

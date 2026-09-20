@@ -110,7 +110,7 @@ class APIContractWatcher {
 
       return report;
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Contract validation failed:', error);
       throw error;
     }
@@ -132,7 +132,7 @@ class APIContractWatcher {
 
       // Generate spec from code analysis
       return await this.generateOpenAPISpec();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading OpenAPI spec:', error);
       throw error;
     }
@@ -152,7 +152,7 @@ class APIContractWatcher {
       servers: [
         { url: this.baseUrl }
       ],
-      paths: {}
+      paths: {} as Record<string, any>
     };
 
     // Analyze API routes from Next.js pages/api directory
@@ -340,7 +340,7 @@ class APIContractWatcher {
         description: 'Legacy calculation endpoint (deprecated)'
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error analyzing API routes:', error);
     }
 
@@ -374,13 +374,13 @@ class APIContractWatcher {
             response_schema: response.schema,
             headers: response.headers
           });
-        } catch (error) {
+        } catch (error: any) {
           // Endpoint not found or error
           console.log(`Endpoint ${endpoint.method} ${endpoint.path} not accessible`);
         }
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error discovering endpoints:', error);
     }
 
@@ -511,7 +511,7 @@ class APIContractWatcher {
         }
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error comparing contracts:', error);
     }
 
@@ -560,7 +560,7 @@ class APIContractWatcher {
         }
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error checking deprecated usage:', error);
     }
 
@@ -676,7 +676,7 @@ class APIContractWatcher {
       });
 
       console.log('📝 Created API contract issue in GitHub');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating contract issue:', error);
     }
   }
@@ -734,7 +734,8 @@ ${report.recommendations.map(rec => `- ${rec}`).join('\n')}
 }
 
 // Export for use in other modules
-export { APIContractWatcher, ContractViolation, ContractReport };
+export { APIContractWatcher };
+export type { ContractViolation, ContractReport };
 
 // CLI usage
 if (require.main === module) {

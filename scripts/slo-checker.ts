@@ -95,7 +95,7 @@ class SLOChecker {
         }
       };
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Failed to collect metrics:', error);
       throw error;
     }
@@ -138,7 +138,7 @@ class SLOChecker {
         failedRequests
       };
 
-    } catch (error) {
+    } catch (error: any) {
       console.warn('Could not collect API metrics, using fallback values');
       return {
         successRate: 0.999, // Assume good performance
@@ -175,7 +175,7 @@ class SLOChecker {
         totalQueries
       };
 
-    } catch (error) {
+    } catch (error: any) {
       console.warn('Could not collect database metrics, using fallback values');
       return {
         errorRate: 0.0001, // Assume very low error rate
@@ -305,7 +305,7 @@ ${result.recommendations.map(rec => `- ${rec}`).join('\n')}
       
       return result;
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ SLO check failed:', error);
       throw error;
     }

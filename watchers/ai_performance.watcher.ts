@@ -116,7 +116,7 @@ class AIPerformanceWatcher {
 
       return report;
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Performance monitoring failed:', error);
       throw error;
     }
@@ -200,7 +200,7 @@ class AIPerformanceWatcher {
         });
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error collecting model performance:', error);
       return this.generateMockPerformanceData();
     }
@@ -322,7 +322,7 @@ class AIPerformanceWatcher {
       if (changePercent < -10) return 'decreasing';
       return 'stable';
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error analyzing cost trend:', error);
       return 'stable';
     }
@@ -369,7 +369,7 @@ class AIPerformanceWatcher {
       if (changePercent < -10) return 'improving';
       return 'stable';
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error analyzing performance trend:', error);
       return 'stable';
     }
@@ -542,7 +542,7 @@ class AIPerformanceWatcher {
       });
 
       console.log('📝 Created AI performance issue in GitHub');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating performance issue:', error);
     }
   }
@@ -598,7 +598,8 @@ ${report.recommendations.map(rec => `- ${rec}`).join('\n')}
 }
 
 // Export for use in other modules
-export { AIPerformanceWatcher, ModelPerformance, PerformanceAlert, PerformanceReport };
+export { AIPerformanceWatcher };
+export type { ModelPerformance, PerformanceAlert, PerformanceReport };
 
 // CLI usage
 if (require.main === module) {

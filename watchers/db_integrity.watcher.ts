@@ -109,7 +109,7 @@ class DatabaseIntegrityWatcher {
 
       return report;
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Integrity check failed:', error);
       throw error;
     }
@@ -221,7 +221,7 @@ class DatabaseIntegrityWatcher {
         });
       }
 
-    } catch (error) {
+    } catch (error: any) {
       checks.push({
         table: 'foreign_keys',
         check_type: 'foreign_key',
@@ -307,7 +307,7 @@ class DatabaseIntegrityWatcher {
         });
       }
 
-    } catch (error) {
+    } catch (error: any) {
       checks.push({
         table: 'data_consistency',
         check_type: 'data_consistency',
@@ -348,7 +348,7 @@ class DatabaseIntegrityWatcher {
         });
       }
 
-    } catch (error) {
+    } catch (error: any) {
       checks.push({
         table: 'indexes',
         check_type: 'index',
@@ -401,7 +401,7 @@ class DatabaseIntegrityWatcher {
         });
       }
 
-    } catch (error) {
+    } catch (error: any) {
       checks.push({
         table: 'orphaned_records',
         check_type: 'data_consistency',
@@ -463,7 +463,7 @@ class DatabaseIntegrityWatcher {
         }
       }
 
-    } catch (error) {
+    } catch (error: any) {
       checks.push({
         table: 'duplicates',
         check_type: 'constraint',
@@ -520,7 +520,7 @@ class DatabaseIntegrityWatcher {
         });
       }
 
-    } catch (error) {
+    } catch (error: any) {
       checks.push({
         table: 'data_retention',
         check_type: 'data_consistency',
@@ -606,7 +606,7 @@ class DatabaseIntegrityWatcher {
       });
 
       console.log('📝 Created database integrity issue in GitHub');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating integrity issue:', error);
     }
   }
@@ -653,7 +653,8 @@ ${report.recommendations.map(rec => `- ${rec}`).join('\n')}
 }
 
 // Export for use in other modules
-export { DatabaseIntegrityWatcher, IntegrityCheck, IntegrityReport };
+export { DatabaseIntegrityWatcher };
+export type { IntegrityCheck, IntegrityReport };
 
 // CLI usage
 if (require.main === module) {
