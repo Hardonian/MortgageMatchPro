@@ -48,7 +48,7 @@ jobs:
         run: npm ci
 
       - name: Run Database Integrity Check
-        run: npx ts-node watchers/db_integrity.watcher.ts
+        run: npx tsx watchers/db_integrity.watcher.ts
         env:
           SUPABASE_URL: ${{ env.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ env.SUPABASE_SERVICE_KEY }}
@@ -79,7 +79,7 @@ jobs:
         run: npm ci
 
       - name: Run API Contract Check
-        run: npx ts-node watchers/api_contract.watcher.ts
+        run: npx tsx watchers/api_contract.watcher.ts
         env:
           SUPABASE_URL: ${{ env.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ env.SUPABASE_SERVICE_KEY }}
@@ -110,7 +110,7 @@ jobs:
         run: npm ci
 
       - name: Run AI Performance Check
-        run: npx ts-node watchers/ai_performance.watcher.ts
+        run: npx tsx watchers/ai_performance.watcher.ts
         env:
           SUPABASE_URL: ${{ env.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ env.SUPABASE_SERVICE_KEY }}
