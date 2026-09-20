@@ -738,6 +738,11 @@ export { APIContractWatcher, ContractViolation, ContractReport };
 
 // CLI usage
 if (require.main === module) {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
+    console.warn('⚠️ SUPABASE_URL or SUPABASE_SERVICE_KEY not set. Skipping API contract check.');
+    process.exit(0);
+  }
+
   const watcher = new APIContractWatcher();
   
   watcher.runContractCheck()

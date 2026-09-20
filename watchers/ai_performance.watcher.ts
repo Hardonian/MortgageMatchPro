@@ -602,6 +602,11 @@ export { AIPerformanceWatcher, ModelPerformance, PerformanceAlert, PerformanceRe
 
 // CLI usage
 if (require.main === module) {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
+    console.warn('⚠️ SUPABASE_URL or SUPABASE_SERVICE_KEY not set. Skipping AI performance check.');
+    process.exit(0);
+  }
+
   const watcher = new AIPerformanceWatcher();
   
   watcher.runPerformanceCheck()

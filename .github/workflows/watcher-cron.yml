@@ -28,7 +28,10 @@ jobs:
   db-integrity-watcher:
     name: Database Integrity Watcher
     runs-on: ubuntu-latest
-    if: github.event.inputs.watcher_type == 'all' || github.event.inputs.watcher_type == 'db_integrity'
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event.inputs.watcher_type == 'all' ||
+      github.event.inputs.watcher_type == 'db_integrity'
     timeout-minutes: 30
 
     steps:
@@ -56,7 +59,10 @@ jobs:
   api-contract-watcher:
     name: API Contract Watcher
     runs-on: ubuntu-latest
-    if: github.event.inputs.watcher_type == 'all' || github.event.inputs.watcher_type == 'api_contract'
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event.inputs.watcher_type == 'all' ||
+      github.event.inputs.watcher_type == 'api_contract'
     timeout-minutes: 20
 
     steps:
@@ -84,7 +90,10 @@ jobs:
   ai-performance-watcher:
     name: AI Performance Watcher
     runs-on: ubuntu-latest
-    if: github.event.inputs.watcher_type == 'all' || github.event.inputs.watcher_type == 'ai_performance'
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event.inputs.watcher_type == 'all' ||
+      github.event.inputs.watcher_type == 'ai_performance'
     timeout-minutes: 25
 
     steps:
@@ -120,57 +129,62 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
       - name: Generate Watcher Summary
+        id: generate-summary
         run: |
-          npx ts-node -e "
-          const { WatcherNotifier } = require('./watchers/watcher_notifier.ts');
-          const notifier = new WatcherNotifier();
-          notifier.generateSummary({
+          SUMMARY=$(node -e "
+          const results = {
             db_integrity: '${{ needs.db-integrity-watcher.result }}',
             api_contract: '${{ needs.api-contract-watcher.result }}',
             ai_performance: '${{ needs.ai-performance-watcher.result }}'
-          }).then(summary => {
-            console.log('WATCHER_SUMMARY<<EOF');
-            console.log(JSON.stringify(summary, null, 2));
-            console.log('EOF');
-          });
-          "
+          };
+          const summary = {
+            timestamp: new Date().toISOString(),
+            db_integrity: results.db_integrity,
+            api_contract: results.api_contract,
+            ai_performance: results.ai_performance,
+            issues: Object.entries(results)
+              .filter(([, v]) => v === 'failure')
+              .map(([k]) => k + ' watcher failed'),
+            recommendations: Object.entries(results)
+              .filter(([, v]) => v === 'failure')
+              .map(([k]) => 'Investigate ' + k + ' watcher failure')
+          };
+          process.stdout.write(JSON.stringify(summary));
+          ")
+          echo "WATCHER_SUMMARY=${SUMMARY}" >> "$GITHUB_OUTPUT"
+          echo "$SUMMARY" | node -e "process.stdin.resume(); let d=''; process.stdin.on('data',c=>d+=c); process.stdin.on('end',()=>console.log(JSON.stringify(JSON.parse(d),null,2)))"
 
       - name: Create Summary Issue
-        if: ${{ needs.db-integrity-watcher.result == 'failure' || needs.api-contract-watcher.result == 'failure' || needs.ai-performance-watcher.result == 'failure' }}
+        if: >-
+          needs.db-integrity-watcher.result == 'failure' ||
+          needs.api-contract-watcher.result == 'failure' ||
+          needs.ai-performance-watcher.result == 'failure'
         uses: actions/github-script@v7
         with:
           script: |
-            const summary = `${{ steps.generate-summary.outputs.WATCHER_SUMMARY }}`;
-            const parsed = JSON.parse(summary);
-            
+            const fs = require('fs');
+            const summaryText = process.env.WATCHER_SUMMARY || '{}';
+            const parsed = JSON.parse(summaryText);
+
             const issueBody = `## 🔍 Autonomous Watcher Report
-            
+
             **Generated:** ${new Date().toISOString()}
-            
+
             ### Watcher Results
-            - **Database Integrity:** ${parsed.db_integrity}
-            - **API Contract:** ${parsed.api_contract}
-            - **AI Performance:** ${parsed.ai_performance}
-            
+            - **Database Integrity:** ${parsed.db_integrity || 'unknown'}
+            - **API Contract:** ${parsed.api_contract || 'unknown'}
+            - **AI Performance:** ${parsed.ai_performance || 'unknown'}
+
             ### Issues Found
-            ${parsed.issues?.map(issue => `- ${issue}`).join('\n') || 'No issues detected'}
-            
+            ${(parsed.issues || []).map(issue => `- ${issue}`).join('\n') || 'No issues detected'}
+
             ### Recommendations
-            ${parsed.recommendations?.map(rec => `- ${rec}`).join('\n') || 'No recommendations'}
-            
+            ${(parsed.recommendations || []).map(rec => `- ${rec}`).join('\n') || 'No recommendations'}
+
             ---
             *This report was generated by the Autonomous Watcher system.*`;
-            
+
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -178,3 +192,5 @@ jobs:
               body: issueBody,
               labels: ['watcher-report', 'automated', 'regression']
             });
+        env:
+          WATCHER_SUMMARY: ${{ steps.generate-summary.outputs.WATCHER_SUMMARY }}

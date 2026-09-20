@@ -314,6 +314,11 @@ ${result.recommendations.map(rec => `- ${rec}`).join('\n')}
 
 // CLI interface
 if (require.main === module) {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
+    console.warn('⚠️ SUPABASE_URL or SUPABASE_SERVICE_KEY not set. Skipping SLO check.');
+    process.exit(0);
+  }
+
   const config: SLOConfig = {
     apiSuccessRateThreshold: 0.999, // 99.9%
     latencyThresholds: {
@@ -332,7 +337,10 @@ if (require.main === module) {
 
   const environment = process.env.NODE_ENV || 'preview';
   const checker = new SLOChecker(config);
-  checker.runSLOCheck(environment).catch(console.error);
+  checker.runSLOCheck(environment).catch((err) => {
+    console.error('❌ SLO check failed:', err);
+    process.exit(1);
+  });
 }
 
 export { SLOChecker };
