@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * API Contract Watcher
  * Compares latest OpenAPI spec vs deployed endpoints

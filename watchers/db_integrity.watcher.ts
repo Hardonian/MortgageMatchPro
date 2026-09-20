@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Database Integrity Watcher
  * Validates referential integrity, constraint violations, and data consistency

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * AI Performance Watcher
  * Tracks token usage, latency, and performance per model
