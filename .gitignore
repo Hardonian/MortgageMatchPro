@@ -1,1 +1,4 @@
 node_modules
+
+# Regenerable build artifacts (do not track)
+node_modules/
