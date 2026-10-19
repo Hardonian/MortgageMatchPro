@@ -204,7 +204,7 @@
     "@react-native/eslint-config": "^0.72.2",
     "@react-native/metro-config": "^0.87.1",
     "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^13.4.0",
+    "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.7",
     "@tsconfig/react-native": "^3.0.0",
     "@types/node": "^24.9.1",
