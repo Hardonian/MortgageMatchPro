@@ -29,7 +29,7 @@ describe('planning calculator', () => {
 
     expect(res.status).toHaveBeenCalledWith(200)
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-      calculationVersion: '2026.1',
+      calculationVersion: '2026.2',
       currency: 'CAD',
       monthlyPayment: expect.any(Number),
       maxAffordable: expect.any(Number),
