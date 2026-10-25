@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://mortgagematch.pro/</loc>
-    <lastmod>2026-10-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
+  <url><loc>https://mortgagematch.pro/</loc><lastmod>2026-10-25</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://mortgagematch.pro/guide</loc><lastmod>2026-10-25</lastmod><priority>0.8</priority></url>`n  <url><loc>https://mortgagematch.pro/about</loc><lastmod>2026-10-25</lastmod><priority>0.7</priority></url>
+  <url><loc>https://mortgagematch.pro/faq</loc><lastmod>2026-10-25</lastmod><priority>0.7</priority></url>
+  <url><loc>https://mortgagematch.pro/security</loc><lastmod>2026-10-25</lastmod><priority>0.5</priority></url>
+  <url><loc>https://mortgagematch.pro/contact</loc><lastmod>2026-10-25</lastmod><priority>0.5</priority></url>
+  <url><loc>https://mortgagematch.pro/privacy</loc><lastmod>2026-10-25</lastmod><priority>0.3</priority></url>
+  <url><loc>https://mortgagematch.pro/terms</loc><lastmod>2026-10-25</lastmod><priority>0.3</priority></url>
+  <url><loc>https://mortgagematch.pro/disclosures</loc><lastmod>2026-10-25</lastmod><priority>0.3</priority></url>
 </urlset>

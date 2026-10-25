@@ -261,6 +261,13 @@ export default function HomePage() {
           <div><strong>Good planning beats fast guessing.</strong><p>MortgageMatch shows the assumptions behind every result so you know what to ask next.</p></div>
         </section>
 
+        <footer style={{ maxWidth: 1120, margin: '20px auto 0', display: 'flex', flexWrap: 'wrap', gap: '6px 16px', justifyContent: 'center', fontSize: 13, fontWeight: 600 }}>
+          {[['About', '/about'], ['FAQ', '/faq'], ['Security', '/security'], ['Contact', '/contact'], ['Privacy', '/privacy'], ['Terms', '/terms'], ['Disclosures', '/disclosures']].map(([label, href]) => (
+            <a key={href} href={href} style={{ color: '#61737a', textDecoration: 'none' }}>{label}</a>
+          ))}
+        </footer>
+
+
         <nav className={styles.bottomNav} aria-label="Primary navigation">
           {(Object.keys(tabDetails) as Tab[]).map((tab) => {
             const item = tabDetails[tab]
