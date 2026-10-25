@@ -1,6 +1,7 @@
 {
-  "extends": "./node_modules/@tsconfig/react-native/tsconfig.json",
   "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "module": "commonjs",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

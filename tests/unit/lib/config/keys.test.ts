@@ -16,6 +16,7 @@ describe('Key Management', () => {
 
   describe('Environment Validation', () => {
     it('should validate required environment variables', () => {
+      jest.resetModules()
       process.env = {
         ...originalEnv,
         OPENAI_API_KEY: 'sk-test-key',
@@ -23,7 +24,7 @@ describe('Key Management', () => {
         NEXT_PUBLIC_SUPABASE_ANON_KEY: 'test-anon-key',
         SUPABASE_SERVICE_ROLE_KEY: 'test-service-key',
         ENCRYPTION_KEY: 'test-encryption-key-32-chars-long',
-        JWT_SECRET: 'test-jwt-secret-32-chars-long'
+        JWT_SECRET: 'test-jwt-secret-32-characters-long'
       }
 
       expect(() => {
@@ -32,8 +33,9 @@ describe('Key Management', () => {
     })
 
     it('should throw error for missing required variables', () => {
+      jest.resetModules()
       process.env = {
-        ...originalEnv,
+        NODE_ENV: 'test',
         OPENAI_API_KEY: 'sk-test-key'
         // Missing other required variables
       }
@@ -44,6 +46,7 @@ describe('Key Management', () => {
     })
 
     it('should throw error for invalid URL format', () => {
+      jest.resetModules()
       process.env = {
         ...originalEnv,
         OPENAI_API_KEY: 'sk-test-key',
@@ -51,7 +54,7 @@ describe('Key Management', () => {
         NEXT_PUBLIC_SUPABASE_ANON_KEY: 'test-anon-key',
         SUPABASE_SERVICE_ROLE_KEY: 'test-service-key',
         ENCRYPTION_KEY: 'test-encryption-key-32-chars-long',
-        JWT_SECRET: 'test-jwt-secret-32-chars-long'
+        JWT_SECRET: 'test-jwt-secret-32-characters-long'
       }
 
       expect(() => {
@@ -60,6 +63,7 @@ describe('Key Management', () => {
     })
 
     it('should throw error for short encryption key', () => {
+      jest.resetModules()
       process.env = {
         ...originalEnv,
         OPENAI_API_KEY: 'sk-test-key',
@@ -67,7 +71,7 @@ describe('Key Management', () => {
         NEXT_PUBLIC_SUPABASE_ANON_KEY: 'test-anon-key',
         SUPABASE_SERVICE_ROLE_KEY: 'test-service-key',
         ENCRYPTION_KEY: 'short',
-        JWT_SECRET: 'test-jwt-secret-32-chars-long'
+        JWT_SECRET: 'test-jwt-secret-32-characters-long'
       }
 
       expect(() => {
@@ -85,7 +89,7 @@ describe('Key Management', () => {
         NEXT_PUBLIC_SUPABASE_ANON_KEY: 'test-anon-key',
         SUPABASE_SERVICE_ROLE_KEY: 'test-service-key',
         ENCRYPTION_KEY: 'test-encryption-key-32-chars-long',
-        JWT_SECRET: 'test-jwt-secret-32-chars-long'
+        JWT_SECRET: 'test-jwt-secret-32-characters-long'
       }
       keyManager.rotateKey('openai', 'sk-test-key')
     })
