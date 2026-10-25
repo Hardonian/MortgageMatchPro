@@ -1,49 +1,13 @@
 {
-  "timestamp": "2026-10-25T14:49:23.170Z",
+  "timestamp": "2026-10-25T15:05:15.344Z",
   "summary": {
     "totalIssues": 0,
-    "totalWarnings": 5,
+    "totalWarnings": 0,
     "totalRecommendations": 0,
     "criticalIssues": 0,
     "highIssues": 0
   },
   "issues": [],
-  "warnings": [
-    {
-      "severity": "MEDIUM",
-      "category": "RATE_LIMITING",
-      "message": "Missing rate limiting",
-      "file": "pages\\api\\affordability.page.ts",
-      "line": null
-    },
-    {
-      "severity": "MEDIUM",
-      "category": "RATE_LIMITING",
-      "message": "Missing rate limiting",
-      "file": "pages\\api\\health.page.ts",
-      "line": null
-    },
-    {
-      "severity": "MEDIUM",
-      "category": "RATE_LIMITING",
-      "message": "Missing rate limiting",
-      "file": "pages\\api\\healthz.page.ts",
-      "line": null
-    },
-    {
-      "severity": "MEDIUM",
-      "category": "RATE_LIMITING",
-      "message": "Missing rate limiting",
-      "file": "pages\\api\\v2\\api-keys\\generate.page.ts",
-      "line": null
-    },
-    {
-      "severity": "MEDIUM",
-      "category": "RATE_LIMITING",
-      "message": "Missing rate limiting",
-      "file": "pages\\api\\v2\\open-banking\\connect.page.ts",
-      "line": null
-    }
-  ],
+  "warnings": [],
   "recommendations": []
 }

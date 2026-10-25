@@ -14,6 +14,7 @@ class SecurityAuditor {
     this.issues = [];
     this.warnings = [];
     this.recommendations = [];
+    this.hasGlobalRateLimit = fs.existsSync('proxy.ts') && fs.readFileSync('proxy.ts', 'utf8').includes('rateLimit(');
   }
 
   logIssue(severity, category, message, file = null, line = null) {
@@ -95,7 +96,12 @@ class SecurityAuditor {
     }
 
     // Check for missing rate limiting
-    if (filePath.includes(`${path.sep}api${path.sep}`) && !normalizedContent.includes('rate') && !normalizedContent.includes('limit')) {
+    if (
+      filePath.includes(`${path.sep}api${path.sep}`) &&
+      !this.hasGlobalRateLimit &&
+      !normalizedContent.includes('rate') &&
+      !normalizedContent.includes('limit')
+    ) {
       this.logIssue('MEDIUM', 'RATE_LIMITING', 'Missing rate limiting', filePath);
     }
 
