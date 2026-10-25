@@ -3,7 +3,7 @@ import StaticPage, { ui } from '../components/site/StaticPage'
 export default function Disclosures() {
   return (
     <StaticPage
-      hideCta`n      path="/disclosures"
+      hideCta      path="/disclosures"
       title="Disclosures"
       description="Important disclosures about MortgageMatch Pro estimates, rates, and assumptions."
       overline="Legal"

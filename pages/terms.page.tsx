@@ -3,7 +3,7 @@ import StaticPage, { ui } from '../components/site/StaticPage'
 export default function Terms() {
   return (
     <StaticPage
-      hideCta`n      path="/terms"
+      hideCta      path="/terms"
       title="Terms of Service"
       description="The terms that govern your use of MortgageMatch Pro."
       overline="Legal"

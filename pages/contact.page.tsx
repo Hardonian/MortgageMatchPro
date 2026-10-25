@@ -3,7 +3,7 @@ import StaticPage, { ui, SUPPORT_EMAIL } from '../components/site/StaticPage'
 export default function Contact() {
   return (
     <StaticPage
-      hideCta`n      path="/contact"
+      hideCta      path="/contact"
       title="Contact"
       description="Get in touch with the MortgageMatch Pro team for support, feedback, or privacy requests."
       overline="Contact"

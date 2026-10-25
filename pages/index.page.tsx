@@ -163,7 +163,7 @@ export default function HomePage() {
     <>
       <Head>
         <title>MortgageMatch — make your next move with clarity</title>
-        <meta name="description" content="A clear, private mortgage planning experience." />
+        <meta name="description" content="Free Canadian mortgage affordability calculator. See your monthly payment, GDS/TDS ratios and stress-test result in 60 seconds. Private, no sign-up." /><link rel="canonical" href="https://mortgagematch.pro/" /><meta property="og:title" content="Free Mortgage Affordability Calculator | MortgageMatch Pro" /><meta property="og:description" content="See what you can afford in 60 seconds. Private and free." /><meta property="og:type" content="website" /><meta property="og:url" content="https://mortgagematch.pro/" />
         <meta name="theme-color" content="#061e29" />
       </Head>
 

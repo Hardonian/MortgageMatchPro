@@ -3,7 +3,7 @@ import StaticPage, { ui, SUPPORT_EMAIL } from '../components/site/StaticPage'
 export default function Privacy() {
   return (
     <StaticPage
-      hideCta`n      path="/privacy"
+      hideCta      path="/privacy"
       title="Privacy Policy"
       description="How MortgageMatch Pro collects, uses, and protects your information."
       overline="Legal"
