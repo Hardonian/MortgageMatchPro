@@ -207,6 +207,10 @@ class SecurityAuditor {
   }
 
   async auditDirectory(dirPath) {
+    if (!fs.existsSync(dirPath)) {
+      return;
+    }
+
     const files = fs.readdirSync(dirPath);
 
     for (const file of files) {
@@ -362,11 +366,11 @@ async function main() {
   
   console.log('🔍 Starting security audit...\n');
 
-  // Audit source code
-  await auditor.auditDirectory('./lib');
-  await auditor.auditDirectory('./pages');
-  await auditor.auditDirectory('./components');
-  await auditor.auditDirectory('./src');
+  // Audit every source root used by this repository. Some deployments do not
+  // have a src/ directory, so each root is checked before it is traversed.
+  for (const sourceRoot of ['./lib', './pages', './components', './core', './shared']) {
+    await auditor.auditDirectory(sourceRoot);
+  }
 
   // Audit configuration files
   await auditor.auditPackageJson();

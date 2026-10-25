@@ -2,14 +2,12 @@ import tsParser from '@typescript-eslint/parser'
 import tsPlugin from '@typescript-eslint/eslint-plugin'
 
 const productionFiles = [
-  'pages/index.page.tsx',
-  'pages/api/affordability.page.ts',
-  'pages/api/calculate.page.ts',
-  'pages/api/health.page.ts',
-  'pages/api/healthz.page.ts',
-  'pages/api/v2/**/*.page.ts',
+  'pages/**/*.page.ts',
+  'pages/**/*.page.tsx',
+  'components/site/**/*.ts',
+  'components/site/**/*.tsx',
   'lib/server/**/*.ts',
-  'middleware.ts',
+  'proxy.ts',
 ]
 
 export default [

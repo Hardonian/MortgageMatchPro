@@ -1,21 +1,22 @@
 # Quickstart
 
-Minimal local setup for this repository.
-
 ## Prerequisites
+- Node.js 20+ and npm
+- Copy `.env.example` to `.env.local` and fill in values (never commit secrets)
 
-- Git
-- Current language runtime(s) used in this repo
-
-## Setup
-
+## Run locally
 ```bash
 npm install
-npm run build || true
-npm test || true
+npm run dev          # http://localhost:3000
 ```
 
-## Notes
+## Verify before pushing
+```bash
+npm run lint
+npm run type-check
+npm test
+npm run build        # must list all pages as static (o) with no errors
+```
 
-- Prefer reproducible, testable changes
-- Run CI-equivalent checks before PR
+## Deploy
+Pushes to `main` auto-deploy on Vercel; PRs get previews. See [DOCS/RELEASE_CHECKLIST.md](DOCS/RELEASE_CHECKLIST.md) and [DEPLOYMENT.md](DEPLOYMENT.md).

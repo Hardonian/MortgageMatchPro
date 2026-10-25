@@ -109,7 +109,11 @@ export default function HomePage() {
       const stored = window.localStorage.getItem('mortgagematch:last-plan')
       if (stored) setSavedPlan(JSON.parse(stored) as SavedPlan)
     } catch {
-      window.localStorage.removeItem('mortgagematch:last-plan')
+      try {
+        window.localStorage.removeItem('mortgagematch:last-plan')
+      } catch {
+        // Storage can be unavailable in privacy-restricted browser contexts.
+      }
     }
   }, [])
 
@@ -145,10 +149,14 @@ export default function HomePage() {
       return
     }
 
-    const plan = { form, calculation, savedAt: new Date().toISOString() }
-    window.localStorage.setItem('mortgagematch:last-plan', JSON.stringify(plan))
-    setSavedPlan(plan)
-    setMessage('Plan saved privately on this device.')
+    try {
+      const plan = { form, calculation, savedAt: new Date().toISOString() }
+      window.localStorage.setItem('mortgagematch:last-plan', JSON.stringify(plan))
+      setSavedPlan(plan)
+      setMessage('Plan saved privately on this device.')
+    } catch {
+      setMessage("We couldn't save this plan in this browser. You can still use the result.")
+    }
   }
 
   function restoreSavedPlan() {
@@ -364,9 +372,6 @@ function CompareView({
           <article key={option.name} className={`${styles.optionCard} ${option.tone === 'solid' ? styles.optionSolid : ''}`}>
             <div className={styles.optionTop}>
               <span>{option.tag}</span>
-              <button type="button" aria-label={`Learn more about ${option.name}`}>
-                <CircleHelp size={17} />
-              </button>
             </div>
             <h3>{option.name}</h3>
             <p>{option.detail}</p>
@@ -444,11 +449,8 @@ function ProfileView() {
         <span className={styles.profileIcon}><UserRound size={25} /></span>
         <div>
           <h3>Keep planning private</h3>
-          <p>Sign in when you want to save scenarios, connect with a broker, or pick up on another device.</p>
+          <p>Saved plans stay on this device. Account-based saving and broker connections are not available yet.</p>
         </div>
-        <button type="button" className={styles.secondaryButton}>
-          Create a free account <ChevronRight size={17} />
-        </button>
       </article>
       <div className={styles.profileList}>
         <span><ShieldCheck size={18} /> Your numbers aren’t shared with lenders by default.</span>
