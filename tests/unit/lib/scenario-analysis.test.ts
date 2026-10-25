@@ -7,66 +7,65 @@ jest.mock('openai', () => {
     default: jest.fn().mockImplementation(() => ({
       chat: {
         completions: {
-          create: jest.fn().mockResolvedValue({
-            choices: [{
-              message: {
-                content: JSON.stringify({
-                  scenarios: [
-                    {
-                      name: 'RBC Fixed 5.45%',
-                      rate: 5.45,
-                      term: 25,
-                      type: 'fixed',
-                      monthlyPayment: 2847.23,
-                      totalInterest: 354169.00,
-                      totalCost: 854169.00,
-                      amortizationSchedule: [
-                        {
-                          month: 1,
-                          principal: 1847.23,
-                          interest: 1000.00,
-                          balance: 498152.77
-                        },
-                        {
-                          month: 2,
-                          principal: 1855.47,
-                          interest: 991.76,
-                          balance: 496297.30
-                        }
-                      ]
-                    },
-                    {
-                      name: 'TD Variable 5.52%',
-                      rate: 5.52,
-                      term: 25,
-                      type: 'variable',
-                      monthlyPayment: 2876.45,
-                      totalInterest: 362935.00,
-                      totalCost: 862935.00,
-                      amortizationSchedule: [
-                        {
-                          month: 1,
-                          principal: 1826.45,
-                          interest: 1050.00,
-                          balance: 498173.55
-                        },
-                        {
-                          month: 2,
-                          principal: 1834.85,
-                          interest: 1041.60,
-                          balance: 496338.70
-                        }
-                      ]
-                    }
-                  ],
-                  recommendation: {
-                    bestOption: 'RBC Fixed 5.45%',
-                    savings: 8766.00,
-                    reasoning: 'The RBC fixed rate offers the lowest monthly payment and total cost over the life of the loan, saving you $8,766 compared to the variable rate option.'
-                  }
-                })
+          create: jest.fn().mockImplementation(async (params) => {
+            let parsedInput: any = {}
+            try {
+              if (params?.messages?.[1]?.content) {
+                parsedInput = JSON.parse(params.messages[1].content)
               }
-            }]
+            } catch (_) {}
+
+            const rawScenarios = parsedInput.scenarios || []
+            const scenarios = rawScenarios.map((s: any) => {
+              const loanAmount = (s.propertyPrice || 500000) - (s.downPayment || 50000)
+              return {
+                name: s.name || 'Scenario',
+                rate: s.rate || 5.0,
+                term: s.term || 25,
+                type: s.type || 'fixed',
+                monthlyPayment: 2500,
+                totalInterest: 200000,
+                totalCost: loanAmount + 200000,
+                amortizationSchedule: [
+                  {
+                    month: 1,
+                    principal: 1000,
+                    interest: 1000,
+                    balance: loanAmount - 1000
+                  },
+                  {
+                    month: 2,
+                    principal: 1010,
+                    interest: 990,
+                    balance: loanAmount - 2010
+                  }
+                ]
+              }
+            })
+
+            let bestOption = scenarios[0]?.name || 'Option 1'
+            let savings = 0
+
+            if (scenarios.length > 1) {
+              const sorted = [...scenarios].sort((a, b) => a.rate - b.rate)
+              bestOption = sorted[0].name
+              savings = (sorted[1].rate - sorted[0].rate) > 0 ? 8766.00 : 0
+            }
+
+            return {
+              choices: [{
+                message: {
+                  content: JSON.stringify({
+                    scenarios,
+                    recommendation: {
+                      bestOption,
+                      savings,
+                      reasoning: `The ${bestOption} offers the lowest cost.`
+                    }
+                  })
+                }
+              }]
+            }
           })
         }
       }

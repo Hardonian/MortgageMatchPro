@@ -1,4 +1,18 @@
-node_modules
-
-# Regenerable build artifacts (do not track)
 node_modules/
+.next/
+coverage/
+playwright-report/
+test-results/
+
+# Local configuration and credentials. Keep the documented example only.
+.env
+.env.local
+.env.*.local
+.env.template
+!.env.example
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

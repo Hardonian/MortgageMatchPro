@@ -31,26 +31,30 @@ afterAll(() => {
 });
 
 // Mock external services
-jest.mock('openai', () => ({
-  OpenAI: jest.fn(() => ({
-    chat: {
-      completions: {
-        create: jest.fn().mockResolvedValue({
-          choices: [{
-            message: {
-              content: 'Mock AI response',
-              role: 'assistant'
-            }
-          }],
-          usage: {
-            total_tokens: 100,
-            prompt_tokens: 50,
-            completion_tokens: 50
+const MockOpenAI = jest.fn(() => ({
+  chat: {
+    completions: {
+      create: jest.fn().mockResolvedValue({
+        choices: [{
+          message: {
+            content: '{"response": "Mock AI response", "analysis": "Mock analysis"}',
+            role: 'assistant'
           }
-        })
-      }
+        }],
+        usage: {
+          total_tokens: 100,
+          prompt_tokens: 50,
+          completion_tokens: 50
+        }
+      })
     }
-  }))
+  }
+}));
+
+jest.mock('openai', () => ({
+  __esModule: true,
+  default: MockOpenAI,
+  OpenAI: MockOpenAI
 }));
 
 jest.mock('@supabase/supabase-js', () => ({

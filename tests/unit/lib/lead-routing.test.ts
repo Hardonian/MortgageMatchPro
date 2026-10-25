@@ -7,42 +7,66 @@ jest.mock('openai', () => {
     default: jest.fn().mockImplementation(() => ({
       chat: {
         completions: {
-          create: jest.fn().mockResolvedValue({
-            choices: [{
-              message: {
-                content: JSON.stringify({
-                  name: 'John Doe',
-                  email: 'john@example.com',
-                  phone: '+1234567890',
-                  leadData: {
-                    income: 75000,
-                    debts: 500,
-                    downPayment: 50000,
-                    propertyPrice: 500000,
-                    creditScore: 750,
-                    employmentType: 'salaried',
-                    location: 'Toronto, ON'
-                  },
-                  leadScore: 85,
-                  brokerRecommendations: [
-                    {
-                      brokerId: 'broker-1',
-                      name: 'Jane Smith',
-                      company: 'Royal Bank Mortgage',
-                      commissionRate: 0.75,
-                      matchReason: 'High credit score and stable income'
-                    },
-                    {
-                      brokerId: 'broker-2',
-                      name: 'Mike Johnson',
-                      company: 'TD Mortgage',
-                      commissionRate: 0.80,
-                      matchReason: 'Specializes in first-time buyers'
-                    }
-                  ]
-                })
+          create: jest.fn().mockImplementation(async (params) => {
+            let parsedInput: any = {}
+            try {
+              if (params?.messages?.[1]?.content) {
+                parsedInput = JSON.parse(params.messages[1].content)
               }
-            }]
+            } catch (_) {}
+
+            const leadData = parsedInput.leadData || {}
+            let score = 20
+            if (leadData.income && leadData.income >= 75000) score += 20
+            else if (leadData.income && leadData.income >= 50000) score += 10
+
+            if (leadData.propertyPrice && leadData.downPayment && (leadData.downPayment / leadData.propertyPrice) >= 0.2) score += 25
+            else if (leadData.propertyPrice && leadData.downPayment && (leadData.downPayment / leadData.propertyPrice) >= 0.1) score += 15
+
+            if (leadData.creditScore && leadData.creditScore >= 700) score += 30
+            else if (leadData.creditScore && leadData.creditScore >= 600) score += 15
+
+            if (leadData.employmentType === 'salaried') score += 15
+
+            const leadScore = Math.min(100, Math.max(30, score))
+
+            return {
+              choices: [{
+                message: {
+                  content: JSON.stringify({
+                    name: parsedInput.name || 'John Doe',
+                    email: parsedInput.email || 'john@example.com',
+                    phone: parsedInput.phone || '+1234567890',
+                    leadData: {
+                      income: leadData.income || 75000,
+                      debts: leadData.debts || 500,
+                      downPayment: leadData.downPayment || 50000,
+                      propertyPrice: leadData.propertyPrice || 500000,
+                      creditScore: leadData.creditScore || 750,
+                      employmentType: leadData.employmentType || 'salaried',
+                      location: leadData.location || 'Toronto, ON'
+                    },
+                    leadScore,
+                    brokerRecommendations: [
+                      {
+                        brokerId: 'broker-1',
+                        name: 'Jane Smith',
+                        company: 'Royal Bank Mortgage',
+                        commissionRate: 0.75,
+                        matchReason: 'High credit score and stable income'
+                      },
+                      {
+                        brokerId: 'broker-2',
+                        name: 'Mike Johnson',
+                        company: 'TD Mortgage',
+                        commissionRate: 0.80,
+                        matchReason: 'Specializes in first-time buyers'
+                      }
+                    ]
+                  })
+                }
+              }]
+            }
           })
         }
       }

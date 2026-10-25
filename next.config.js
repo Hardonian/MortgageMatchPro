@@ -1,30 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  // Enforce Prisma engine type
-  env: {
-    PRISMA_CLIENT_ENGINE_TYPE: 'wasm',
-    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
-    SUPABASE_URL: process.env.SUPABASE_URL,
-    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
-    SUPABASE_SERVICE_KEY: process.env.SUPABASE_SERVICE_KEY,
-    STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
-    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
-    TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
-    RATEHUB_API_KEY: process.env.RATEHUB_API_KEY,
-    FREDDIE_MAC_API_KEY: process.env.FREDDIE_MAC_API_KEY,
-    REDIS_URL: process.env.REDIS_URL,
-    SENTRY_DSN: process.env.SENTRY_DSN,
-    POSTHOG_KEY: process.env.POSTHOG_KEY,
-  },
+  reactStrictMode: true,
+  poweredByHeader: false,
   // Optimize images
   images: {
     remotePatterns: [
@@ -75,17 +52,14 @@ const nextConfig = {
   },
   // Compression and caching
   compress: true,
-  poweredByHeader: false,
   generateEtags: true,
   async headers() {
     return [
       {
         source: '/api/:path*',
         headers: [
-          { key: 'Access-Control-Allow-Origin', value: '*' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
-          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
-          { key: 'Cache-Control', value: 'public, max-age=300, s-maxage=300' },
+          { key: 'Cache-Control', value: 'private, no-store, max-age=0, must-revalidate' },
+          { key: 'Vary', value: 'Authorization, Cookie' },
         ],
       },
       {
@@ -99,7 +73,10 @@ const nextConfig = {
         headers: [
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'X-Frame-Options', value: 'DENY' },
-          { key: 'X-XSS-Protection', value: '1; mode=block' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+          { key: 'Content-Security-Policy', value: "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co; upgrade-insecure-requests" },
         ],
       },
     ];

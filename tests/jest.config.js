@@ -9,6 +9,7 @@ module.exports = {
     '**/tests/**/*.test.ts',
     '**/tests/**/*.test.tsx'
   ],
+  testPathIgnorePatterns: ['/node_modules/', '/tests/e2e/', '/tests/unit/e2e/'],
   collectCoverageFrom: [
     'core/**/*.{ts,tsx}',
     'shared/**/*.{ts,tsx}',
