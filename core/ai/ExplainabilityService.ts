@@ -106,6 +106,20 @@ export class ExplainabilityService {
     this.initializeExplanationTemplates();
   }
 
+  private initializeFactorWeights(): void {
+    this.factorWeights.set('creditScore', 0.35);
+    this.factorWeights.set('debtToIncome', 0.25);
+    this.factorWeights.set('downPayment', 0.20);
+    this.factorWeights.set('interestRate', 0.15);
+    this.factorWeights.set('loanTerm', 0.05);
+  }
+
+  private initializeExplanationTemplates(): void {
+    this.explanationTemplates.set('standard', 'Based on your financial profile, this option provides the best balance.');
+    this.explanationTemplates.set('conservative', 'Prioritizes rate stability and predictable monthly payments.');
+    this.explanationTemplates.set('growth', 'Optimized for lowest overall interest and rapid equity building.');
+  }
+
   static getInstance(): ExplainabilityService {
     if (!ExplainabilityService.instance) {
       ExplainabilityService.instance = new ExplainabilityService();

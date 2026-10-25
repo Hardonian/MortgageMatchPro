@@ -7,36 +7,51 @@ jest.mock('openai', () => {
     default: jest.fn().mockImplementation(() => ({
       chat: {
         completions: {
-          create: jest.fn().mockResolvedValue({
-            choices: [{
-              message: {
-                content: JSON.stringify({
-                  maxAffordable: 500000,
-                  monthlyPayment: 2847.23,
-                  gdsRatio: 28.5,
-                  tdsRatio: 35.2,
-                  dtiRatio: 32.1,
-                  qualifyingRate: 7.5,
-                  qualificationResult: true,
-                  breakdown: {
-                    principal: 1847.23,
-                    interest: 1000.00,
-                    taxes: 0,
-                    insurance: 0,
-                    pmi: 0
-                  },
-                  recommendations: [
-                    'Your debt-to-income ratio is within acceptable limits',
-                    'Consider making a larger down payment to reduce monthly payments',
-                    'Shop around for better interest rates'
-                  ],
-                  disclaimers: [
-                    'Rates are subject to change and approval',
-                    'This calculation is for estimation purposes only'
-                  ]
-                })
+          create: jest.fn().mockImplementation(async (params) => {
+            let parsedInput: any = {}
+            try {
+              if (params?.messages?.[1]?.content) {
+                parsedInput = JSON.parse(params.messages[1].content)
               }
-            }]
+            } catch (_) {}
+
+            const isHighDebt = (parsedInput.debts && parsedInput.debts >= 2000) || (parsedInput.income && parsedInput.income <= 50000 && parsedInput.debts > 1000)
+            const taxes = parsedInput.taxes ?? 0
+            const insurance = parsedInput.insurance ?? 0
+            const tdsRatio = isHighDebt ? 48.5 : 35.2
+            const qualificationResult = !isHighDebt
+
+            return {
+              choices: [{
+                message: {
+                  content: JSON.stringify({
+                    maxAffordable: 500000,
+                    monthlyPayment: 2847.23,
+                    gdsRatio: 28.5,
+                    tdsRatio,
+                    dtiRatio: 32.1,
+                    qualifyingRate: 7.5,
+                    qualificationResult,
+                    breakdown: {
+                      principal: 1847.23,
+                      interest: 1000.00,
+                      taxes,
+                      insurance,
+                      pmi: 0
+                    },
+                    recommendations: [
+                      'Your debt-to-income ratio is within acceptable limits',
+                      'Consider making a larger down payment to reduce monthly payments',
+                      'Shop around for better interest rates'
+                    ],
+                    disclaimers: [
+                      'Rates are subject to change and approval',
+                      'This calculation is for estimation purposes only'
+                    ]
+                  })
+                }
+              }]
+            }
           })
         }
       }

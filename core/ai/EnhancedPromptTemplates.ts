@@ -43,19 +43,19 @@ export const ENHANCED_PROMPT_TEMPLATES: Omit<EnhancedPromptTemplate, 'id' | 'las
   {
     name: 'mortgage_affordability_calculator',
     description: 'Calculate mortgage affordability with clear, structured output',
-    basePrompt: `Calculate mortgage affordability for {country} using {rules}.
+    basePrompt: `Calculate mortgage affordability for \${country}.
 
 Input:
-- Income: ${income}
-- Debts: ${debts}
-- Down Payment: ${downPayment}
-- Property Price: ${propertyPrice}
-- Interest Rate: ${interestRate}
-- Term: ${termYears} years
-- Location: ${location}
+- Income: \${income}
+- Debts: \${debts}
+- Down Payment: \${downPayment}
+- Property Price: \${propertyPrice}
+- Interest Rate: \${interestRate}
+- Term: \${termYears} years
+- Location: \${location}
 
 Rules:
-{country === 'CA' ? 'Canadian OSFI: GDS ≤ 32%, TDS ≤ 44%, Stress test = max(rate + 2%, 5.25%)' : 'US CFPB: DTI ≤ 43%'}
+Canadian OSFI: GDS ≤ 32%, TDS ≤ 44%, Stress test = max(rate + 2%, 5.25%) or US CFPB: DTI ≤ 43%
 
 Output JSON:
 {
@@ -82,12 +82,12 @@ Output JSON:
   {
     name: 'rate_explanation_simplified',
     description: 'Explain mortgage rates in simple, clear terms',
-    basePrompt: `Explain current mortgage rates in {tone} tone for {audience}.
+    basePrompt: `Explain current mortgage rates in \${tone} tone for \${audience}.
 
 Current Context:
-- Market Rate: ${currentRate}%
-- User's Target: ${targetRate}%
-- Trend: ${trend}
+- Market Rate: \${currentRate}%
+- User's Target: \${targetRate}%
+- Trend: \${trend}
 
 Keep explanation:
 - Under 200 words
@@ -114,12 +114,12 @@ Format:
     description: 'Compare mortgage scenarios with clear structure',
     basePrompt: `Compare these mortgage scenarios:
 
-${scenarios}
+\${scenarios}
 
 User Profile:
-- Risk Tolerance: ${riskTolerance}
-- Timeline: ${timeline}
-- Priority: ${priority}
+- Risk Tolerance: \${riskTolerance}
+- Timeline: \${timeline}
+- Priority: \${priority}
 
 Provide comparison in this format:
 
@@ -151,14 +151,14 @@ Provide comparison in this format:
     basePrompt: `Match user with best broker based on:
 
 User Profile:
-- Lead Score: ${leadScore}
-- Location: ${location}
-- Loan Type: ${loanType}
-- Timeline: ${timeline}
-- Special Needs: ${specialNeeds}
+- Lead Score: \${leadScore}
+- Location: \${location}
+- Loan Type: \${loanType}
+- Timeline: \${timeline}
+- Special Needs: \${specialNeeds}
 
 Available Brokers:
-${brokerList}
+\${brokerList}
 
 Match using:
 1. Location proximity (30% weight)

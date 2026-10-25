@@ -11,6 +11,9 @@ process.env.OPENAI_API_KEY = 'test-openai-key';
 process.env.SUPABASE_URL = 'https://test.supabase.co';
 process.env.SUPABASE_ANON_KEY = 'test-supabase-anon-key';
 process.env.SUPABASE_SERVICE_KEY = 'test-supabase-service-key';
+process.env.STRIPE_SECRET_KEY = 'sk_test_mock_stripe_key';
+process.env.STRIPE_PUBLISHABLE_KEY = 'pk_test_mock_stripe_key';
+process.env.REDIS_URL = 'redis://localhost:6379';
 
 // Mock console methods to reduce noise in tests
 const originalConsole = { ...console };
