@@ -15,7 +15,7 @@
 | `/privacy`, `/terms`, `/disclosures` | Legal |
 | `/404`, `/500` | Branded error pages |
 
-**Production API allowlist** ([proxy.page.ts](proxy.page.ts)): `/api/calculate`, `/api/affordability`, `/api/health`, `/api/healthz`, `/api/v2/api-keys/generate`, `/api/v2/payments/create-intent`, `/api/v2/open-banking/connect`. All other `/api/*` routes return 404 in production.
+**Production API allowlist** ([proxy.page.ts](proxy.page.ts)): `/api/calculate`, `/api/affordability`, `/api/health`, `/api/healthz`, `/api/v2/api-keys/generate`, `/api/v2/payments/create-intent`, `/api/v2/open-banking/connect`, `/api/v2/open-banking/exchange`, and `/api/webhooks/stripe`. All other `/api/*` routes return 404 in production.
 
 **Notes**
 - Only files named `*.page.tsx|ts|jsx|js` are routes, including the root-level Proxy file (`proxy.page.ts`), via `pageExtensions` in [next.config.js](next.config.js). Files such as `pages/admin/*` are not built.
@@ -24,6 +24,16 @@
 - Security headers and CSP are set in `next.config.js`.
 
 See [CHANGELOG.md](CHANGELOG.md) and [DOCS/RELEASE_CHECKLIST.md](DOCS/RELEASE_CHECKLIST.md) before deploying.
+
+### Financial integrations rollout
+
+The payment and bank-connection routes are server-side flows, not mock endpoints.
+
+- Apply `supabase/migrations/20261025151650_payment_and_open_banking_activation.sql` to the intended Supabase project before deployment. It adds idempotency, verified-webhook, consent-session, and encrypted-token records with no browser-role access.
+- `/api/v2/payments/create-intent` accepts only `{ "product": "rate_check" }`, requires an authenticated bearer token and an `Idempotency-Key` header, and creates a fixed CAD $2.99 Stripe PaymentIntent. Do not accept amounts or prices from the browser.
+- Configure the Stripe webhook as `https://<production-domain>/api/webhooks/stripe` and subscribe at least to `payment_intent.succeeded`, `payment_intent.payment_failed`, and `payment_intent.canceled`. The route verifies Stripe's raw-body signature before writing state.
+- Set `OPEN_BANKING_PROVIDER=plaid`, the Plaid credentials, `OPEN_BANKING_TOKEN_ENCRYPTION_KEY` (a 32-byte base64 value or 64-character hex value), and registered webhook/redirect URLs. `connect` requires an explicit consent-version string; the Link `public_token` is exchanged through the authenticated, session-bound `exchange` route. Access tokens are AES-256-GCM encrypted and never returned to a client.
+- The routes intentionally return a safe 503 until their required provider and storage configuration is present. A provider agreement, current privacy/consent language, and tested production webhook/redirect registrations are required before enabling live bank connections.
 
 ---
 

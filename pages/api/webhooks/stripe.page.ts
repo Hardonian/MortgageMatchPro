@@ -54,6 +54,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await completeWebhookEvent(event.id, 'processed')
     return res.status(200).json({ received: true })
   } catch (error) {
+    // Keep the event retryable if processing failed after it was initially
+    // recorded. Failure to update this best-effort marker must not hide the
+    // original error from Stripe, which will retry its delivery.
+    await completeWebhookEvent(event.id, 'failed', 'processing_failed').catch(() => undefined)
     if (error instanceof PaymentsUnavailableError) return res.status(503).json({ error: 'Webhook storage is unavailable' })
     return res.status(500).json({ error: 'Webhook processing failed' })
   }

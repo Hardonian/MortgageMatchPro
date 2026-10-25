@@ -34,6 +34,17 @@ describe('production API proxy', () => {
     expect(response.headers.get('X-RateLimit-Remaining')).toBe('29')
   })
 
+  it('keeps the verified payment, banking, and webhook routes on the production allowlist', () => {
+    for (const pathname of [
+      '/api/v2/payments/create-intent',
+      '/api/v2/open-banking/connect',
+      '/api/v2/open-banking/exchange',
+      '/api/webhooks/stripe',
+    ]) {
+      expect(proxy(request(pathname)).status).toBe(200)
+    }
+  })
+
   it('throttles the calculator after its per-minute limit', async () => {
     const first = request('/api/calculate', '198.51.100.23')
     for (let count = 0; count < 30; count += 1) proxy(first)

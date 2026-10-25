@@ -123,13 +123,24 @@ export async function createPaymentIntent({
 }
 
 export async function beginWebhookEvent(event: Stripe.Event): Promise<boolean> {
-  const { error } = await serviceClient().from('stripe_webhook_events').insert({
+  const storage = serviceClient()
+  const { error } = await storage.from('stripe_webhook_events').insert({
     stripe_event_id: event.id,
     event_type: event.type,
   })
 
   if (!error) return true
-  if (error.code === '23505') return false
+  if (error.code === '23505') {
+    const { data, error: readError } = await storage
+      .from('stripe_webhook_events')
+      .select('status')
+      .eq('stripe_event_id', event.id)
+      .maybeSingle<{ status: 'received' | 'processed' | 'failed' }>()
+    if (readError || !data) throw new PaymentsUnavailableError('Webhook storage is unavailable')
+    // Only an already-completed delivery is safe to acknowledge. Failed or
+    // interrupted attempts are deliberately processed again by Stripe retry.
+    return data.status !== 'processed'
+  }
   throw new PaymentsUnavailableError('Webhook storage is unavailable')
 }
 

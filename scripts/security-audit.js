@@ -165,7 +165,9 @@ class SecurityAuditor {
       /UPDATE.*\+.*SET/i,
       /DELETE.*\+.*FROM/i,
       // SQL functions
-      /concat\s*\(/i,
+      // A bare SQL concat() call can be suspicious, but property calls such as
+      // Buffer.concat() are normal binary handling and are not SQL.
+      /(?:^|[^.\w])concat\s*\(/i,
       /union\s+select/i,
     ];
 
