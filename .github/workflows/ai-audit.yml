@@ -12,6 +12,10 @@ on:
         default: 'false'
         type: boolean
 
+permissions:
+  contents: read
+  issues: write
+
 env:
   NODE_VERSION: '18'
   SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
