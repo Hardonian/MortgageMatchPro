@@ -1,4 +1,4 @@
-import { env, keyManager, getOpenAIKey, getSupabaseUrl, securityConfig } from '../../../lib/config/keys'
+import { env, keyManager, getOpenAIKey, getSupabaseUrl, securityConfig } from '../../../../lib/config/keys'
 
 // Mock process.env
 const originalEnv = process.env
@@ -126,15 +126,15 @@ describe('Key Management', () => {
     })
 
     it('should have correct CORS configuration for production', () => {
-      process.env.NODE_ENV = 'production'
-      const prodConfig = require('../../../lib/config/keys').securityConfig
+      (process.env as any).NODE_ENV = 'production'
+      const prodConfig = require('../../../../lib/config/keys').securityConfig
       expect(prodConfig.cors.allowedOrigins).toContain('https://chat.openai.com')
       expect(prodConfig.cors.allowedOrigins).toContain('https://chatgpt.com')
     })
 
     it('should have correct CORS configuration for development', () => {
-      process.env.NODE_ENV = 'development'
-      const devConfig = require('../../../lib/config/keys').securityConfig
+      (process.env as any).NODE_ENV = 'development'
+      const devConfig = require('../../../../lib/config/keys').securityConfig
       expect(devConfig.cors.allowedOrigins).toContain('http://localhost:3000')
       expect(devConfig.cors.allowedOrigins).toContain('http://localhost:3001')
     })

@@ -7,9 +7,6 @@ const nextConfig = {
     tsconfigPath: './tsconfig.production.json',
   },
   turbopack: {},
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   // Optimize images
   images: {
     remotePatterns: [
