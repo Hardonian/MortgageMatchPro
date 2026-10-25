@@ -2,7 +2,10 @@
 
 ## Overview
 
-The AI Automation System is a comprehensive suite of intelligent agents and monitoring tools that enable self-maintaining, AI-driven, and future-proof architecture. This system provides automated analysis, optimization recommendations, and proactive issue detection.
+The AI Automation System is a comprehensive suite of intelligent agents and
+monitoring tools that enable self-maintaining, AI-driven, and future-proof
+architecture. This system provides automated analysis, optimization
+recommendations, and proactive issue detection.
 
 ## System Architecture
 
@@ -417,4 +420,5 @@ npm run ai:notify -- --dry-run
 
 ---
 
-*This system is designed to evolve and improve over time. Regular updates and enhancements ensure continued effectiveness and relevance.*
+*This system is designed to evolve and improve over time. Regular updates
+and enhancements ensure continued effectiveness and relevance.*

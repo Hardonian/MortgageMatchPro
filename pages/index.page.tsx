@@ -65,13 +65,25 @@ const tabDetails: Record<Tab, { label: string; icon: typeof Compass }> = {
   profile: { label: 'Profile', icon: UserRound },
 }
 
-function money(value: number, currency: 'CAD' | 'USD' = 'CAD') {
-  return new Intl.NumberFormat('en-CA', {
+const currencyFormatters: Record<'CAD' | 'USD', Intl.NumberFormat> = {
+  CAD: new Intl.NumberFormat('en-CA', {
     style: 'currency',
-    currency,
+    currency: 'CAD',
     maximumFractionDigits: 0,
-  }).format(value)
+  }),
+  USD: new Intl.NumberFormat('en-CA', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }),
 }
+
+function money(value: number, currency: 'CAD' | 'USD' = 'CAD') {
+  return (currencyFormatters[currency] || currencyFormatters.CAD).format(value)
+}
+
+const mediumDateFormatter = new Intl.DateTimeFormat('en-CA', { dateStyle: 'medium' })
+
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<Tab>('plan')
@@ -155,7 +167,7 @@ export default function HomePage() {
         <meta name="theme-color" content="#061e29" />
       </Head>
 
-      <main className={styles.shell}>
+      <main id="main-content" className={styles.shell}>
         <div className={styles.orbOne} aria-hidden="true" />
         <div className={styles.orbTwo} aria-hidden="true" />
 
@@ -261,27 +273,205 @@ export default function HomePage() {
   )
 }
 
-function Field({ label, value, prefix, suffix, detail, onChange }: { label: string; value: string; prefix?: string; suffix?: string; detail?: string; onChange: (value: string) => void }) {
-  return <label className={styles.field}><span>{label}</span><div className={styles.inputWrap}>{prefix && <b>{prefix}</b>}<input inputMode="decimal" value={value} onChange={(event) => onChange(event.target.value)} aria-label={label} />{suffix && <i>{suffix}</i>}</div>{detail && <small>{detail}</small>}</label>
+function Field({
+  label,
+  value,
+  prefix,
+  suffix,
+  detail,
+  onChange,
+}: {
+  label: string
+  value: string
+  prefix?: string
+  suffix?: string
+  detail?: string
+  onChange: (value: string) => void
+}) {
+  const id = `field-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
+  const detailId = detail ? `${id}-detail` : undefined
+
+  return (
+    <label htmlFor={id} className={styles.field}>
+      <span>{label}</span>
+      <div className={styles.inputWrap}>
+        {prefix && <b aria-hidden="true">{prefix}</b>}
+        <input
+          id={id}
+          type="text"
+          inputMode="decimal"
+          autoComplete="off"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          aria-label={label}
+          aria-describedby={detailId}
+        />
+        {suffix && <i aria-hidden="true">{suffix}</i>}
+      </div>
+      {detail && <small id={detailId}>{detail}</small>}
+    </label>
+  )
 }
 
-function CompareView({ calculation, rate, paymentDifference, onBack }: { calculation: Calculation | null; rate: number; paymentDifference: number; onBack: () => void }) {
-  if (!calculation) return <EmptyState icon={<Landmark size={28} />} title="Calculate before you compare." detail="Build your plan first and we’ll map a few thoughtful paths from the same inputs." action="Build my plan" onAction={onBack} />
+function CompareView({
+  calculation,
+  rate,
+  paymentDifference,
+  onBack,
+}: {
+  calculation: Calculation | null
+  rate: number
+  paymentDifference: number
+  onBack: () => void
+}) {
+  if (!calculation) {
+    return (
+      <EmptyState
+        icon={<Landmark size={28} />}
+        title="Calculate before you compare."
+        detail="Build your plan first and we’ll map a few thoughtful paths from the same inputs."
+        action="Build my plan"
+        onAction={onBack}
+      />
+    )
+  }
   const options = [
     { name: 'More predictable', detail: 'A fixed-rate planning scenario', rate, tone: 'solid', tag: 'Steady' },
-    { name: 'More flexible', detail: 'A lower-rate planning scenario', rate: Math.max(rate - 0.35, 0.1), tone: 'soft', tag: `Save ~${money(paymentDifference)}/mo` },
+    {
+      name: 'More flexible',
+      detail: 'A lower-rate planning scenario',
+      rate: Math.max(rate - 0.35, 0.1),
+      tone: 'soft',
+      tag: `Save ~${money(paymentDifference)}/mo`,
+    },
   ]
-  return <div className={styles.compareView}><div className={styles.viewIntro}><p className={styles.overline}>See the trade-offs</p><h2>Two ways forward</h2><p>These are planning scenarios, not lender offers. Real rates depend on your application and the day you apply.</p></div><div className={styles.optionStack}>{options.map((option) => <article key={option.name} className={`${styles.optionCard} ${option.tone === 'solid' ? styles.optionSolid : ''}`}><div className={styles.optionTop}><span>{option.tag}</span><button aria-label={`Learn more about ${option.name}`}><CircleHelp size={17} /></button></div><h3>{option.name}</h3><p>{option.detail}</p><strong>{option.rate.toFixed(2)}<small>%</small></strong><div className={styles.optionFoot}><span>Estimated payment</span><b>{money(option.name === 'More predictable' ? calculation.monthlyPayment : calculation.monthlyPayment - paymentDifference)}/mo</b></div></article>)}</div><div className={styles.insight}><Sparkles size={18} /><p><strong>A helpful next question:</strong> How much payment change would feel comfortable if rates moved?</p></div></div>
+  return (
+    <div className={styles.compareView}>
+      <div className={styles.viewIntro}>
+        <p className={styles.overline}>See the trade-offs</p>
+        <h2>Two ways forward</h2>
+        <p>These are planning scenarios, not lender offers. Real rates depend on your application and the day you apply.</p>
+      </div>
+      <div className={styles.optionStack}>
+        {options.map((option) => (
+          <article key={option.name} className={`${styles.optionCard} ${option.tone === 'solid' ? styles.optionSolid : ''}`}>
+            <div className={styles.optionTop}>
+              <span>{option.tag}</span>
+              <button type="button" aria-label={`Learn more about ${option.name}`}>
+                <CircleHelp size={17} />
+              </button>
+            </div>
+            <h3>{option.name}</h3>
+            <p>{option.detail}</p>
+            <strong>{option.rate.toFixed(2)}<small>%</small></strong>
+            <div className={styles.optionFoot}>
+              <span>Estimated payment</span>
+              <b>{money(option.name === 'More predictable' ? calculation.monthlyPayment : calculation.monthlyPayment - paymentDifference)}/mo</b>
+            </div>
+          </article>
+        ))}
+      </div>
+      <div className={styles.insight}>
+        <Sparkles size={18} />
+        <p><strong>A helpful next question:</strong> How much payment change would feel comfortable if rates moved?</p>
+      </div>
+    </div>
+  )
 }
 
-function SavedView({ calculation, savedPlan, onSave, onPlan, onRestore }: { calculation: Calculation | null; savedPlan: SavedPlan | null; onSave: () => void; onPlan: () => void; onRestore: () => void }) {
-  return <div className={styles.savedView}><p className={styles.overline}>Your space</p><h2>Keep the plans worth revisiting.</h2><p>Plans stay on this device unless you choose to share them.</p>{calculation ? <article className={styles.savedCard}><span>Just calculated</span><h3>{money(calculation.monthlyPayment, calculation.currency)} / month</h3><p>Buying power up to {money(calculation.maxAffordable, calculation.currency)}</p><button type="button" className={styles.primaryButton} onClick={onSave}>Save this plan <Bookmark size={18} /></button></article> : savedPlan ? <article className={styles.savedCard}><span>Saved on this device</span><h3>{money(savedPlan.calculation.monthlyPayment, savedPlan.calculation.currency)} / month</h3><p>Saved {new Intl.DateTimeFormat('en-CA', { dateStyle: 'medium' }).format(new Date(savedPlan.savedAt))}</p><button type="button" className={styles.primaryButton} onClick={onRestore}>Open saved plan <ArrowRight size={18} /></button></article> : <EmptyState icon={<Bookmark size={28} />} title="Nothing saved yet." detail="Your first plan can live here when you’re ready." action="Build a plan" onAction={onPlan} />}</div>
+function SavedView({
+  calculation,
+  savedPlan,
+  onSave,
+  onPlan,
+  onRestore,
+}: {
+  calculation: Calculation | null
+  savedPlan: SavedPlan | null
+  onSave: () => void
+  onPlan: () => void
+  onRestore: () => void
+}) {
+  return (
+    <div className={styles.savedView}>
+      <p className={styles.overline}>Your space</p>
+      <h2>Keep the plans worth revisiting.</h2>
+      <p>Plans stay on this device unless you choose to share them.</p>
+      {calculation ? (
+        <article className={styles.savedCard}>
+          <span>Just calculated</span>
+          <h3>{money(calculation.monthlyPayment, calculation.currency)} / month</h3>
+          <p>Buying power up to {money(calculation.maxAffordable, calculation.currency)}</p>
+          <button type="button" className={styles.primaryButton} onClick={onSave}>
+            Save this plan <Bookmark size={18} />
+          </button>
+        </article>
+      ) : savedPlan ? (
+        <article className={styles.savedCard}>
+          <span>Saved on this device</span>
+          <h3>{money(savedPlan.calculation.monthlyPayment, savedPlan.calculation.currency)} / month</h3>
+          <p>Saved {mediumDateFormatter.format(new Date(savedPlan.savedAt))}</p>
+          <button type="button" className={styles.primaryButton} onClick={onRestore}>
+            Open saved plan <ArrowRight size={18} />
+          </button>
+        </article>
+      ) : (
+        <EmptyState
+          icon={<Bookmark size={28} />}
+          title="Nothing saved yet."
+          detail="Your first plan can live here when you’re ready."
+          action="Build a plan"
+          onAction={onPlan}
+        />
+      )}
+    </div>
+  )
 }
 
 function ProfileView() {
-  return <div className={styles.profileView}><p className={styles.overline}>Personal, not pushy</p><h2>Your mortgage space.</h2><article className={styles.profileCard}><span className={styles.profileIcon}><UserRound size={25} /></span><div><h3>Keep planning private</h3><p>Sign in when you want to save scenarios, connect with a broker, or pick up on another device.</p></div><button className={styles.secondaryButton}>Create a free account <ChevronRight size={17} /></button></article><div className={styles.profileList}><span><ShieldCheck size={18} /> Your numbers aren’t shared with lenders by default.</span><span><LockKeyhole size={18} /> You control when a plan becomes an application.</span></div></div>
+  return (
+    <div className={styles.profileView}>
+      <p className={styles.overline}>Personal, not pushy</p>
+      <h2>Your mortgage space.</h2>
+      <article className={styles.profileCard}>
+        <span className={styles.profileIcon}><UserRound size={25} /></span>
+        <div>
+          <h3>Keep planning private</h3>
+          <p>Sign in when you want to save scenarios, connect with a broker, or pick up on another device.</p>
+        </div>
+        <button type="button" className={styles.secondaryButton}>
+          Create a free account <ChevronRight size={17} />
+        </button>
+      </article>
+      <div className={styles.profileList}>
+        <span><ShieldCheck size={18} /> Your numbers aren’t shared with lenders by default.</span>
+        <span><LockKeyhole size={18} /> You control when a plan becomes an application.</span>
+      </div>
+    </div>
+  )
 }
 
-function EmptyState({ icon, title, detail, action, onAction }: { icon: ReactNode; title: string; detail: string; action: string; onAction: () => void }) {
-  return <div className={styles.emptyState}><span className={styles.emptyIcon}>{icon}</span><h3>{title}</h3><p>{detail}</p><button className={styles.secondaryButton} onClick={onAction}>{action} <ArrowRight size={17} /></button></div>
+function EmptyState({
+  icon,
+  title,
+  detail,
+  action,
+  onAction,
+}: {
+  icon: ReactNode
+  title: string
+  detail: string
+  action: string
+  onAction: () => void
+}) {
+  return (
+    <div className={styles.emptyState}>
+      <span className={styles.emptyIcon}>{icon}</span>
+      <h3>{title}</h3>
+      <p>{detail}</p>
+      <button type="button" className={styles.secondaryButton} onClick={onAction}>
+        {action} <ArrowRight size={17} />
+      </button>
+    </div>
+  )
 }
