@@ -65,6 +65,8 @@ describe('mortgage math', () => {
       .toMatch(/Minimum down payment/)
     const jumbo = buildPlan({ ...base, annualIncome: 900_000, propertyPrice: 1_600_000, downPayment: 160_000 })
     expect(jumbo.isWithinPlanningRange).toBe(false)
+    expect(jumbo.isEligibleForDefaultInsurance).toBe(false)
+    expect(jumbo.insurancePremium).toBe(0)
     expect(jumbo.warnings.join(' ')).toMatch(/20% down/)
   })
 

@@ -75,6 +75,8 @@ export interface MortgagePlan {
   principal: number
   insurancePremium: number
   insurancePremiumRate: number
+  isEligibleForDefaultInsurance: boolean
+  hasMinimumDownPayment: boolean
   totalMortgage: number
   monthlyPayment: number
   qualifyingRate: number
@@ -97,16 +99,18 @@ export function buildPlan(input: PlanInput): MortgagePlan {
 
   let premiumRate = 0
   let minDown: number | null = null
+  let eligibleForDefaultInsurance = false
   if (country === 'CA') {
     minDown = minimumDownPayment(input.propertyPrice)
     if (input.downPayment + 0.005 < minDown) {
       warnings.push(`Minimum down payment for this price is ${Math.ceil(minDown).toLocaleString('en-CA')}.`)
     }
-    premiumRate = insurancePremiumRate(ltv, input.amortizationYears)
+    eligibleForDefaultInsurance = input.propertyPrice < INSURED_PRICE_CAP
+    if (!eligibleForDefaultInsurance && ltv > 0.8) {
+      warnings.push('Homes priced at $1.5M or more require at least 20% down and are not modelled with default insurance.')
+    }
+    premiumRate = eligibleForDefaultInsurance ? insurancePremiumRate(ltv, input.amortizationYears) : 0
     if (premiumRate > 0) {
-      if (input.propertyPrice >= INSURED_PRICE_CAP) {
-        warnings.push('Homes priced at $1.5M or more require at least 20% down.')
-      }
       if (input.amortizationYears > 30) {
         warnings.push('Insured mortgages are limited to a 30-year amortization.')
       } else if (input.amortizationYears > 25) {
@@ -141,6 +145,8 @@ export function buildPlan(input: PlanInput): MortgagePlan {
     principal,
     insurancePremium,
     insurancePremiumRate: premiumRate,
+    isEligibleForDefaultInsurance: country !== 'CA' || eligibleForDefaultInsurance,
+    hasMinimumDownPayment: minDown === null || input.downPayment + 0.005 >= minDown,
     totalMortgage,
     monthlyPayment: payment,
     qualifyingRate: qRate,

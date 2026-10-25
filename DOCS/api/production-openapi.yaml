@@ -1,0 +1,86 @@
+openapi: 3.0.3
+info:
+  title: MortgageMatch Pro production API
+  version: 2026.2
+  description: |
+    The canonical contract for production routes. All endpoints not listed here
+    are rejected by the production Proxy. Financial values are planning estimates,
+    not lending decisions or offers.
+servers:
+  - url: https://mortgagematch.pro
+paths:
+  /api/calculate:
+    post:
+      summary: Calculate a mortgage affordability plan
+      responses:
+        '200': { description: Planning estimate returned }
+        '400': { description: Invalid calculator input }
+        '405': { description: Method not allowed }
+        '429': { description: Rate limited }
+  /api/affordability:
+    post:
+      summary: Compatibility alias for the calculator
+      responses:
+        '200': { description: Planning estimate returned }
+  /api/health:
+    get:
+      summary: Application liveness check
+      responses:
+        '200': { description: Application is running }
+  /api/healthz:
+    get:
+      summary: Minimal liveness check
+      responses:
+        '200': { description: Application is running }
+  /api/v2/api-keys/generate:
+    post:
+      summary: Create an organization API key
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201': { description: Key created; secret is returned only once }
+        '401': { description: Authentication required }
+        '403': { description: Organization administrator role required }
+        '503': { description: Key service unavailable }
+  /api/v2/payments/create-intent:
+    post:
+      summary: Create the fixed-price rate-check payment intent
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema: { type: string, minLength: 16, maxLength: 255 }
+      responses:
+        '201': { description: Payment intent created }
+        '400': { description: Invalid request or idempotency key }
+        '409': { description: Idempotency conflict }
+        '503': { description: Payments not activated }
+  /api/v2/open-banking/connect:
+    post:
+      summary: Create a consent-bound bank-link session
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201': { description: Link token created }
+        '400': { description: Consent version required }
+        '503': { description: Open banking not activated }
+  /api/v2/open-banking/exchange:
+    post:
+      summary: Exchange a user-bound bank-link public token
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201': { description: Bank connection recorded }
+        '400': { description: Invalid or expired bank-link response }
+        '503': { description: Open banking not activated }
+  /api/webhooks/stripe:
+    post:
+      summary: Process a signed Stripe webhook
+      responses:
+        '200': { description: Event recorded or duplicate safely acknowledged }
+        '400': { description: Invalid webhook signature }
+        '503': { description: Webhook storage unavailable }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

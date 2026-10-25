@@ -46,10 +46,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     totalMortgage: Math.round(plan.totalMortgage),
     mortgageInsurance: {
       required: plan.insurancePremiumRate > 0,
+      eligible: plan.isEligibleForDefaultInsurance,
       premiumRate: plan.insurancePremiumRate,
       premium: Math.round(plan.insurancePremium),
     },
     minimumDownPayment: plan.minimumDownPayment === null ? null : Math.ceil(plan.minimumDownPayment),
+    hasMinimumDownPayment: plan.hasMinimumDownPayment,
     gdsRatio: round1(plan.gdsRatio),
     tdsRatio: round1(plan.tdsRatio),
     stressTestGdsRatio: round1(plan.stressTestGdsRatio),

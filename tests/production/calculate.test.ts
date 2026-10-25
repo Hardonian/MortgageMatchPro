@@ -32,6 +32,8 @@ describe('planning calculator', () => {
       calculationVersion: '2026.2',
       currency: 'CAD',
       monthlyPayment: expect.any(Number),
+      totalMortgage: expect.any(Number),
+      warnings: expect.any(Array),
       maxAffordable: expect.any(Number),
       qualifyingRate: expect.any(Number),
       disclaimer: expect.stringContaining('Illustrative planning estimate'),

@@ -34,11 +34,13 @@ type Calculation = {
   currency: 'CAD' | 'USD'
   monthlyPayment: number
   principal: number
+  totalMortgage: number
   gdsRatio: number
   tdsRatio: number
   qualifyingRate: number
   maxAffordable: number
   isWithinPlanningRange: boolean
+  warnings: string[]
   disclaimer: string
 }
 
@@ -95,10 +97,12 @@ export default function HomePage() {
 
   const paymentDifference = useMemo(() => {
     if (!calculation) return 0
-    const rate = Number(form.interestRate)
-    const principal = calculation.principal
+    const rate = Math.max(Number(form.interestRate) - 0.35, 0.1)
+    const principal = calculation.totalMortgage
     const months = Number(form.amortizationYears) * 12
-    const monthlyRate = Math.max(rate - 0.35, 0.1) / 100 / 12
+    // Canadian fixed-rate mortgages use semi-annual compounding, not a
+    // nominal annual rate divided by 12.
+    const monthlyRate = Math.pow(1 + (rate / 100) / 2, 1 / 6) - 1
     const payment = principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) /
       (Math.pow(1 + monthlyRate, months) - 1)
     return Math.round(calculation.monthlyPayment - payment)
@@ -242,6 +246,11 @@ export default function HomePage() {
                       <div><span>Est. buying power</span><strong>{money(calculation.maxAffordable, calculation.currency)}</strong></div>
                       <div><span>Stress-test rate</span><strong>{calculation.qualifyingRate}%</strong></div>
                     </div>
+                    {calculation.warnings.length > 0 && (
+                      <ul className={styles.resultWarnings} aria-label="Planning warnings">
+                        {calculation.warnings.map((warning) => <li key={warning}>{warning}</li>)}
+                      </ul>
+                    )}
                     <button type="button" className={styles.secondaryButton} onClick={() => setActiveTab('compare')}>
                       Compare paths <ChevronRight size={17} />
                     </button>

@@ -24,6 +24,7 @@
 - Security headers and CSP are set in `next.config.js`.
 
 See [CHANGELOG.md](CHANGELOG.md) and [DOCS/RELEASE_CHECKLIST.md](DOCS/RELEASE_CHECKLIST.md) before deploying.
+The production API contract is [DOCS/api/production-openapi.yaml](DOCS/api/production-openapi.yaml); run `npm run api:verify` to ensure it remains aligned with the production allowlist. Account, provider, legal, and operational evidence is tracked in [DOCS/LAUNCH_GATES.md](DOCS/LAUNCH_GATES.md).
 
 ### Financial integrations rollout
 

@@ -61,6 +61,7 @@
     "change:impact": "node scripts/change-impact-analysis.mjs",
     "dev:clean": "node scripts/dev-clean.mjs",
     "docs:generate": "node scripts/generate-api-reference.mjs",
+    "api:verify": "node scripts/verify-production-contract.mjs",
     "pre-commit": "node scripts/change-impact-analysis.mjs",
     "incident:template": "node scripts/incident-template-generator.mjs --generic",
     "incident:create": "node scripts/incident-template-generator.mjs --data",
