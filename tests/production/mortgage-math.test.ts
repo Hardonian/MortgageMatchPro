@@ -103,8 +103,9 @@ describe('mortgage math', () => {
     expect(usPlan.qualifyingRate).toBe(5) // No Canadian stress-test buffer
     expect(usPlan.minimumDownPayment).toBeNull()
 
-    // High debt scenario where back-end 36% binds for US
-    const usHighDebt = buildPlan({ ...base, country: 'US', monthlyDebt: 1200 })
+    // High debt scenario where back-end 36% binds for US (front-end 23.4% <= 28%, back-end 37.8% > 36%)
+    const usHighDebt = buildPlan({ ...base, country: 'US', monthlyDebt: 1800 })
+    expect(usHighDebt.gdsRatio).toBeLessThan(28)
     expect(usHighDebt.tdsRatio).toBeGreaterThan(36)
     expect(usHighDebt.isWithinPlanningRange).toBe(false)
   })

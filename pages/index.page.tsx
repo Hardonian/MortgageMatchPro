@@ -35,12 +35,31 @@ type Calculation = {
   monthlyPayment: number
   principal: number
   totalMortgage: number
+  mortgageInsurance?: {
+    required: boolean
+    eligible: boolean
+    premiumRate: number
+    premium: number
+  }
+  minimumDownPayment?: number | null
+  hasMinimumDownPayment?: boolean
   gdsRatio: number
   tdsRatio: number
+  stressTestGdsRatio?: number
+  stressTestTdsRatio?: number
+  frontEndLimit?: number
+  backEndLimit?: number
   qualifyingRate: number
   maxAffordable: number
   isWithinPlanningRange: boolean
   warnings: string[]
+  assumptions?: {
+    compounding?: string
+    amortizationYears?: number
+    annualPropertyTax?: number
+    monthlyHeating?: number
+    qualificationRule?: string
+  }
   disclaimer: string
 }
 
@@ -100,9 +119,11 @@ export default function HomePage() {
     const rate = Math.max(Number(form.interestRate) - 0.35, 0.1)
     const principal = calculation.totalMortgage
     const months = Number(form.amortizationYears) * 12
-    // Canadian fixed-rate mortgages use semi-annual compounding, not a
-    // nominal annual rate divided by 12.
-    const monthlyRate = Math.pow(1 + (rate / 100) / 2, 1 / 6) - 1
+    // Canadian fixed-rate mortgages use semi-annual compounding; US uses monthly.
+    const isCanadian = calculation.currency === 'CAD'
+    const monthlyRate = isCanadian
+      ? Math.pow(1 + (rate / 100) / 2, 1 / 6) - 1
+      : (rate / 100) / 12
     const payment = principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) /
       (Math.pow(1 + monthlyRate, months) - 1)
     return Math.round(calculation.monthlyPayment - payment)
@@ -245,6 +266,16 @@ export default function HomePage() {
                     <div className={styles.resultStats}>
                       <div><span>Est. buying power</span><strong>{money(calculation.maxAffordable, calculation.currency)}</strong></div>
                       <div><span>Stress-test rate</span><strong>{calculation.qualifyingRate}%</strong></div>
+                      <div>
+                        <span>{calculation.currency === 'CAD' ? 'GDS / TDS (Max 39/44%)' : 'Housing / Total DTI (28/36%)'}</span>
+                        <strong>
+                          {calculation.stressTestGdsRatio ?? calculation.gdsRatio}% / {calculation.stressTestTdsRatio ?? calculation.tdsRatio}%
+                        </strong>
+                      </div>
+                      <div>
+                        <span>{calculation.mortgageInsurance?.required ? `Mortgage (+${money(calculation.mortgageInsurance.premium, calculation.currency)} ins.)` : 'Total mortgage'}</span>
+                        <strong>{money(calculation.totalMortgage, calculation.currency)}</strong>
+                      </div>
                     </div>
                     {calculation.warnings.length > 0 && (
                       <ul className={styles.resultWarnings} aria-label="Planning warnings">
@@ -387,7 +418,7 @@ function CompareView({
             <strong>{option.rate.toFixed(2)}<small>%</small></strong>
             <div className={styles.optionFoot}>
               <span>Estimated payment</span>
-              <b>{money(option.name === 'More predictable' ? calculation.monthlyPayment : calculation.monthlyPayment - paymentDifference)}/mo</b>
+              <b>{money(option.name === 'More predictable' ? calculation.monthlyPayment : calculation.monthlyPayment - paymentDifference, calculation.currency)}/mo</b>
             </div>
           </article>
         ))}

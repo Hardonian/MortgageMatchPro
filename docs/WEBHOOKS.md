@@ -1,5 +1,9 @@
 # Webhooks Documentation
 
+> Archived platform reference. The only production webhook route is Stripe at
+> `/api/webhooks/stripe`; it accepts signed Stripe events only. See
+> `DOCS/api/production-openapi.yaml` for the production contract.
+
 ## Overview
 
 MortgageMatchPro v1.3.0 includes comprehensive webhook support for real-time event notifications. Webhooks allow your application to receive instant updates about important events without polling the API.

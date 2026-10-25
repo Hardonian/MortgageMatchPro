@@ -26,6 +26,8 @@
 See [CHANGELOG.md](CHANGELOG.md) and [DOCS/RELEASE_CHECKLIST.md](DOCS/RELEASE_CHECKLIST.md) before deploying.
 The production API contract is [DOCS/api/production-openapi.yaml](DOCS/api/production-openapi.yaml); run `npm run api:verify` to ensure it remains aligned with the production allowlist. Account, provider, legal, and operational evidence is tracked in [DOCS/LAUNCH_GATES.md](DOCS/LAUNCH_GATES.md).
 
+The manual release workflow validates a chosen ref without publishing or changing versions. After Vercel creates a deployment, the manual deployment smoke-check workflow validates its public pages, liveness endpoints, and production API fail-closed behavior.
+
 ### Financial integrations rollout
 
 The payment and bank-connection routes are server-side flows, not mock endpoints.

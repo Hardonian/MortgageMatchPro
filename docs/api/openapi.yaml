@@ -1,4 +1,7 @@
 openapi: 3.0.3
+# Archived v1.3 reference only. It describes legacy endpoints that are not
+# production routes. The canonical production contract is
+# DOCS/api/production-openapi.yaml.
 info:
   title: MortgageMatchPro API
   description: Multi-tenant SaaS API for mortgage matching and analysis

@@ -1,5 +1,10 @@
 # System Architecture Overview
 
+> Archived platform architecture. The deployable product is the scoped Pages
+> Router affordability planner described in `README.md`; its public API surface
+> is defined by `DOCS/api/production-openapi.yaml` and enforced by
+> `proxy.page.ts`.
+
 ## High-Level Architecture
 
 ```mermaid
