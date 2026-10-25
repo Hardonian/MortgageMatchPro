@@ -1,4 +1,5 @@
 module.exports = {
+  rootDir: '../..',
   preset: 'ts-jest',
   testEnvironment: 'node',
   testMatch: ['<rootDir>/tests/production/**/*.test.ts'],
