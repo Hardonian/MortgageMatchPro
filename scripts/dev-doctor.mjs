@@ -255,13 +255,13 @@ class DevDoctor {
     console.log('🔍 Checking TypeScript configuration...');
     
     try {
-      execSync('npx tsc --noEmit', { cwd: projectRoot, stdio: 'pipe' });
+      execSync('npm run type-check', { cwd: projectRoot, stdio: 'pipe' });
       console.log('   ✅ TypeScript compilation successful');
     } catch (error) {
       this.issues.push({
         type: 'error',
         message: 'TypeScript compilation failed',
-        fix: 'Fix TypeScript errors: npx tsc --noEmit'
+        fix: 'Fix TypeScript errors: npm run type-check'
       });
     }
   }

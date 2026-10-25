@@ -46,41 +46,48 @@ The AI Automation System is a comprehensive suite of intelligent agents and moni
 ## Event Flow
 
 ### 1. Event Trigger
-```
+
+```text
 Deployment → CI/CD Pipeline → AI Agents → Analysis → Actions
 ```
 
 ### 2. Analysis Pipeline
-```
+
+```text
 Data Collection → AI Processing → Pattern Detection → Recommendations → Notifications
 ```
 
 ### 3. Action Execution
-```
+
+```text
 Issue Creation → PR Comments → Scaling Decisions → Documentation Updates → Monitoring
 ```
 
 ## AI Agents
 
 ### Self-Diagnosis Agent (`ai/self_diagnose.ts`)
+
 - **Purpose**: Monitor system health and detect issues
 - **Triggers**: Deployments, scheduled checks
 - **Actions**: Create GitHub issues, store metrics
 - **Outputs**: Health reports, issue notifications
 
 ### Insights Agent (`ai/insights_agent.mjs`)
+
 - **Purpose**: Analyze deployments and provide recommendations
 - **Triggers**: PR merges, deployments
 - **Actions**: Post PR comments, store insights
 - **Outputs**: Analysis reports, optimization suggestions
 
 ### Auto-Scale Agent (`ai/ai_autoscale.ts`)
+
 - **Purpose**: Monitor usage and predict costs
 - **Triggers**: Usage metrics, cost thresholds
 - **Actions**: Scale resources, create cost alerts
 - **Outputs**: Scaling decisions, cost projections
 
 ### Privacy Guard (`ai/privacy_guard.ts`)
+
 - **Purpose**: Ensure privacy compliance and PII protection
 - **Triggers**: Code changes, scheduled audits
 - **Actions**: Redact PII, audit compliance
@@ -89,24 +96,28 @@ Issue Creation → PR Comments → Scaling Decisions → Documentation Updates �
 ## Monitoring & Watchers
 
 ### Database Integrity Watcher (`watchers/db_integrity.watcher.ts`)
+
 - **Purpose**: Validate database integrity and constraints
 - **Schedule**: Nightly
 - **Checks**: Foreign keys, data consistency, orphaned records
 - **Actions**: Create issues for critical problems
 
 ### API Contract Watcher (`watchers/api_contract.watcher.ts`)
+
 - **Purpose**: Validate API contracts and consistency
 - **Schedule**: Nightly
 - **Checks**: Endpoint availability, schema changes, deprecation
 - **Actions**: Create issues for contract violations
 
 ### AI Performance Watcher (`watchers/ai_performance.watcher.ts`)
+
 - **Purpose**: Monitor AI model performance and costs
 - **Schedule**: Nightly
 - **Checks**: Latency, error rates, token usage, costs
 - **Actions**: Create issues for performance problems
 
 ### Watcher Notifier (`watchers/watcher_notifier.ts`)
+
 - **Purpose**: Summarize watcher results and create notifications
 - **Schedule**: After all watchers complete
 - **Actions**: Create system health issues, send notifications
@@ -115,6 +126,7 @@ Issue Creation → PR Comments → Scaling Decisions → Documentation Updates �
 ## CI/CD Integration
 
 ### AI Audit Workflow (`.github/workflows/ai-audit.yml`)
+
 - **Schedule**: Weekly
 - **Jobs**:
   - Health monitoring
@@ -126,6 +138,7 @@ Issue Creation → PR Comments → Scaling Decisions → Documentation Updates �
   - Results notification
 
 ### Watcher Cron Workflow (`.github/workflows/watcher-cron.yml`)
+
 - **Schedule**: Nightly
 - **Jobs**:
   - Database integrity watcher
@@ -138,26 +151,31 @@ Issue Creation → PR Comments → Scaling Decisions → Documentation Updates �
 ### Supabase Tables
 
 #### `ai_health_metrics`
+
 - Stores system health metrics
 - Tracks performance indicators
 - Enables trend analysis
 
 #### `ai_embeddings`
+
 - Stores vector embeddings
 - Enables semantic search
 - Supports AI agent workflows
 
 #### `ai_insights`
+
 - Stores AI analysis results
 - Tracks optimization recommendations
 - Enables historical analysis
 
 #### `ai_usage_logs`
+
 - Tracks AI model usage
 - Monitors token consumption
 - Enables cost analysis
 
 #### `watcher_summaries`
+
 - Stores watcher results
 - Tracks system health trends
 - Enables historical reporting
@@ -165,6 +183,7 @@ Issue Creation → PR Comments → Scaling Decisions → Documentation Updates �
 ## Configuration
 
 ### Agent Configuration (`ai/agent_config.json`)
+
 ```json
 {
   "project_ref": "ghqyxhbyyirveptgwoqm",
@@ -227,18 +246,21 @@ npm run watcher:all
 ## Monitoring Dashboard
 
 ### Health Metrics
+
 - System performance indicators
 - Resource utilization
 - Error rates and trends
 - Cost projections
 
 ### AI Insights
+
 - Deployment analysis
 - Optimization recommendations
 - Performance trends
 - Cost analysis
 
 ### Compliance Status
+
 - Privacy compliance score
 - Data retention status
 - PII protection level
@@ -249,18 +271,21 @@ npm run watcher:all
 ### Common Issues
 
 #### Agent Failures
+
 - Check environment variables
 - Verify API credentials
 - Review error logs
 - Test individual components
 
 #### Watcher Errors
+
 - Check database connectivity
 - Verify table schemas
 - Review permission settings
 - Test individual watchers
 
 #### CI/CD Failures
+
 - Check workflow syntax
 - Verify secrets and variables
 - Review job dependencies
@@ -285,18 +310,21 @@ npm run ai:notify -- --dry-run
 ## Best Practices
 
 ### Development
+
 - Test agents locally before deployment
 - Use feature flags for new functionality
 - Monitor resource usage during development
 - Keep configuration files updated
 
 ### Deployment
+
 - Deploy agents incrementally
 - Monitor system health after deployment
 - Verify all integrations work correctly
 - Update documentation after changes
 
 ### Maintenance
+
 - Review agent performance regularly
 - Update AI models as needed
 - Monitor cost trends and optimize
@@ -305,18 +333,21 @@ npm run ai:notify -- --dry-run
 ## Security Considerations
 
 ### API Keys
+
 - Store in secure environment variables
 - Rotate keys regularly
 - Use least privilege access
 - Monitor key usage
 
 ### Data Protection
+
 - Encrypt sensitive data
 - Implement access controls
 - Regular security audits
 - Monitor data access
 
 ### Privacy
+
 - Redact PII before processing
 - Implement data retention policies
 - Regular privacy audits
@@ -325,18 +356,21 @@ npm run ai:notify -- --dry-run
 ## Performance Optimization
 
 ### Agent Performance
+
 - Optimize API calls
 - Implement caching where appropriate
 - Use batch processing
 - Monitor execution times
 
 ### Resource Usage
+
 - Right-size compute resources
 - Implement auto-scaling
 - Monitor memory usage
 - Optimize database queries
 
 ### Cost Management
+
 - Monitor AI model costs
 - Implement cost alerts
 - Optimize resource usage
@@ -345,12 +379,14 @@ npm run ai:notify -- --dry-run
 ## Future Enhancements
 
 ### Planned Features
+
 - Advanced anomaly detection
 - Predictive scaling
 - Automated remediation
 - Enhanced reporting
 
 ### Integration Opportunities
+
 - Additional AI providers
 - More monitoring tools
 - Enhanced compliance features
@@ -359,18 +395,21 @@ npm run ai:notify -- --dry-run
 ## Support and Documentation
 
 ### Getting Help
+
 - Check this documentation
 - Review error logs
 - Test individual components
 - Contact the AI team
 
 ### Contributing
+
 - Follow coding standards
 - Add tests for new features
 - Update documentation
 - Submit pull requests
 
 ### Resources
+
 - [AI Compliance Guide](AI_COMPLIANCE.md)
 - [Sustainability Report](SUSTAINABILITY.md)
 - [API Documentation](docs/api_reference.md)

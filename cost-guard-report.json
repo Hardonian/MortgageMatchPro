@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-10-25T02:19:35.982Z",
+  "environment": "development",
+  "version": "unknown",
+  "costs": {
+    "supabase": null,
+    "vercel": {
+      "functions": {
+        "invocations": 1000,
+        "cost": 0.00019999999999999998,
+        "unit": "invocations"
+      },
+      "bandwidth": {
+        "bytes": 104857600,
+        "cost": 0.01,
+        "unit": "MB"
+      },
+      "edge": {
+        "requests": 500,
+        "cost": 0.000049999999999999996,
+        "unit": "requests"
+      },
+      "total": 0.01025
+    },
+    "total": {
+      "daily": 0.01025,
+      "monthly": 0.3075
+    }
+  },
+  "thresholds": {
+    "daily": {
+      "supabase": 10,
+      "vercel": 5,
+      "total": 15
+    },
+    "monthly": {
+      "supabase": 300,
+      "vercel": 150,
+      "total": 450
+    }
+  },
+  "alerts": {
+    "warnings": [],
+    "errors": [],
+    "status": "ok"
+  },
+  "recommendations": []
+}

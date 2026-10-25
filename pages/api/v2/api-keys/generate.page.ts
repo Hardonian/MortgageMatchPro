@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 import { z } from 'zod'
 import { requireOrganizationRole } from '../../../../lib/server/auth'
+import { hashApiKey } from '../../../../lib/server/api-key-hash'
 
 const schema = z.object({
   organizationId: z.string().uuid(),
@@ -30,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const apiKey = `mmp_live_${crypto.randomBytes(32).toString('base64url')}`
-    const keyHash = crypto.createHash('sha256').update(apiKey).digest('hex')
+    const keyHash = hashApiKey(apiKey)
     const { data, error } = await serviceClient()
       .from('api_keys')
       .insert({

@@ -1,5 +1,6 @@
 node_modules/
 .next/
+.vercel/
 coverage/
 playwright-report/
 test-results/
@@ -20,3 +21,5 @@ tsconfig.production.tsbuildinfo
 Thumbs.db
 .idea/
 .vscode/
+
+.vercel
