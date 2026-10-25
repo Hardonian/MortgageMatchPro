@@ -76,7 +76,7 @@
     "build:shared": "tsc --project shared/tsconfig.json",
     "test:unit": "jest tests/unit --config tests/jest.config.js",
     "test:integration": "jest tests/integration --config tests/jest.config.js",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test tests/e2e/client-experience.spec.ts",
     "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e",
     "test:watch": "jest --watch --config tests/jest.config.js",
     "test:ci": "jest --ci --coverage --config tests/production/jest.config.cjs",

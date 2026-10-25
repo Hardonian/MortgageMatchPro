@@ -27,7 +27,7 @@ describe('Key Management', () => {
       }
 
       expect(() => {
-        require('../../../lib/config/keys')
+        require('../../../../lib/config/keys')
       }).not.toThrow()
     })
 
@@ -39,7 +39,7 @@ describe('Key Management', () => {
       }
 
       expect(() => {
-        require('../../../lib/config/keys')
+        require('../../../../lib/config/keys')
       }).toThrow('Environment validation failed')
     })
 
@@ -55,7 +55,7 @@ describe('Key Management', () => {
       }
 
       expect(() => {
-        require('../../../lib/config/keys')
+        require('../../../../lib/config/keys')
       }).toThrow('Valid Supabase URL is required')
     })
 
@@ -71,7 +71,7 @@ describe('Key Management', () => {
       }
 
       expect(() => {
-        require('../../../lib/config/keys')
+        require('../../../../lib/config/keys')
       }).toThrow('Encryption key must be at least 32 characters')
     })
   })
@@ -87,6 +87,7 @@ describe('Key Management', () => {
         ENCRYPTION_KEY: 'test-encryption-key-32-chars-long',
         JWT_SECRET: 'test-jwt-secret-32-chars-long'
       }
+      keyManager.rotateKey('openai', 'sk-test-key')
     })
 
     it('should get key successfully', () => {

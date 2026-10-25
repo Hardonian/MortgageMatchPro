@@ -167,10 +167,10 @@ jobs:
         curl -f "$PRODUCTION_URL/api/health" || exit 1
         
         # Readiness endpoint
-        curl -f "$PRODUCTION_URL/api/health/readiness" || exit 1
+        curl -f "$PRODUCTION_URL/api/healthz" || exit 1
         
         # Liveness endpoint
-        curl -f "$PRODUCTION_URL/api/health/liveness" || exit 1
+        curl -f "$PRODUCTION_URL/api/health" || exit 1
         
         echo "✅ All health checks passed"
 

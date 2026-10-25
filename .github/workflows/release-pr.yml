@@ -71,8 +71,7 @@ jobs:
         npm start &
         sleep 30
         curl -f http://localhost:3000/api/health || exit 1
-        curl -f http://localhost:3000/api/health/readiness || exit 1
-        curl -f http://localhost:3000/api/health/liveness || exit 1
+        curl -f http://localhost:3000/api/healthz || exit 1
       env:
         NODE_ENV: production
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
