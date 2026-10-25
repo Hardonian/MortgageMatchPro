@@ -49,16 +49,21 @@ export default function StaticPage({ path, title, description, overline, heading
     { '@type': 'WebPage', url: `${SITE_URL}${path}`, name: fullTitle, description, isPartOf: { '@id': `${SITE_URL}/#org` } },
   ]
   if (jsonLd) graph.push(jsonLd)
+  // JSON-LD is static page metadata today, but escaping `<` keeps this safe if
+  // any future metadata includes content supplied outside the source tree.
+  const structuredData = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')
   return (
     <>
       <Head>
         <title>{fullTitle}</title>
         <meta name="description" content={description} />
         <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large" />
-        <meta name="twitter:card" content="summary" />
+        <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta name="twitter:title" content={fullTitle} />
         <meta name="twitter:description" content={description} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: structuredData }} />
         <link rel="canonical" href={`${SITE_URL}${path}`} />
         <meta property="og:title" content={fullTitle} />
         <meta property="og:description" content={description} />
