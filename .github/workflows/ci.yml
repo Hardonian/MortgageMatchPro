@@ -43,7 +43,8 @@ jobs:
 
   mobile-e2e:
     name: Mobile client journey
-    runs-on: ubuntu-latest
+    # Playwright 1.56 cannot install Chromium on the current ubuntu-latest (26.04) image.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7

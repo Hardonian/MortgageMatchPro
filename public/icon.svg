@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0e3240" />
+      <stop offset="100%" stop-color="#061e29" />
+    </linearGradient>
+    <linearGradient id="mintAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c4fce1" />
+      <stop offset="100%" stop-color="#8ceab9" />
+    </linearGradient>
+  </defs>
+  <!-- App Icon Base -->
+  <rect width="512" height="512" rx="128" fill="url(#bg)" />
+  <!-- Inner Ring Subtle Highlight -->
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="none" stroke="rgba(168,242,205,0.15)" stroke-width="4" />
+  <!-- Roof / House Symbol -->
+  <path d="M 256 128 L 138 236 C 130 243 134 256 145 256 L 176 256 L 176 364 C 176 375 185 384 196 384 L 232 384 L 232 292 C 232 285 237 280 244 280 L 268 280 C 275 280 280 285 280 292 L 280 384 L 316 384 C 327 384 336 375 336 364 L 336 256 L 367 256 C 378 256 382 243 374 236 Z" fill="url(#mintAccent)" />
+  <!-- Accent Sparkle / North Star -->
+  <circle cx="364" cy="156" r="14" fill="#a8f2cd" />
+</svg>

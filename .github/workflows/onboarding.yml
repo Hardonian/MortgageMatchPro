@@ -5,10 +5,7 @@ permissions:
 
 on:
   issues:
-    types: [opened]
-    labels: ['onboarding', 'new-developer']
-  repository_dispatch:
-    types: [new-member-added]
+    types: [labeled, closed]
 
 jobs:
   setup-onboarding:
@@ -16,7 +13,7 @@ jobs:
       contents: read
       issues: write
     runs-on: ubuntu-latest
-    if: github.event.label.name == 'onboarding' || github.event.action == 'new-member-added'
+    if: github.event.action == 'labeled' && github.event.label.name == 'onboarding'
     
     steps:
       - name: Checkout code
@@ -87,7 +84,7 @@ jobs:
             - Debugging and troubleshooting
             
             ### 👥 Your Mentor
-            I've assigned @${{ env.MENTOR_USERNAME }} as your mentor. They'll help guide you through your first few contributions.
+            A maintainer will be assigned to help guide your first few contributions.
             
             ### 📚 Resources
             - [Developer Onboarding Checklist](docs/developer_onboarding_checklist.md)
@@ -108,7 +105,7 @@ jobs:
       contents: read
       issues: write
     runs-on: ubuntu-latest
-    if: github.event.label.name == 'onboarding'
+    if: github.event.action == 'labeled' && github.event.label.name == 'onboarding'
     
     steps:
       - name: Checkout code
@@ -125,7 +122,7 @@ jobs:
       contents: read
       issues: write
     runs-on: ubuntu-latest
-    if: github.event.label.name == 'onboarding'
+    if: github.event.action == 'labeled' && github.event.label.name == 'onboarding'
     
     steps:
       - name: Checkout code
@@ -142,7 +139,7 @@ jobs:
       contents: read
       issues: write
     runs-on: ubuntu-latest
-    if: github.event.action == 'closed' && github.event.issue.labels.some(label => label.name === 'onboarding-task')
+    if: github.event.action == 'closed' && contains(github.event.issue.labels.*.name, 'onboarding-task')
     
     steps:
       - name: Checkout code
