@@ -12,7 +12,7 @@
     "test": "npm run test:production",
     "test:production": "jest --config tests/production/jest.config.cjs",
     "test:coverage": "jest --coverage --config tests/jest.config.js",
-    "lint": "eslint pages/index.page.tsx pages/api/affordability.page.ts pages/api/calculate.page.ts pages/api/health.page.ts pages/api/healthz.page.ts pages/api/v2 lib/server middleware.ts",
+    "lint": "eslint pages/index.page.tsx pages/api/affordability.page.ts pages/api/calculate.page.ts pages/api/health.page.ts pages/api/healthz.page.ts pages/api/v2 lib/server proxy.ts",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "type-check": "tsc --project tsconfig.production.json --noEmit",
     "build:android": "cd android && ./gradlew assembleRelease",

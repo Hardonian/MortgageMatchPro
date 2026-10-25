@@ -2,11 +2,13 @@
 
 ## Overview
 
-This guide covers deploying MortgageMatchPro in production using Docker containers with multi-service orchestration, load balancing, and monitoring.
+This guide covers deploying MortgageMatchPro in production using Docker
+containers with multi-service orchestration, load balancing, and monitoring.
 
 ## New Reliability & Security Features
 
-This deployment includes comprehensive reliability, security, speed, and cost-efficiency enhancements:
+This deployment includes comprehensive reliability, security, speed, and
+cost-efficiency enhancements:
 
 - **Bundle Size Monitoring**: Automated bundle size checks with budgets
 - **Secrets Scanning**: Automated detection of leaked secrets
@@ -88,7 +90,8 @@ In exceptional circumstances, budgets can be bypassed with approval:
 - Get approval from security team
 - Document justification in PR description
 
-**Note**: Bypassing budgets should be rare and well-justified. Consider alternative solutions first.
+**Note**: Bypassing budgets should be rare and well-justified.
+Consider alternative solutions first.
 
 ## Environment Setup
 
@@ -312,7 +315,8 @@ docker-compose -f docker-compose.prod.yml up -d
 
 ```bash
 # Database backup
-docker-compose -f docker-compose.prod.yml exec postgres pg_dump -U postgres mortgagematch > backup.sql
+docker-compose -f docker-compose.prod.yml exec postgres \
+  pg_dump -U postgres mortgagematch > backup.sql
 
 # Redis backup
 docker-compose -f docker-compose.prod.yml exec redis redis-cli BGSAVE

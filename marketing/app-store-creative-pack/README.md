@@ -53,10 +53,11 @@ AI-Powered Mortgage Intelligence
 
 ### Description
 
-```
+```text
 Smarter Mortgages Start Here – Your AI Loan Advisor Built on ChatGPT
 
-MortgageMatch Pro transforms ChatGPT into your personal mortgage planner, making home buying and refinancing simple, transparent, and intelligent.
+MortgageMatch Pro transforms ChatGPT into your personal mortgage planner,
+making home buying and refinancing simple, transparent, and intelligent.
 
 KEY FEATURES:
 🏠 Real-time mortgage rates from verified lenders (Canada & USA)
@@ -86,14 +87,16 @@ PERFECT FOR:
 • Mortgage brokers and agents
 • Anyone seeking transparent mortgage advice
 
-Built with OpenAI's Agent SDK, MortgageMatch Pro delivers the accuracy and reliability you need for one of life's biggest financial decisions.
+Built with OpenAI's Agent SDK, MortgageMatch Pro delivers the accuracy
+and reliability you need for one of life's biggest financial decisions.
 
 Start your mortgage journey today – it's free to use!
 ```
 
 ### Keywords
 
-mortgage, real estate, fintech, ai, affordability, rates, refinance, broker, compliance, home buying, loan calculator, mortgage advisor
+mortgage, real estate, fintech, ai, affordability, rates, refinance,
+broker, compliance, home buying, loan calculator, mortgage advisor
 
 ### Category
 
@@ -165,7 +168,7 @@ Finance / Personal Advisors
 
 ## File Structure
 
-```
+```text
 marketing/app-store-creative-pack/
 ├── README.md
 ├── icon-1024.png

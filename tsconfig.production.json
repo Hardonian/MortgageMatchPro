@@ -38,7 +38,7 @@
     "pages/api/healthz.page.ts",
     "pages/api/v2/**/*.page.ts",
     "lib/server/**/*.ts",
-    "middleware.ts"
+    "proxy.ts"
   ],
   "exclude": [
     "node_modules",

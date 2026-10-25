@@ -10,7 +10,7 @@ const productionApiAllowlist = [
   '/api/v2/open-banking/connect',
 ]
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Legacy endpoints remain available locally for migration work, but are
