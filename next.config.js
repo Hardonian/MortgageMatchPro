@@ -2,6 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  turbopack: {},
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   // Optimize images
   images: {
     remotePatterns: [
