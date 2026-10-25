@@ -9,6 +9,7 @@
     "allowJs": false,
     "skipLibCheck": true,
     "strict": true,
+    "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "ESNext",
@@ -27,7 +28,10 @@
   "include": [
     "next-env.d.ts",
     "pages/_app.page.tsx",
+    "pages/_document.page.tsx",
     "pages/index.page.tsx",
+    "pages/404.page.tsx",
+    "pages/500.page.tsx",
     "pages/api/affordability.page.ts",
     "pages/api/calculate.page.ts",
     "pages/api/health.page.ts",

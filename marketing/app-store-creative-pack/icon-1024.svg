@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c2f3d" />
+      <stop offset="100%" stop-color="#061e29" />
+    </linearGradient>
+    <linearGradient id="mintGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c8fae3" />
+      <stop offset="100%" stop-color="#80e8b3" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="24" stdDeviation="32" flood-color="rgba(0,0,0,0.35)" />
+    </filter>
+  </defs>
+  <!-- Background with App Icon Squircle Radius -->
+  <rect width="1024" height="1024" rx="240" fill="url(#bgGrad)" />
+  <!-- Inner Rim Highlight -->
+  <rect x="24" y="24" width="976" height="976" rx="220" fill="none" stroke="rgba(168,242,205,0.18)" stroke-width="8" />
+  <!-- Central Icon Mark -->
+  <g filter="url(#shadow)">
+    <!-- House Structure -->
+    <path d="M 512 256 L 276 472 C 260 486 268 512 290 512 L 352 512 L 352 728 C 352 750 370 768 392 768 L 464 768 L 464 584 C 464 570 474 560 488 560 L 536 560 C 550 560 560 570 560 584 L 560 768 L 632 768 C 654 768 672 750 672 728 L 672 512 L 734 512 C 756 512 764 486 748 472 Z" fill="url(#mintGrad)" />
+    <!-- North Star Sparkle -->
+    <path d="M 728 290 Q 728 320 758 320 Q 728 320 728 350 Q 728 320 698 320 Q 728 320 728 290 Z" fill="#ffffff" />
+  </g>
+</svg>

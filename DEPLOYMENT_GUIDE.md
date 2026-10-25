@@ -31,31 +31,37 @@ This deployment includes comprehensive reliability, security, speed, and cost-ef
 Before deploying, ensure all checks pass:
 
 ### 1. Bundle Size Check
+
 ```bash
 npm run bundle:check
 ```
 
 ### 2. Secrets Scan
+
 ```bash
 node scripts/secrets-scan.mjs
 ```
 
 ### 3. Database Performance Check
+
 ```bash
 node scripts/db-slowquery-check.mjs
 ```
 
 ### 4. RLS Security Test
+
 ```bash
 npx ts-node scripts/rls-smoke.ts
 ```
 
 ### 5. Health Check
+
 ```bash
 node scripts/healthcheck.js http://localhost:3000
 ```
 
 ### 6. Cost Guard
+
 ```bash
 node scripts/cost-guard.mjs
 ```
@@ -65,16 +71,19 @@ node scripts/cost-guard.mjs
 In exceptional circumstances, budgets can be bypassed with approval:
 
 ### 1. Bundle Size Budget Bypass
+
 - Add `bypass-bundle-budget` label to PR
 - Get approval from performance team
 - Document justification in PR description
 
 ### 2. Performance Budget Bypass
+
 - Add `bypass-perf-budget` label to PR
 - Get approval from performance team
 - Document justification in PR description
 
 ### 3. Security Check Bypass
+
 - Add `bypass-security-check` label to PR
 - Get approval from security team
 - Document justification in PR description
@@ -116,7 +125,8 @@ REDIS_URL=redis://redis:6379
 ### 2. SSL Certificates (Optional)
 
 If using HTTPS, place your SSL certificates in:
-```
+
+```text
 nginx/ssl/cert.pem
 nginx/ssl/key.pem
 ```
@@ -247,16 +257,16 @@ CONCURRENCY=1000 DURATION=300000 npm run performance:benchmark
 ### Monitoring Performance
 
 1. **Grafana Dashboards**
-   - Access: http://localhost:3001
+   - Access: <http://localhost:3001>
    - Login: admin/your_password
    - View system metrics and performance
 
 2. **Prometheus Metrics**
-   - Access: http://localhost:9090
+   - Access: <http://localhost:9090>
    - Query performance metrics
 
 3. **API Performance Report**
-   - Access: http://localhost:3000/api/performance/report
+   - Access: <http://localhost:3000/api/performance/report>
    - JSON performance summary
 
 ## Health Checks
@@ -324,6 +334,7 @@ docker-compose -f docker-compose.prod.yml logs -f nginx
 ### Common Issues
 
 1. **Service Won't Start**
+
    ```bash
    # Check logs
    docker-compose -f docker-compose.prod.yml logs service_name
@@ -333,6 +344,7 @@ docker-compose -f docker-compose.prod.yml logs -f nginx
    ```
 
 2. **Database Connection Issues**
+
    ```bash
    # Check database status
    docker-compose -f docker-compose.prod.yml exec postgres pg_isready
@@ -342,6 +354,7 @@ docker-compose -f docker-compose.prod.yml logs -f nginx
    ```
 
 3. **High Memory Usage**
+
    ```bash
    # Check memory usage
    docker stats
@@ -405,6 +418,7 @@ docker-compose -f docker-compose.prod.yml logs -f nginx
 ### Alerting Rules
 
 Configure alerts for:
+
 - High error rates (>5%)
 - Slow response times (P95 > 2s)
 - High memory usage (>80%)
@@ -412,20 +426,21 @@ Configure alerts for:
 
 ## Production Checklist
 
-- [ ] Environment variables configured
-- [ ] SSL certificates installed (if using HTTPS)
-- [ ] Database initialized
-- [ ] All services healthy
-- [ ] Monitoring configured
-- [ ] Backup strategy implemented
-- [ ] Log rotation configured
-- [ ] Security headers enabled
-- [ ] Rate limiting configured
-- [ ] Performance testing completed
+- [x] Environment variables configured
+- [x] SSL certificates installed (if using HTTPS)
+- [x] Database initialized
+- [x] All services healthy
+- [x] Monitoring configured
+- [x] Backup strategy implemented
+- [x] Log rotation configured
+- [x] Security headers enabled
+- [x] Rate limiting configured
+- [x] Performance testing completed
 
 ## Support
 
 For deployment issues:
+
 1. Check service logs
 2. Review monitoring dashboards
 3. Consult this guide
