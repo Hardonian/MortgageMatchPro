@@ -207,6 +207,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.6.7",
     "@tsconfig/react-native": "^3.0.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.9.1",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",

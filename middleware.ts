@@ -1,23 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const disabledInProduction = [
-  '/api/admin/',
-  '/api/broker/',
-  '/api/cost-optimization-test',
-  '/api/optimization-test',
-  '/api/performance-test',
-  '/api/rate-limit-test',
-  '/api/resource-test',
-  '/api/selftest',
+const productionApiAllowlist = [
+  '/api/calculate',
+  '/api/affordability',
+  '/api/health',
+  '/api/healthz',
+  '/api/v2/api-keys/generate',
+  '/api/v2/payments/create-intent',
+  '/api/v2/open-banking/connect',
 ]
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  if (
-    process.env.NODE_ENV === 'production' &&
-    disabledInProduction.some((path) => pathname.startsWith(path))
-  ) {
+  // Legacy endpoints remain available locally for migration work, but are
+  // deliberately fail-closed in production until each has a reviewed auth,
+  // authorization, consent, and provider-integrity implementation.
+  if (process.env.NODE_ENV === 'production' && !productionApiAllowlist.includes(pathname)) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
