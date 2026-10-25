@@ -355,5 +355,5 @@ export class MonetizationAgent {
     }
   }
 }
-
 export { openai }
+export default openai

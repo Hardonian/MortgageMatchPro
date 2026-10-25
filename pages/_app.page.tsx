@@ -1,4 +1,4 @@
-import '@/styles/globals.css'
+import '../styles/production-globals.css'
 import type { AppProps } from 'next/app'
 import { AuthProvider } from '@/lib/auth'
 

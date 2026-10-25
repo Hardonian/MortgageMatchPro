@@ -1,0 +1,6 @@
+*, *::before, *::after { box-sizing: border-box; }
+html { background: #f7f8f4; }
+html, body { min-height: 100%; margin: 0; }
+button, input { font: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid rgba(22, 128, 107, .45); outline-offset: 3px; }

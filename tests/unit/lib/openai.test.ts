@@ -1,3 +1,4 @@
+/// <reference types="jest" />
 import { AffordabilityAgent, RateIntelligenceAgent, ScenarioAnalysisAgent, LeadRoutingAgent, openai } from '@/lib/openai'
 
 // Mock the OpenAI client

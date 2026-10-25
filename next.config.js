@@ -2,6 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  pageExtensions: ['page.tsx', 'page.ts', 'page.jsx', 'page.js'],
+  typescript: {
+    tsconfigPath: './tsconfig.production.json',
+  },
   turbopack: {},
   typescript: {
     ignoreBuildErrors: true,
@@ -64,12 +68,6 @@ const nextConfig = {
         headers: [
           { key: 'Cache-Control', value: 'private, no-store, max-age=0, must-revalidate' },
           { key: 'Vary', value: 'Authorization, Cookie' },
-        ],
-      },
-      {
-        source: '/_next/static/:path*',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
       {

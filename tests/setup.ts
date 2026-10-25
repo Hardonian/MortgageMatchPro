@@ -1,3 +1,4 @@
+/// <reference types="jest" />
 /**
  * Test Setup Configuration
  * Global test setup and configuration
@@ -6,7 +7,7 @@
 import '@testing-library/jest-dom';
 
 // Mock environment variables
-(process.env as Record<string, string | undefined>).NODE_ENV = 'test';
+(process.env as any).NODE_ENV = 'test';
 process.env.OPENAI_API_KEY = 'test-openai-key';
 process.env.SUPABASE_URL = 'https://test.supabase.co';
 process.env.SUPABASE_ANON_KEY = 'test-supabase-anon-key';
