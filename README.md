@@ -15,10 +15,10 @@
 | `/privacy`, `/terms`, `/disclosures` | Legal |
 | `/404`, `/500` | Branded error pages |
 
-**Production API allowlist** ([proxy.ts](proxy.ts)): `/api/calculate`, `/api/affordability`, `/api/health`, `/api/healthz`, `/api/v2/api-keys/generate`, `/api/v2/payments/create-intent`, `/api/v2/open-banking/connect`. All other `/api/*` routes return 404 in production.
+**Production API allowlist** ([proxy.page.ts](proxy.page.ts)): `/api/calculate`, `/api/affordability`, `/api/health`, `/api/healthz`, `/api/v2/api-keys/generate`, `/api/v2/payments/create-intent`, `/api/v2/open-banking/connect`. All other `/api/*` routes return 404 in production.
 
 **Notes**
-- Only files named `*.page.tsx|ts|jsx|js` are routes (`pageExtensions` in [next.config.js](next.config.js)). Files such as `pages/admin/*` are not built.
+- Only files named `*.page.tsx|ts|jsx|js` are routes, including the root-level Proxy file (`proxy.page.ts`), via `pageExtensions` in [next.config.js](next.config.js). Files such as `pages/admin/*` are not built.
 - Shared layout for static pages: `components/site/StaticPage.tsx` (SEO tags, JSON-LD, CTA band, nav/footer).
 - SEO assets: `public/sitemap.xml`, `public/robots.txt`. Update the sitemap when adding pages.
 - Security headers and CSP are set in `next.config.js`.

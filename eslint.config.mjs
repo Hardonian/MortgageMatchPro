@@ -7,7 +7,7 @@ const productionFiles = [
   'components/site/**/*.ts',
   'components/site/**/*.tsx',
   'lib/server/**/*.ts',
-  'proxy.ts',
+  'proxy.page.ts',
 ]
 
 export default [

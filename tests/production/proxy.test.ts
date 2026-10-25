@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { proxy, resetRateLimitForTests } from '../../proxy'
+import { proxy, resetRateLimitForTests } from '../../proxy.page'
 
 function request(pathname: string, ip = '203.0.113.10') {
   return new NextRequest(`https://mortgagematch.pro${pathname}`, {

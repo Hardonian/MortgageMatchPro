@@ -32,7 +32,7 @@
     "components/site/**/*.ts",
     "components/site/**/*.tsx",
     "lib/server/**/*.ts",
-    "proxy.ts"
+    "proxy.page.ts"
   ],
   "exclude": [
     "node_modules",

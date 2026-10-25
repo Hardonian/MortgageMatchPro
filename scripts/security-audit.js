@@ -14,7 +14,7 @@ class SecurityAuditor {
     this.issues = [];
     this.warnings = [];
     this.recommendations = [];
-    this.hasGlobalRateLimit = fs.existsSync('proxy.ts') && fs.readFileSync('proxy.ts', 'utf8').includes('rateLimit(');
+    this.hasGlobalRateLimit = fs.existsSync('proxy.page.ts') && fs.readFileSync('proxy.page.ts', 'utf8').includes('rateLimit(');
   }
 
   logIssue(severity, category, message, file = null, line = null) {
@@ -387,7 +387,7 @@ async function main() {
   await auditor.auditDirectory('./pages', isProductionPage);
   await auditor.auditDirectory('./components/site');
   await auditor.auditDirectory('./lib/server');
-  await auditor.auditFile('./proxy.ts');
+  await auditor.auditFile('./proxy.page.ts');
   await auditor.auditFile('./next.config.js');
 
   // Audit configuration files
