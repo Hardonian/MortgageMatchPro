@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { FormEvent, type ReactNode, useMemo, useState } from 'react'
+import { FormEvent, type ReactNode, useEffect, useMemo, useState } from 'react'
 import {
   ArrowRight,
   Bookmark,
@@ -42,6 +42,12 @@ type Calculation = {
   disclaimer: string
 }
 
+type SavedPlan = {
+  form: FormState
+  calculation: Calculation
+  savedAt: string
+}
+
 const initialForm: FormState = {
   annualIncome: '125000',
   monthlyDebt: '450',
@@ -71,6 +77,7 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState<Tab>('plan')
   const [form, setForm] = useState<FormState>(initialForm)
   const [calculation, setCalculation] = useState<Calculation | null>(null)
+  const [savedPlan, setSavedPlan] = useState<SavedPlan | null>(null)
   const [isCalculating, setIsCalculating] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -84,6 +91,15 @@ export default function HomePage() {
       (Math.pow(1 + monthlyRate, months) - 1)
     return Math.round(calculation.monthlyPayment - payment)
   }, [calculation, form.amortizationYears, form.interestRate])
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem('mortgagematch:last-plan')
+      if (stored) setSavedPlan(JSON.parse(stored) as SavedPlan)
+    } catch {
+      window.localStorage.removeItem('mortgagematch:last-plan')
+    }
+  }, [])
 
   function updateField(field: keyof FormState, value: string) {
     setForm((current) => ({ ...current, [field]: value }))
@@ -117,8 +133,18 @@ export default function HomePage() {
       return
     }
 
-    window.localStorage.setItem('mortgagematch:last-plan', JSON.stringify({ form, calculation, savedAt: new Date().toISOString() }))
+    const plan = { form, calculation, savedAt: new Date().toISOString() }
+    window.localStorage.setItem('mortgagematch:last-plan', JSON.stringify(plan))
+    setSavedPlan(plan)
     setMessage('Plan saved privately on this device.')
+  }
+
+  function restoreSavedPlan() {
+    if (!savedPlan) return
+    setForm(savedPlan.form)
+    setCalculation(savedPlan.calculation)
+    setActiveTab('plan')
+    setMessage('Saved plan restored.')
   }
 
   return (
@@ -139,8 +165,8 @@ export default function HomePage() {
             <span>Mortgage<span>Match</span></span>
           </a>
           <div className={styles.headerActions}>
-            <button className={styles.iconButton} aria-label="Open menu"><Menu size={20} /></button>
-            <button className={styles.avatar} aria-label="Open profile"><UserRound size={18} /></button>
+            <button className={styles.iconButton} type="button" aria-label="Open saved plans" onClick={() => setActiveTab('saved')}><Menu size={20} /></button>
+            <button className={styles.avatar} type="button" aria-label="Open profile" onClick={() => setActiveTab('profile')}><UserRound size={18} /></button>
           </div>
         </header>
 
@@ -212,7 +238,7 @@ export default function HomePage() {
           )}
 
           {activeTab === 'compare' && <CompareView calculation={calculation} rate={Number(form.interestRate)} paymentDifference={paymentDifference} onBack={() => setActiveTab('plan')} />}
-          {activeTab === 'saved' && <SavedView calculation={calculation} onSave={savePlan} onPlan={() => setActiveTab('plan')} />}
+          {activeTab === 'saved' && <SavedView calculation={calculation} savedPlan={savedPlan} onSave={savePlan} onPlan={() => setActiveTab('plan')} onRestore={restoreSavedPlan} />}
           {activeTab === 'profile' && <ProfileView />}
 
           {message && <p className={styles.message} role="status">{message}</p>}
@@ -248,8 +274,8 @@ function CompareView({ calculation, rate, paymentDifference, onBack }: { calcula
   return <div className={styles.compareView}><div className={styles.viewIntro}><p className={styles.overline}>See the trade-offs</p><h2>Two ways forward</h2><p>These are planning scenarios, not lender offers. Real rates depend on your application and the day you apply.</p></div><div className={styles.optionStack}>{options.map((option) => <article key={option.name} className={`${styles.optionCard} ${option.tone === 'solid' ? styles.optionSolid : ''}`}><div className={styles.optionTop}><span>{option.tag}</span><button aria-label={`Learn more about ${option.name}`}><CircleHelp size={17} /></button></div><h3>{option.name}</h3><p>{option.detail}</p><strong>{option.rate.toFixed(2)}<small>%</small></strong><div className={styles.optionFoot}><span>Estimated payment</span><b>{money(option.name === 'More predictable' ? calculation.monthlyPayment : calculation.monthlyPayment - paymentDifference)}/mo</b></div></article>)}</div><div className={styles.insight}><Sparkles size={18} /><p><strong>A helpful next question:</strong> How much payment change would feel comfortable if rates moved?</p></div></div>
 }
 
-function SavedView({ calculation, onSave, onPlan }: { calculation: Calculation | null; onSave: () => void; onPlan: () => void }) {
-  return <div className={styles.savedView}><p className={styles.overline}>Your space</p><h2>Keep the plans worth revisiting.</h2><p>Save a plan locally now, or create an account later when you’re ready to carry it across devices.</p>{calculation ? <article className={styles.savedCard}><span>Just calculated</span><h3>{money(calculation.monthlyPayment, calculation.currency)} / month</h3><p>Buying power up to {money(calculation.maxAffordable, calculation.currency)}</p><button className={styles.primaryButton} onClick={onSave}>Save this plan <Bookmark size={18} /></button></article> : <EmptyState icon={<Bookmark size={28} />} title="Nothing saved yet." detail="Your first plan can live here when you’re ready." action="Build a plan" onAction={onPlan} />}</div>
+function SavedView({ calculation, savedPlan, onSave, onPlan, onRestore }: { calculation: Calculation | null; savedPlan: SavedPlan | null; onSave: () => void; onPlan: () => void; onRestore: () => void }) {
+  return <div className={styles.savedView}><p className={styles.overline}>Your space</p><h2>Keep the plans worth revisiting.</h2><p>Plans stay on this device unless you choose to share them.</p>{calculation ? <article className={styles.savedCard}><span>Just calculated</span><h3>{money(calculation.monthlyPayment, calculation.currency)} / month</h3><p>Buying power up to {money(calculation.maxAffordable, calculation.currency)}</p><button type="button" className={styles.primaryButton} onClick={onSave}>Save this plan <Bookmark size={18} /></button></article> : savedPlan ? <article className={styles.savedCard}><span>Saved on this device</span><h3>{money(savedPlan.calculation.monthlyPayment, savedPlan.calculation.currency)} / month</h3><p>Saved {new Intl.DateTimeFormat('en-CA', { dateStyle: 'medium' }).format(new Date(savedPlan.savedAt))}</p><button type="button" className={styles.primaryButton} onClick={onRestore}>Open saved plan <ArrowRight size={18} /></button></article> : <EmptyState icon={<Bookmark size={28} />} title="Nothing saved yet." detail="Your first plan can live here when you’re ready." action="Build a plan" onAction={onPlan} />}</div>
 }
 
 function ProfileView() {

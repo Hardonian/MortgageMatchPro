@@ -3,6 +3,10 @@ node_modules/
 coverage/
 playwright-report/
 test-results/
+bundle-analysis-report.json
+health-check-report.json
+secrets-scan-report.json
+tsconfig.production.tsbuildinfo
 
 # Local configuration and credentials. Keep the documented example only.
 .env

@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  allowedDevOrigins: ['127.0.0.1'],
   pageExtensions: ['page.tsx', 'page.ts', 'page.jsx', 'page.js'],
   typescript: {
     tsconfigPath: './tsconfig.production.json',

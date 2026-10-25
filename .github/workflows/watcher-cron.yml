@@ -1,9 +1,6 @@
 name: Autonomous Regression Watchers
 
 on:
-  schedule:
-    # Run nightly at 3 AM UTC
-    - cron: '0 3 * * *'
   workflow_dispatch:
     inputs:
       watcher_type:
@@ -18,7 +15,7 @@ on:
           - ai_performance
 
 env:
-  NODE_VERSION: '18'
+  NODE_VERSION: '20'
   SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
   SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

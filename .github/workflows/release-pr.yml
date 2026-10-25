@@ -1,9 +1,6 @@
 name: Release PR Workflow
 
 on:
-  pull_request:
-    types: [opened, synchronize, closed]
-    branches: [main]
   workflow_dispatch:
     inputs:
       version_type:

@@ -11,7 +11,7 @@ test('a visitor can build and compare a mortgage plan on mobile', async ({ page 
   await page.getByRole('button', { name: /see my buying power/i }).click()
 
   await expect(page.getByText('Estimated monthly payment')).toBeVisible()
-  await page.getByRole('button', { name: 'Compare' }).click()
+  await page.getByRole('button', { name: 'Compare', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Two ways forward' })).toBeVisible()
   await expect(page.getByText('More predictable')).toBeVisible()
 })

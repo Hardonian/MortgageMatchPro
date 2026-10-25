@@ -15,16 +15,12 @@ on:
         description: 'Version to deploy (optional)'
         required: false
         type: string
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
 
 env:
   PRISMA_CLIENT_ENGINE_TYPE: wasm
 
 jobs:
-  # Auto-deploy PRs to Preview
+  # Retained only for a deliberate, manually configured promotion.
   deploy-preview:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
