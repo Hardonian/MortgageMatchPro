@@ -1,5 +1,8 @@
 name: New Developer Onboarding
 
+permissions:
+  contents: read
+
 on:
   issues:
     types: [opened]
@@ -9,6 +12,9 @@ on:
 
 jobs:
   setup-onboarding:
+    permissions:
+      contents: read
+      issues: write
     runs-on: ubuntu-latest
     if: github.event.label.name == 'onboarding' || github.event.action == 'new-member-added'
     
@@ -98,6 +104,9 @@ jobs:
             });
 
   generate-tasks:
+    permissions:
+      contents: read
+      issues: write
     runs-on: ubuntu-latest
     if: github.event.label.name == 'onboarding'
     
@@ -112,6 +121,9 @@ jobs:
           DEVELOPER_USERNAME: ${{ github.event.issue.user.login }}
 
   assign-mentor:
+    permissions:
+      contents: read
+      issues: write
     runs-on: ubuntu-latest
     if: github.event.label.name == 'onboarding'
     
@@ -126,6 +138,9 @@ jobs:
           DEVELOPER_USERNAME: ${{ github.event.issue.user.login }}
 
   track-progress:
+    permissions:
+      contents: read
+      issues: write
     runs-on: ubuntu-latest
     if: github.event.action == 'closed' && github.event.issue.labels.some(label => label.name === 'onboarding-task')
     
