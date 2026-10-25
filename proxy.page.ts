@@ -8,6 +8,8 @@ const productionApiAllowlist = [
   '/api/v2/api-keys/generate',
   '/api/v2/payments/create-intent',
   '/api/v2/open-banking/connect',
+  '/api/v2/open-banking/exchange',
+  '/api/webhooks/stripe',
 ]
 
 type RateLimitPolicy = {
@@ -29,6 +31,8 @@ const rateLimitPolicies: Record<string, RateLimitPolicy> = {
   '/api/v2/api-keys/generate': { limit: 10, windowMs: 60_000 },
   '/api/v2/payments/create-intent': { limit: 10, windowMs: 60_000 },
   '/api/v2/open-banking/connect': { limit: 10, windowMs: 60_000 },
+  '/api/v2/open-banking/exchange': { limit: 10, windowMs: 60_000 },
+  '/api/webhooks/stripe': { limit: 60, windowMs: 60_000 },
 }
 
 // This is an edge-local safety net. Platform-level rate limiting should also
