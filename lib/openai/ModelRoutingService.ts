@@ -33,7 +33,7 @@ export type RequestContext = z.infer<typeof RequestContextSchema>;
 
 // Response with confidence and metadata
 export const ModelResponseSchema = z.object({
-  content: string,
+  content: z.string(),
   confidence: z.number().min(0).max(1),
   model: z.string(),
   tokens: z.number(),

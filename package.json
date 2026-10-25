@@ -218,10 +218,7 @@
     "prettier": "^2.4.1",
     "react-test-renderer": "18.2.0",
     "ts-jest": "^29.4.5",
-    "typescript": "4.8.4"
-  },
-  "jest": {
-    "preset": "react-native"
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=20",

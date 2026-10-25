@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/nextjs'
+import React from 'react'
 
 // Initialize Sentry
 export const initSentry = () => {
@@ -230,23 +231,35 @@ export const recordPerformanceMetrics = () => {
 // Error boundary for React components
 export const withErrorBoundary = (Component: React.ComponentType<any>) => {
   return Sentry.withErrorBoundary(Component, {
-    fallback: ({ error, resetError }) => (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <h2 className="text-lg font-semibold text-red-600 mb-2">Something went wrong</h2>
-          <p className="text-muted-foreground mb-4">
-            We've been notified about this error and are working to fix it.
-          </p>
-          <button
-            onClick={resetError}
-            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
-          >
-            Try again
-          </button>
-        </div>
-      </div>
+    fallback: ({ resetError }: { error: Error; resetError: () => void }) => (
+      React.createElement(
+        'div',
+        { className: 'flex items-center justify-center h-64' },
+        React.createElement(
+          'div',
+          { className: 'text-center' },
+          React.createElement(
+            'h2',
+            { className: 'text-lg font-semibold text-red-600 mb-2' },
+            'Something went wrong'
+          ),
+          React.createElement(
+            'p',
+            { className: 'text-muted-foreground mb-4' },
+            "We've been notified about this error and are working to fix it."
+          ),
+          React.createElement(
+            'button',
+            {
+              onClick: resetError,
+              className: 'px-4 py-2 bg-primary text-white rounded hover:bg-primary/90'
+            },
+            'Try again'
+          )
+        )
+      )
     ),
-    beforeCapture: (scope, error, errorInfo) => {
+    beforeCapture: (scope: any, error: any, errorInfo: any) => {
       scope.setTag('errorBoundary', true)
       scope.setContext('errorInfo', errorInfo)
     },
