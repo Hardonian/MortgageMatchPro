@@ -2,6 +2,7 @@
 
 ## Content and legal
 - [ ] Legal review of Privacy, Terms, Disclosures
+- [ ] Every required item in [Launch Gates](LAUNCH_GATES.md) has named owner and recorded evidence
 - [ ] Support email confirmed and mailbox monitored
 - [ ] FAQ/Guide regulatory figures verified and dated
 - [ ] `updated` dates and sitemap `lastmod` current
@@ -13,7 +14,7 @@
 - [ ] Analytics/consent approach decided before adding tracking (update Privacy Policy accordingly)
 
 ## Technical
-- [ ] `npm run lint`, `npm run type-check`, `npm test` pass
+- [ ] `npm run api:verify`, `npm run config:verify`, `npm run lint`, `npm run type-check`, `npm test` pass
 - [ ] `npm run build` lists all public pages as static, no errors
 - [x] CSP allows required fonts
 - [ ] Production env vars set in Vercel; no secrets in repo (`.env` files are not committed)

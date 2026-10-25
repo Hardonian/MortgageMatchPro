@@ -12,11 +12,24 @@
 
 export type Country = 'CA' | 'US'
 
-export const GDS_LIMIT = 39
-export const TDS_LIMIT = 44
+export const CA_GDS_LIMIT = 39
+export const CA_TDS_LIMIT = 44
+export const US_FRONT_END_LIMIT = 28
+export const US_BACK_END_LIMIT = 36
+
 export const INSURED_PRICE_CAP = 1_500_000
 export const STRESS_TEST_FLOOR = 5.25
 export const STRESS_TEST_BUFFER = 2
+
+/** Allowable front-end housing expense ratio by country (GDS for CA, Front-end DTI for US). */
+export function frontEndLimit(country: Country): number {
+  return country === 'CA' ? CA_GDS_LIMIT : US_FRONT_END_LIMIT
+}
+
+/** Allowable back-end total debt-to-income ratio by country (TDS for CA, Back-end DTI for US). */
+export function backEndLimit(country: Country): number {
+  return country === 'CA' ? CA_TDS_LIMIT : US_BACK_END_LIMIT
+}
 
 /** Effective monthly rate from a nominal annual percentage rate. */
 export function monthlyRate(annualRatePct: number, country: Country): number {
@@ -84,6 +97,8 @@ export interface MortgagePlan {
   tdsRatio: number
   stressTestGdsRatio: number
   stressTestTdsRatio: number
+  frontEndLimit: number
+  backEndLimit: number
   minimumDownPayment: number | null
   maxAffordable: number
   isWithinPlanningRange: boolean
@@ -134,9 +149,12 @@ export function buildPlan(input: PlanInput): MortgagePlan {
   const contract = ratios(payment)
   const stressed = ratios(monthlyPayment(totalMortgage, qRate, months, country))
 
-  // GDS and TDS are independent caps; the binding one sets the max payment.
+  const feLimit = frontEndLimit(country)
+  const beLimit = backEndLimit(country)
+
+  // Front-end (GDS in CA) and Back-end (TDS in CA) are independent caps; the binding one sets the max payment.
   const maxPayment = Math.max(
-    Math.min(income * (GDS_LIMIT / 100) - fixedCosts, income * (TDS_LIMIT / 100) - fixedCosts - input.monthlyDebt),
+    Math.min(income * (feLimit / 100) - fixedCosts, income * (beLimit / 100) - fixedCosts - input.monthlyDebt),
     0
   )
   const maxAffordable = presentValue(maxPayment, qRate, months, country) + input.downPayment
@@ -154,9 +172,11 @@ export function buildPlan(input: PlanInput): MortgagePlan {
     tdsRatio: contract.tds,
     stressTestGdsRatio: stressed.gds,
     stressTestTdsRatio: stressed.tds,
+    frontEndLimit: feLimit,
+    backEndLimit: beLimit,
     minimumDownPayment: minDown,
     maxAffordable,
-    isWithinPlanningRange: stressed.gds <= GDS_LIMIT && stressed.tds <= TDS_LIMIT && warnings.length === 0,
+    isWithinPlanningRange: stressed.gds <= feLimit && stressed.tds <= beLimit && warnings.length === 0,
     warnings,
   }
 }

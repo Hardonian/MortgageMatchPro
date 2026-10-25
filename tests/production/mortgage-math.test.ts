@@ -95,4 +95,17 @@ describe('mortgage math', () => {
     expect(atMax.stressTestGdsRatio).toBeLessThanOrEqual(39.01)
     expect(atMax.stressTestGdsRatio).toBeGreaterThan(38.9)
   })
+
+  it('applies US conforming 28/36 DTI limits and monthly compounding', () => {
+    const usPlan = buildPlan({ ...base, country: 'US', downPayment: 300_000 })
+    expect(usPlan.frontEndLimit).toBe(28)
+    expect(usPlan.backEndLimit).toBe(36)
+    expect(usPlan.qualifyingRate).toBe(5) // No Canadian stress-test buffer
+    expect(usPlan.minimumDownPayment).toBeNull()
+
+    // High debt scenario where back-end 36% binds for US
+    const usHighDebt = buildPlan({ ...base, country: 'US', monthlyDebt: 1200 })
+    expect(usHighDebt.tdsRatio).toBeGreaterThan(36)
+    expect(usHighDebt.isWithinPlanningRange).toBe(false)
+  })
 })

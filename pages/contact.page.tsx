@@ -28,8 +28,7 @@ export default function Contact() {
         </section>
       </div>
       <p className={ui.notice}>
-        Please do not include SIN, bank account numbers, or other sensitive details in emails. We typically respond within two
-        business days.
+        Please do not include SIN, bank account numbers, passwords, or other sensitive details in emails.
       </p>
     </StaticPage>
   )

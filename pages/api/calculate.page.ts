@@ -56,6 +56,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     tdsRatio: round1(plan.tdsRatio),
     stressTestGdsRatio: round1(plan.stressTestGdsRatio),
     stressTestTdsRatio: round1(plan.stressTestTdsRatio),
+    frontEndLimit: plan.frontEndLimit,
+    backEndLimit: plan.backEndLimit,
     qualifyingRate: Number(plan.qualifyingRate.toFixed(2)),
     maxAffordable: Math.round(plan.maxAffordable),
     isWithinPlanningRange: plan.isWithinPlanningRange,
@@ -65,7 +67,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       amortizationYears: input.amortizationYears,
       annualPropertyTax: input.annualPropertyTax,
       monthlyHeating: input.monthlyHeating,
-      qualificationRule: input.country === 'CA' ? 'Stress-tested at the greater of contract + 2% or 5.25%' : 'Illustrative debt-to-income planning threshold',
+      qualificationRule: input.country === 'CA'
+        ? 'Stress-tested at the greater of contract + 2% or 5.25% (GDS ≤ 39%, TDS ≤ 44%)'
+        : 'Standard conforming debt-to-income planning thresholds (Front-end ≤ 28%, Back-end ≤ 36%)',
     },
     disclaimer: 'Illustrative planning estimate only. Rates, qualification rules, property taxes, fees, income treatment, and lender policies vary. Speak with a licensed mortgage professional before making decisions.',
   })

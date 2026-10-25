@@ -5,7 +5,7 @@ export default function Privacy() {
     <StaticPage
       hideCta      path="/privacy"
       title="Privacy Policy"
-      description="How MortgageMatch Pro collects, uses, and protects your information."
+      description="How MortgageMatch Pro handles information in the public mortgage-planning tool."
       overline="Legal"
       heading="Privacy Policy"
       lead="We keep data collection minimal and explain it plainly."
@@ -14,10 +14,9 @@ export default function Privacy() {
       <section className={ui.card}>
         <h2>Information we handle</h2>
         <ul>
-          <li><strong>Planner inputs</strong> such as income, debts, property price, and down payment, used to calculate your estimate.</li>
+          <li><strong>Planner inputs</strong> such as income, debts, property price, and down payment, sent to the calculator to produce your estimate. The public planner does not create an account or persist those inputs as a saved server record.</li>
           <li><strong>Saved plans</strong>, stored locally in your browser (local storage) on your device.</li>
-          <li><strong>Account details</strong> such as your email address, if you sign in.</li>
-          <li><strong>Technical data</strong> such as device, browser, and basic usage logs needed to operate and secure the service.</li>
+          <li><strong>Technical data</strong> that our hosting and security providers may process to deliver and protect the service, such as request, browser, and device information.</li>
         </ul>
       </section>
       <section className={ui.card}>
@@ -26,11 +25,11 @@ export default function Privacy() {
       </section>
       <section className={ui.card}>
         <h2>Sharing</h2>
-        <p>We share information only with service providers who help us run the service (such as hosting and authentication), when required by law, or with your consent.</p>
+        <p>We share information only with service providers that operate or secure the public planner, when required by law, or with your consent. Broker matching, account sync, payment, and bank-connection features are not available in the public planner.</p>
       </section>
       <section className={ui.card}>
         <h2>Retention & your choices</h2>
-        <p>You can clear saved plans at any time by clearing your browser data. You may request access, correction, or deletion of information we hold by contacting <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.</p>
+        <p>You can remove a saved plan at any time by clearing browser data for this site. You may request access, correction, or deletion of information we hold by contacting <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>. Do not include financial account numbers, SINs, or credentials in email.</p>
       </section>
       <section className={ui.card}>
         <h2>Changes</h2>
